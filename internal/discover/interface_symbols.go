@@ -7,15 +7,6 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
-// CustomPascalListener embeds BasepascalListener and overrides methods to print data to console
-type CustomPascalListener struct {
-	parser.BasepascalListener
-}
-
-func (l *CustomPascalListener) EnterProgram(ctx *parser.ProgramContext) {
-	fmt.Println("Entering Program:", ctx.GetText())
-}
-
 func HandleDidOpen(path string, content string) {
 	fmt.Println("File opened:", path)
 	// fmt.Println("File content:", content)
@@ -33,4 +24,12 @@ func HandleDidOpen(path string, content string) {
 
 	// Walk the AST with the custom listener
 	antlr.ParseTreeWalkerDefault.Walk(listener, p.Program())
+}
+
+type CustomPascalListener struct {
+	parser.BasepascalListener
+}
+
+func (l *CustomPascalListener) EnterProgram(ctx *parser.ProgramContext) {
+	fmt.Println("Entering Program:", ctx.GetText())
 }

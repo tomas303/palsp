@@ -3,6 +3,7 @@ package lsp
 import (
 	"encoding/json"
 	"fmt"
+	"palsp/internal/discover"
 )
 
 // Handle incoming JSON-RPC requests
@@ -58,5 +59,6 @@ func handleInitialize(id int) LSPResponse {
 // Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File opened:", params.TextDocument.URI)
+	discover.HandleDidOpen(params.TextDocument.URI, params.TextDocument.Text)
 	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
 }

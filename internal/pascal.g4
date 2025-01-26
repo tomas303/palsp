@@ -161,9 +161,9 @@ classDeclaration
     ;    
 
 classDeclarationRow
-    : identifierList COLON typeIdentifier
-    | functionDeclaration
-    | procedureDeclaration
+    : identifierList COLON typeIdentifier SEMI
+    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI
+    | PROCEDURE identifier (formalParameterList)? SEMI
     ;
 
 classPrivateDeclaration
@@ -329,6 +329,8 @@ formalParameterList
 formalParameterSection
     : parameterGroup
     | VAR parameterGroup
+    | CONST parameterGroup
+    | OUT parameterGroup
     | FUNCTION parameterGroup
     | PROCEDURE parameterGroup
     ;
@@ -875,6 +877,10 @@ STRICTPRIVATE
 
 STRICTPROTECTED
     : 'STRICT' WHITESPACE 'PROTECTED'
+    ;
+
+OUT
+    : 'OUT'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

@@ -165,12 +165,6 @@ func (s *BasepascalListener) EnterClassDeclaration(ctx *ClassDeclarationContext)
 // ExitClassDeclaration is called when production classDeclaration is exited.
 func (s *BasepascalListener) ExitClassDeclaration(ctx *ClassDeclarationContext) {}
 
-// EnterClassDeclarationRow is called when production classDeclarationRow is entered.
-func (s *BasepascalListener) EnterClassDeclarationRow(ctx *ClassDeclarationRowContext) {}
-
-// ExitClassDeclarationRow is called when production classDeclarationRow is exited.
-func (s *BasepascalListener) ExitClassDeclarationRow(ctx *ClassDeclarationRowContext) {}
-
 // EnterClassPrivateDeclaration is called when production classPrivateDeclaration is entered.
 func (s *BasepascalListener) EnterClassPrivateDeclaration(ctx *ClassPrivateDeclarationContext) {}
 
@@ -217,6 +211,50 @@ func (s *BasepascalListener) EnterClassImplicitPublishedDeclaration(ctx *ClassIm
 
 // ExitClassImplicitPublishedDeclaration is called when production classImplicitPublishedDeclaration is exited.
 func (s *BasepascalListener) ExitClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) {
+}
+
+// EnterClassDeclarationPart is called when production classDeclarationPart is entered.
+func (s *BasepascalListener) EnterClassDeclarationPart(ctx *ClassDeclarationPartContext) {}
+
+// ExitClassDeclarationPart is called when production classDeclarationPart is exited.
+func (s *BasepascalListener) ExitClassDeclarationPart(ctx *ClassDeclarationPartContext) {}
+
+// EnterPropertyDeclaration is called when production propertyDeclaration is entered.
+func (s *BasepascalListener) EnterPropertyDeclaration(ctx *PropertyDeclarationContext) {}
+
+// ExitPropertyDeclaration is called when production propertyDeclaration is exited.
+func (s *BasepascalListener) ExitPropertyDeclaration(ctx *PropertyDeclarationContext) {}
+
+// EnterPropertyReadDeclaration is called when production propertyReadDeclaration is entered.
+func (s *BasepascalListener) EnterPropertyReadDeclaration(ctx *PropertyReadDeclarationContext) {}
+
+// ExitPropertyReadDeclaration is called when production propertyReadDeclaration is exited.
+func (s *BasepascalListener) ExitPropertyReadDeclaration(ctx *PropertyReadDeclarationContext) {}
+
+// EnterPropertyWriteDeclaration is called when production propertyWriteDeclaration is entered.
+func (s *BasepascalListener) EnterPropertyWriteDeclaration(ctx *PropertyWriteDeclarationContext) {}
+
+// ExitPropertyWriteDeclaration is called when production propertyWriteDeclaration is exited.
+func (s *BasepascalListener) ExitPropertyWriteDeclaration(ctx *PropertyWriteDeclarationContext) {}
+
+// EnterPropertyIndexDeclaration is called when production propertyIndexDeclaration is entered.
+func (s *BasepascalListener) EnterPropertyIndexDeclaration(ctx *PropertyIndexDeclarationContext) {}
+
+// ExitPropertyIndexDeclaration is called when production propertyIndexDeclaration is exited.
+func (s *BasepascalListener) ExitPropertyIndexDeclaration(ctx *PropertyIndexDeclarationContext) {}
+
+// EnterPropertyIndexParameters is called when production propertyIndexParameters is entered.
+func (s *BasepascalListener) EnterPropertyIndexParameters(ctx *PropertyIndexParametersContext) {}
+
+// ExitPropertyIndexParameters is called when production propertyIndexParameters is exited.
+func (s *BasepascalListener) ExitPropertyIndexParameters(ctx *PropertyIndexParametersContext) {}
+
+// EnterPropertyIndexParametersList is called when production propertyIndexParametersList is entered.
+func (s *BasepascalListener) EnterPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) {
+}
+
+// ExitPropertyIndexParametersList is called when production propertyIndexParametersList is exited.
+func (s *BasepascalListener) ExitPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) {
 }
 
 // EnterType_ is called when production type_ is entered.

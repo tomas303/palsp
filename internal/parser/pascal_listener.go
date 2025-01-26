@@ -80,9 +80,6 @@ type pascalListener interface {
 	// EnterClassDeclaration is called when entering the classDeclaration production.
 	EnterClassDeclaration(c *ClassDeclarationContext)
 
-	// EnterClassDeclarationRow is called when entering the classDeclarationRow production.
-	EnterClassDeclarationRow(c *ClassDeclarationRowContext)
-
 	// EnterClassPrivateDeclaration is called when entering the classPrivateDeclaration production.
 	EnterClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
 
@@ -103,6 +100,27 @@ type pascalListener interface {
 
 	// EnterClassImplicitPublishedDeclaration is called when entering the classImplicitPublishedDeclaration production.
 	EnterClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
+
+	// EnterClassDeclarationPart is called when entering the classDeclarationPart production.
+	EnterClassDeclarationPart(c *ClassDeclarationPartContext)
+
+	// EnterPropertyDeclaration is called when entering the propertyDeclaration production.
+	EnterPropertyDeclaration(c *PropertyDeclarationContext)
+
+	// EnterPropertyReadDeclaration is called when entering the propertyReadDeclaration production.
+	EnterPropertyReadDeclaration(c *PropertyReadDeclarationContext)
+
+	// EnterPropertyWriteDeclaration is called when entering the propertyWriteDeclaration production.
+	EnterPropertyWriteDeclaration(c *PropertyWriteDeclarationContext)
+
+	// EnterPropertyIndexDeclaration is called when entering the propertyIndexDeclaration production.
+	EnterPropertyIndexDeclaration(c *PropertyIndexDeclarationContext)
+
+	// EnterPropertyIndexParameters is called when entering the propertyIndexParameters production.
+	EnterPropertyIndexParameters(c *PropertyIndexParametersContext)
+
+	// EnterPropertyIndexParametersList is called when entering the propertyIndexParametersList production.
+	EnterPropertyIndexParametersList(c *PropertyIndexParametersListContext)
 
 	// EnterType_ is called when entering the type_ production.
 	EnterType_(c *Type_Context)
@@ -404,9 +422,6 @@ type pascalListener interface {
 	// ExitClassDeclaration is called when exiting the classDeclaration production.
 	ExitClassDeclaration(c *ClassDeclarationContext)
 
-	// ExitClassDeclarationRow is called when exiting the classDeclarationRow production.
-	ExitClassDeclarationRow(c *ClassDeclarationRowContext)
-
 	// ExitClassPrivateDeclaration is called when exiting the classPrivateDeclaration production.
 	ExitClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
 
@@ -427,6 +442,27 @@ type pascalListener interface {
 
 	// ExitClassImplicitPublishedDeclaration is called when exiting the classImplicitPublishedDeclaration production.
 	ExitClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
+
+	// ExitClassDeclarationPart is called when exiting the classDeclarationPart production.
+	ExitClassDeclarationPart(c *ClassDeclarationPartContext)
+
+	// ExitPropertyDeclaration is called when exiting the propertyDeclaration production.
+	ExitPropertyDeclaration(c *PropertyDeclarationContext)
+
+	// ExitPropertyReadDeclaration is called when exiting the propertyReadDeclaration production.
+	ExitPropertyReadDeclaration(c *PropertyReadDeclarationContext)
+
+	// ExitPropertyWriteDeclaration is called when exiting the propertyWriteDeclaration production.
+	ExitPropertyWriteDeclaration(c *PropertyWriteDeclarationContext)
+
+	// ExitPropertyIndexDeclaration is called when exiting the propertyIndexDeclaration production.
+	ExitPropertyIndexDeclaration(c *PropertyIndexDeclarationContext)
+
+	// ExitPropertyIndexParameters is called when exiting the propertyIndexParameters production.
+	ExitPropertyIndexParameters(c *PropertyIndexParametersContext)
+
+	// ExitPropertyIndexParametersList is called when exiting the propertyIndexParametersList production.
+	ExitPropertyIndexParametersList(c *PropertyIndexParametersListContext)
 
 	// ExitType_ is called when exiting the type_ production.
 	ExitType_(c *Type_Context)

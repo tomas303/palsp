@@ -144,7 +144,7 @@ procedureType
     ;
 
 classType
-    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END SEMI
     ;
 
 classImplementsInterfaces
@@ -160,38 +160,63 @@ classDeclaration
     | classPublishedDeclaration
     ;    
 
-classDeclarationRow
-    : identifierList COLON typeIdentifier SEMI
-    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI
-    | PROCEDURE identifier (formalParameterList)? SEMI
-    ;
-
 classPrivateDeclaration
-    : PRIVATE classDeclarationRow*
+    : PRIVATE classDeclarationPart*
     ;
 
 classStrictPrivateDeclaration
-    : STRICTPRIVATE classDeclarationRow*
+    : STRICTPRIVATE classDeclarationPart*
     ;
 
 classProtectedDeclaration
-    : PROTECTED classDeclarationRow*
+    : PROTECTED classDeclarationPart*
     ;
 
 classStrictProtectedDeclaration
-    : STRICTPROTECTED classDeclarationRow*
+    : STRICTPROTECTED classDeclarationPart*
     ;
 
 classPublicDeclaration
-    : PUBLIC classDeclarationRow*
+    : PUBLIC classDeclarationPart*
     ;
 
 classPublishedDeclaration
-    : PUBLISHED classDeclarationRow*
+    : PUBLISHED classDeclarationPart*
     ;
 
 classImplicitPublishedDeclaration
-    : classDeclarationRow*
+    : classDeclarationPart*
+    ;
+
+classDeclarationPart
+    : identifierList COLON typeIdentifier SEMI
+    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI
+    | PROCEDURE identifier (formalParameterList)? SEMI
+    | propertyDeclaration SEMI (DEFAULT SEMI)?
+    ;
+
+propertyDeclaration
+    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyIndexDeclaration?
+    ;
+
+propertyReadDeclaration
+    : READ identifier
+    ;
+
+propertyWriteDeclaration
+    : WRITE identifier
+    ;
+
+propertyIndexDeclaration 
+    : INDEX unsignedNumber
+    ;
+
+propertyIndexParameters
+    : LBRACK propertyIndexParametersList RBRACK
+    ;
+
+propertyIndexParametersList
+    : identifierList COLON indexType (SEMI identifierList COLON indexType)*
     ;
 
 type_
@@ -881,6 +906,26 @@ STRICTPROTECTED
 
 OUT
     : 'OUT'
+    ;
+
+PROPERTY
+    : 'PROPERTY'
+    ;
+
+READ
+    : 'READ'
+    ;
+
+WRITE
+    : 'WRITE'
+    ;
+
+DEFAULT
+    : 'DEFAULT'
+    ;
+
+INDEX
+    : 'INDEX'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

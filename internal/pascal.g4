@@ -143,6 +143,57 @@ procedureType
     : PROCEDURE (formalParameterList)?
     ;
 
+classType
+    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END
+    ;
+
+classImplementsInterfaces
+    : (COMMA typeIdentifier)*
+    ;
+
+classDeclaration
+    : classPrivateDeclaration
+    | classStrictPrivateDeclaration
+    | classProtectedDeclaration
+    | classStrictProtectedDeclaration
+    | classPublicDeclaration
+    | classPublishedDeclaration
+    ;    
+
+classDeclarationRow
+    : identifierList COLON typeIdentifier
+    | functionDeclaration
+    | procedureDeclaration
+    ;
+
+classPrivateDeclaration
+    : PRIVATE classDeclarationRow*
+    ;
+
+classStrictPrivateDeclaration
+    : STRICTPRIVATE classDeclarationRow*
+    ;
+
+classProtectedDeclaration
+    : PROTECTED classDeclarationRow*
+    ;
+
+classStrictProtectedDeclaration
+    : STRICTPROTECTED classDeclarationRow*
+    ;
+
+classPublicDeclaration
+    : PUBLIC classDeclarationRow*
+    ;
+
+classPublishedDeclaration
+    : PUBLISHED classDeclarationRow*
+    ;
+
+classImplicitPublishedDeclaration
+    : classDeclarationRow*
+    ;
+
 type_
     : simpleType
     | structuredType
@@ -172,6 +223,7 @@ typeIdentifier
 structuredType
     : PACKED unpackedStructuredType
     | unpackedStructuredType
+    | classType
     ;
 
 unpackedStructuredType
@@ -796,6 +848,36 @@ TRUE
 FALSE
     : 'FALSE'
     ;
+
+CLASS
+    : 'CLASS'
+    ;
+
+PRIVATE
+    : 'PRIVATE'
+    ;
+
+PROTECTED
+    : 'PROTECTED'
+    ;
+
+PUBLIC
+    : 'PUBLIC'
+    ;
+
+PUBLISHED
+    : 'PUBLISHED'
+    ;
+
+STRICTPRIVATE
+    : 'STRICT' WHITESPACE 'PRIVATE'
+    ;
+
+STRICTPROTECTED
+    : 'STRICT' WHITESPACE 'PROTECTED'
+    ;
+
+fragment WHITESPACE : [ \t\r\n]+ ;
 
 WS
     : [ \t\r\n] -> skip

@@ -147,6 +147,78 @@ func (s *BasepascalListener) EnterProcedureType(ctx *ProcedureTypeContext) {}
 // ExitProcedureType is called when production procedureType is exited.
 func (s *BasepascalListener) ExitProcedureType(ctx *ProcedureTypeContext) {}
 
+// EnterClassType is called when production classType is entered.
+func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}
+
+// ExitClassType is called when production classType is exited.
+func (s *BasepascalListener) ExitClassType(ctx *ClassTypeContext) {}
+
+// EnterClassImplementsInterfaces is called when production classImplementsInterfaces is entered.
+func (s *BasepascalListener) EnterClassImplementsInterfaces(ctx *ClassImplementsInterfacesContext) {}
+
+// ExitClassImplementsInterfaces is called when production classImplementsInterfaces is exited.
+func (s *BasepascalListener) ExitClassImplementsInterfaces(ctx *ClassImplementsInterfacesContext) {}
+
+// EnterClassDeclaration is called when production classDeclaration is entered.
+func (s *BasepascalListener) EnterClassDeclaration(ctx *ClassDeclarationContext) {}
+
+// ExitClassDeclaration is called when production classDeclaration is exited.
+func (s *BasepascalListener) ExitClassDeclaration(ctx *ClassDeclarationContext) {}
+
+// EnterClassDeclarationRow is called when production classDeclarationRow is entered.
+func (s *BasepascalListener) EnterClassDeclarationRow(ctx *ClassDeclarationRowContext) {}
+
+// ExitClassDeclarationRow is called when production classDeclarationRow is exited.
+func (s *BasepascalListener) ExitClassDeclarationRow(ctx *ClassDeclarationRowContext) {}
+
+// EnterClassPrivateDeclaration is called when production classPrivateDeclaration is entered.
+func (s *BasepascalListener) EnterClassPrivateDeclaration(ctx *ClassPrivateDeclarationContext) {}
+
+// ExitClassPrivateDeclaration is called when production classPrivateDeclaration is exited.
+func (s *BasepascalListener) ExitClassPrivateDeclaration(ctx *ClassPrivateDeclarationContext) {}
+
+// EnterClassStrictPrivateDeclaration is called when production classStrictPrivateDeclaration is entered.
+func (s *BasepascalListener) EnterClassStrictPrivateDeclaration(ctx *ClassStrictPrivateDeclarationContext) {
+}
+
+// ExitClassStrictPrivateDeclaration is called when production classStrictPrivateDeclaration is exited.
+func (s *BasepascalListener) ExitClassStrictPrivateDeclaration(ctx *ClassStrictPrivateDeclarationContext) {
+}
+
+// EnterClassProtectedDeclaration is called when production classProtectedDeclaration is entered.
+func (s *BasepascalListener) EnterClassProtectedDeclaration(ctx *ClassProtectedDeclarationContext) {}
+
+// ExitClassProtectedDeclaration is called when production classProtectedDeclaration is exited.
+func (s *BasepascalListener) ExitClassProtectedDeclaration(ctx *ClassProtectedDeclarationContext) {}
+
+// EnterClassStrictProtectedDeclaration is called when production classStrictProtectedDeclaration is entered.
+func (s *BasepascalListener) EnterClassStrictProtectedDeclaration(ctx *ClassStrictProtectedDeclarationContext) {
+}
+
+// ExitClassStrictProtectedDeclaration is called when production classStrictProtectedDeclaration is exited.
+func (s *BasepascalListener) ExitClassStrictProtectedDeclaration(ctx *ClassStrictProtectedDeclarationContext) {
+}
+
+// EnterClassPublicDeclaration is called when production classPublicDeclaration is entered.
+func (s *BasepascalListener) EnterClassPublicDeclaration(ctx *ClassPublicDeclarationContext) {}
+
+// ExitClassPublicDeclaration is called when production classPublicDeclaration is exited.
+func (s *BasepascalListener) ExitClassPublicDeclaration(ctx *ClassPublicDeclarationContext) {}
+
+// EnterClassPublishedDeclaration is called when production classPublishedDeclaration is entered.
+func (s *BasepascalListener) EnterClassPublishedDeclaration(ctx *ClassPublishedDeclarationContext) {}
+
+// ExitClassPublishedDeclaration is called when production classPublishedDeclaration is exited.
+func (s *BasepascalListener) ExitClassPublishedDeclaration(ctx *ClassPublishedDeclarationContext) {}
+
+// EnterClassImplicitPublishedDeclaration is called when production classImplicitPublishedDeclaration is entered.
+func (s *BasepascalListener) EnterClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) {
+}
+
+// ExitClassImplicitPublishedDeclaration is called when production classImplicitPublishedDeclaration is exited.
+func (s *BasepascalListener) ExitClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) {
+}
+
 // EnterType_ is called when production type_ is entered.
 func (s *BasepascalListener) EnterType_(ctx *Type_Context) {}
 

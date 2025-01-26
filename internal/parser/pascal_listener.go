@@ -71,6 +71,39 @@ type pascalListener interface {
 	// EnterProcedureType is called when entering the procedureType production.
 	EnterProcedureType(c *ProcedureTypeContext)
 
+	// EnterClassType is called when entering the classType production.
+	EnterClassType(c *ClassTypeContext)
+
+	// EnterClassImplementsInterfaces is called when entering the classImplementsInterfaces production.
+	EnterClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
+
+	// EnterClassDeclaration is called when entering the classDeclaration production.
+	EnterClassDeclaration(c *ClassDeclarationContext)
+
+	// EnterClassDeclarationRow is called when entering the classDeclarationRow production.
+	EnterClassDeclarationRow(c *ClassDeclarationRowContext)
+
+	// EnterClassPrivateDeclaration is called when entering the classPrivateDeclaration production.
+	EnterClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
+
+	// EnterClassStrictPrivateDeclaration is called when entering the classStrictPrivateDeclaration production.
+	EnterClassStrictPrivateDeclaration(c *ClassStrictPrivateDeclarationContext)
+
+	// EnterClassProtectedDeclaration is called when entering the classProtectedDeclaration production.
+	EnterClassProtectedDeclaration(c *ClassProtectedDeclarationContext)
+
+	// EnterClassStrictProtectedDeclaration is called when entering the classStrictProtectedDeclaration production.
+	EnterClassStrictProtectedDeclaration(c *ClassStrictProtectedDeclarationContext)
+
+	// EnterClassPublicDeclaration is called when entering the classPublicDeclaration production.
+	EnterClassPublicDeclaration(c *ClassPublicDeclarationContext)
+
+	// EnterClassPublishedDeclaration is called when entering the classPublishedDeclaration production.
+	EnterClassPublishedDeclaration(c *ClassPublishedDeclarationContext)
+
+	// EnterClassImplicitPublishedDeclaration is called when entering the classImplicitPublishedDeclaration production.
+	EnterClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
+
 	// EnterType_ is called when entering the type_ production.
 	EnterType_(c *Type_Context)
 
@@ -361,6 +394,39 @@ type pascalListener interface {
 
 	// ExitProcedureType is called when exiting the procedureType production.
 	ExitProcedureType(c *ProcedureTypeContext)
+
+	// ExitClassType is called when exiting the classType production.
+	ExitClassType(c *ClassTypeContext)
+
+	// ExitClassImplementsInterfaces is called when exiting the classImplementsInterfaces production.
+	ExitClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
+
+	// ExitClassDeclaration is called when exiting the classDeclaration production.
+	ExitClassDeclaration(c *ClassDeclarationContext)
+
+	// ExitClassDeclarationRow is called when exiting the classDeclarationRow production.
+	ExitClassDeclarationRow(c *ClassDeclarationRowContext)
+
+	// ExitClassPrivateDeclaration is called when exiting the classPrivateDeclaration production.
+	ExitClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
+
+	// ExitClassStrictPrivateDeclaration is called when exiting the classStrictPrivateDeclaration production.
+	ExitClassStrictPrivateDeclaration(c *ClassStrictPrivateDeclarationContext)
+
+	// ExitClassProtectedDeclaration is called when exiting the classProtectedDeclaration production.
+	ExitClassProtectedDeclaration(c *ClassProtectedDeclarationContext)
+
+	// ExitClassStrictProtectedDeclaration is called when exiting the classStrictProtectedDeclaration production.
+	ExitClassStrictProtectedDeclaration(c *ClassStrictProtectedDeclarationContext)
+
+	// ExitClassPublicDeclaration is called when exiting the classPublicDeclaration production.
+	ExitClassPublicDeclaration(c *ClassPublicDeclarationContext)
+
+	// ExitClassPublishedDeclaration is called when exiting the classPublishedDeclaration production.
+	ExitClassPublishedDeclaration(c *ClassPublishedDeclarationContext)
+
+	// ExitClassImplicitPublishedDeclaration is called when exiting the classImplicitPublishedDeclaration production.
+	ExitClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
 
 	// ExitType_ is called when exiting the type_ production.
 	ExitType_(c *Type_Context)

@@ -8,8 +8,7 @@ func TestHandleDidOpen(t *testing.T) {
 	path := "test.pas"
 	// content := "program Test; begin writeln('Hello, world!'); end."
 
-	content := `
-	unit fGroup;
+	content := `unit fGroup;
 
 {$mode objfpc}{$H+}
 
@@ -46,7 +45,7 @@ type
     property Log: ILog read fLog write fLog;
   end;
 
-implementation
+
 
 {$R *.lfm}
 

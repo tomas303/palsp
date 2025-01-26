@@ -91,12 +91,12 @@ func (l *CustomPascalListener) ExitClassDeclaration(ctx *parser.ClassDeclaration
 	fmt.Println("Exiting ClassDeclaration:", ctx.GetText())
 }
 
-func (l *CustomPascalListener) EnterClassDeclarationRow(ctx *parser.ClassDeclarationRowContext) {
-	fmt.Println("Entering ClassDeclarationRow:", ctx.GetText())
+func (l *CustomPascalListener) EnterClassDeclarationPart(ctx *parser.ClassDeclarationPartContext) {
+	fmt.Println("Entering ClassDeclarationPart:", ctx.GetText())
 }
 
-func (l *CustomPascalListener) ExitClassDeclarationRow(ctx *parser.ClassDeclarationRowContext) {
-	fmt.Println("Exiting ClassDeclarationRow:", ctx.GetText())
+func (l *CustomPascalListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPartContext) {
+	fmt.Println("Exiting ClassDeclarationPart:", ctx.GetText())
 }
 
 func (l *CustomPascalListener) EnterClassPrivateDeclaration(ctx *parser.ClassPrivateDeclarationContext) {

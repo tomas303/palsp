@@ -45,7 +45,7 @@ type
     property Log: ILog read fLog write fLog;
   end;
 
-
+implementation
 
 {$R *.lfm}
 

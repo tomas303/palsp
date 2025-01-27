@@ -144,7 +144,7 @@ procedureType
     ;
 
 classType
-    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END SEMI
+    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END
     ;
 
 classImplementsInterfaces
@@ -217,6 +217,10 @@ propertyIndexParameters
 
 propertyIndexParametersList
     : identifierList COLON indexType (SEMI identifierList COLON indexType)*
+    ;
+
+methodIdentifier
+    : (typeIdentifier DOT)+ identifier
     ;
 
 type_
@@ -341,10 +345,16 @@ procedureAndFunctionDeclarationPart
 procedureOrFunctionDeclaration
     : procedureDeclaration
     | functionDeclaration
+    | procedureMethodDeclaration
+    | functionMethodDeclaration
     ;
 
 procedureDeclaration
     : PROCEDURE identifier (formalParameterList)? SEMI block
+    ;
+
+procedureMethodDeclaration
+    : PROCEDURE methodIdentifier (formalParameterList)? SEMI block
     ;
 
 formalParameterList
@@ -380,6 +390,10 @@ resultType
     : typeIdentifier
     ;
 
+functionMethodDeclaration
+    : FUNCTION methodIdentifier (formalParameterList)? COLON resultType SEMI block
+    ;
+
 statement
     : label COLON unlabelledStatement
     | unlabelledStatement
@@ -412,6 +426,7 @@ variable
 
 expression
     : simpleExpression (relationaloperator expression)?
+    | expression AS typeIdentifier
     ;
 
 relationaloperator
@@ -926,6 +941,10 @@ DEFAULT
 
 INDEX
     : 'INDEX'
+    ;
+
+AS
+    : 'AS'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

@@ -257,6 +257,12 @@ func (s *BasepascalListener) EnterPropertyIndexParametersList(ctx *PropertyIndex
 func (s *BasepascalListener) ExitPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) {
 }
 
+// EnterMethodIdentifier is called when production methodIdentifier is entered.
+func (s *BasepascalListener) EnterMethodIdentifier(ctx *MethodIdentifierContext) {}
+
+// ExitMethodIdentifier is called when production methodIdentifier is exited.
+func (s *BasepascalListener) ExitMethodIdentifier(ctx *MethodIdentifierContext) {}
+
 // EnterType_ is called when production type_ is entered.
 func (s *BasepascalListener) EnterType_(ctx *Type_Context) {}
 
@@ -429,6 +435,13 @@ func (s *BasepascalListener) EnterProcedureDeclaration(ctx *ProcedureDeclaration
 // ExitProcedureDeclaration is called when production procedureDeclaration is exited.
 func (s *BasepascalListener) ExitProcedureDeclaration(ctx *ProcedureDeclarationContext) {}
 
+// EnterProcedureMethodDeclaration is called when production procedureMethodDeclaration is entered.
+func (s *BasepascalListener) EnterProcedureMethodDeclaration(ctx *ProcedureMethodDeclarationContext) {
+}
+
+// ExitProcedureMethodDeclaration is called when production procedureMethodDeclaration is exited.
+func (s *BasepascalListener) ExitProcedureMethodDeclaration(ctx *ProcedureMethodDeclarationContext) {}
+
 // EnterFormalParameterList is called when production formalParameterList is entered.
 func (s *BasepascalListener) EnterFormalParameterList(ctx *FormalParameterListContext) {}
 
@@ -470,6 +483,12 @@ func (s *BasepascalListener) EnterResultType(ctx *ResultTypeContext) {}
 
 // ExitResultType is called when production resultType is exited.
 func (s *BasepascalListener) ExitResultType(ctx *ResultTypeContext) {}
+
+// EnterFunctionMethodDeclaration is called when production functionMethodDeclaration is entered.
+func (s *BasepascalListener) EnterFunctionMethodDeclaration(ctx *FunctionMethodDeclarationContext) {}
+
+// ExitFunctionMethodDeclaration is called when production functionMethodDeclaration is exited.
+func (s *BasepascalListener) ExitFunctionMethodDeclaration(ctx *FunctionMethodDeclarationContext) {}
 
 // EnterStatement is called when production statement is entered.
 func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}

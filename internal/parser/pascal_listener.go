@@ -122,6 +122,9 @@ type pascalListener interface {
 	// EnterPropertyIndexParametersList is called when entering the propertyIndexParametersList production.
 	EnterPropertyIndexParametersList(c *PropertyIndexParametersListContext)
 
+	// EnterMethodIdentifier is called when entering the methodIdentifier production.
+	EnterMethodIdentifier(c *MethodIdentifierContext)
+
 	// EnterType_ is called when entering the type_ production.
 	EnterType_(c *Type_Context)
 
@@ -206,6 +209,9 @@ type pascalListener interface {
 	// EnterProcedureDeclaration is called when entering the procedureDeclaration production.
 	EnterProcedureDeclaration(c *ProcedureDeclarationContext)
 
+	// EnterProcedureMethodDeclaration is called when entering the procedureMethodDeclaration production.
+	EnterProcedureMethodDeclaration(c *ProcedureMethodDeclarationContext)
+
 	// EnterFormalParameterList is called when entering the formalParameterList production.
 	EnterFormalParameterList(c *FormalParameterListContext)
 
@@ -226,6 +232,9 @@ type pascalListener interface {
 
 	// EnterResultType is called when entering the resultType production.
 	EnterResultType(c *ResultTypeContext)
+
+	// EnterFunctionMethodDeclaration is called when entering the functionMethodDeclaration production.
+	EnterFunctionMethodDeclaration(c *FunctionMethodDeclarationContext)
 
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
@@ -464,6 +473,9 @@ type pascalListener interface {
 	// ExitPropertyIndexParametersList is called when exiting the propertyIndexParametersList production.
 	ExitPropertyIndexParametersList(c *PropertyIndexParametersListContext)
 
+	// ExitMethodIdentifier is called when exiting the methodIdentifier production.
+	ExitMethodIdentifier(c *MethodIdentifierContext)
+
 	// ExitType_ is called when exiting the type_ production.
 	ExitType_(c *Type_Context)
 
@@ -548,6 +560,9 @@ type pascalListener interface {
 	// ExitProcedureDeclaration is called when exiting the procedureDeclaration production.
 	ExitProcedureDeclaration(c *ProcedureDeclarationContext)
 
+	// ExitProcedureMethodDeclaration is called when exiting the procedureMethodDeclaration production.
+	ExitProcedureMethodDeclaration(c *ProcedureMethodDeclarationContext)
+
 	// ExitFormalParameterList is called when exiting the formalParameterList production.
 	ExitFormalParameterList(c *FormalParameterListContext)
 
@@ -568,6 +583,9 @@ type pascalListener interface {
 
 	// ExitResultType is called when exiting the resultType production.
 	ExitResultType(c *ResultTypeContext)
+
+	// ExitFunctionMethodDeclaration is called when exiting the functionMethodDeclaration production.
+	ExitFunctionMethodDeclaration(c *FunctionMethodDeclarationContext)
 
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)

@@ -506,6 +506,7 @@ element
 
 procedureStatement
     : identifier (LPAREN parameterList RPAREN)?
+    | methodIdentifier (LPAREN parameterList RPAREN)?
     ;
 
 actualParameter
@@ -534,6 +535,8 @@ structuredStatement
     | conditionalStatement
     | repetetiveStatement
     | withStatement
+    | tryExceptStatement
+    | tryFinallyStatement
     ;
 
 compoundStatement
@@ -593,6 +596,14 @@ finalValue
 
 withStatement
     : WITH recordVariableList DO statement
+    ;
+
+tryExceptStatement
+    : TRY statements EXCEPT statements END
+    ;
+
+tryFinallyStatement
+    : TRY statements FINALLY statements END
     ;
 
 recordVariableList
@@ -945,6 +956,18 @@ INDEX
 
 AS
     : 'AS'
+    ;
+
+TRY
+    : 'TRY'
+    ;
+
+FINALLY
+    : 'FINALLY'
+    ;
+
+EXCEPT
+    : 'EXCEPT'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

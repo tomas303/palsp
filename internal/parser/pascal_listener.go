@@ -356,6 +356,12 @@ type pascalListener interface {
 	// EnterWithStatement is called when entering the withStatement production.
 	EnterWithStatement(c *WithStatementContext)
 
+	// EnterTryExceptStatement is called when entering the tryExceptStatement production.
+	EnterTryExceptStatement(c *TryExceptStatementContext)
+
+	// EnterTryFinallyStatement is called when entering the tryFinallyStatement production.
+	EnterTryFinallyStatement(c *TryFinallyStatementContext)
+
 	// EnterRecordVariableList is called when entering the recordVariableList production.
 	EnterRecordVariableList(c *RecordVariableListContext)
 
@@ -706,6 +712,12 @@ type pascalListener interface {
 
 	// ExitWithStatement is called when exiting the withStatement production.
 	ExitWithStatement(c *WithStatementContext)
+
+	// ExitTryExceptStatement is called when exiting the tryExceptStatement production.
+	ExitTryExceptStatement(c *TryExceptStatementContext)
+
+	// ExitTryFinallyStatement is called when exiting the tryFinallyStatement production.
+	ExitTryFinallyStatement(c *TryFinallyStatementContext)
 
 	// ExitRecordVariableList is called when exiting the recordVariableList production.
 	ExitRecordVariableList(c *RecordVariableListContext)

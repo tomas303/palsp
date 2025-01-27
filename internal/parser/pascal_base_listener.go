@@ -730,6 +730,18 @@ func (s *BasepascalListener) EnterWithStatement(ctx *WithStatementContext) {}
 // ExitWithStatement is called when production withStatement is exited.
 func (s *BasepascalListener) ExitWithStatement(ctx *WithStatementContext) {}
 
+// EnterTryExceptStatement is called when production tryExceptStatement is entered.
+func (s *BasepascalListener) EnterTryExceptStatement(ctx *TryExceptStatementContext) {}
+
+// ExitTryExceptStatement is called when production tryExceptStatement is exited.
+func (s *BasepascalListener) ExitTryExceptStatement(ctx *TryExceptStatementContext) {}
+
+// EnterTryFinallyStatement is called when production tryFinallyStatement is entered.
+func (s *BasepascalListener) EnterTryFinallyStatement(ctx *TryFinallyStatementContext) {}
+
+// ExitTryFinallyStatement is called when production tryFinallyStatement is exited.
+func (s *BasepascalListener) ExitTryFinallyStatement(ctx *TryFinallyStatementContext) {}
+
 // EnterRecordVariableList is called when production recordVariableList is entered.
 func (s *BasepascalListener) EnterRecordVariableList(ctx *RecordVariableListContext) {}
 

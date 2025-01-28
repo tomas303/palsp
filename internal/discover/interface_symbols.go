@@ -27,7 +27,7 @@ func HandleDidOpen(path string, content string) {
 	p.AddParseListener(listener)
 
 	// Walk the AST with the custom listener
-	antlr.ParseTreeWalkerDefault.Walk(listener, p.Program())
+	antlr.ParseTreeWalkerDefault.Walk(listener, p.Source())
 }
 
 type CustomPascalListener struct {

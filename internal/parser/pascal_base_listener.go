@@ -21,23 +21,41 @@ func (s *BasepascalListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BasepascalListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
+// EnterSource is called when production source is entered.
+func (s *BasepascalListener) EnterSource(ctx *SourceContext) {}
+
+// ExitSource is called when production source is exited.
+func (s *BasepascalListener) ExitSource(ctx *SourceContext) {}
+
 // EnterProgram is called when production program is entered.
 func (s *BasepascalListener) EnterProgram(ctx *ProgramContext) {}
 
 // ExitProgram is called when production program is exited.
 func (s *BasepascalListener) ExitProgram(ctx *ProgramContext) {}
 
-// EnterProgramHeading is called when production programHeading is entered.
-func (s *BasepascalListener) EnterProgramHeading(ctx *ProgramHeadingContext) {}
+// EnterUnit is called when production unit is entered.
+func (s *BasepascalListener) EnterUnit(ctx *UnitContext) {}
 
-// ExitProgramHeading is called when production programHeading is exited.
-func (s *BasepascalListener) ExitProgramHeading(ctx *ProgramHeadingContext) {}
+// ExitUnit is called when production unit is exited.
+func (s *BasepascalListener) ExitUnit(ctx *UnitContext) {}
+
+// EnterFooter is called when production footer is entered.
+func (s *BasepascalListener) EnterFooter(ctx *FooterContext) {}
+
+// ExitFooter is called when production footer is exited.
+func (s *BasepascalListener) ExitFooter(ctx *FooterContext) {}
 
 // EnterIdentifier is called when production identifier is entered.
 func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}
 
 // ExitIdentifier is called when production identifier is exited.
 func (s *BasepascalListener) ExitIdentifier(ctx *IdentifierContext) {}
+
+// EnterTopLevelDeclarations is called when production topLevelDeclarations is entered.
+func (s *BasepascalListener) EnterTopLevelDeclarations(ctx *TopLevelDeclarationsContext) {}
+
+// ExitTopLevelDeclarations is called when production topLevelDeclarations is exited.
+func (s *BasepascalListener) ExitTopLevelDeclarations(ctx *TopLevelDeclarationsContext) {}
 
 // EnterBlock is called when production block is entered.
 func (s *BasepascalListener) EnterBlock(ctx *BlockContext) {}

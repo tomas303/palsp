@@ -8,14 +8,23 @@ import "github.com/antlr4-go/antlr/v4"
 type pascalListener interface {
 	antlr.ParseTreeListener
 
+	// EnterSource is called when entering the source production.
+	EnterSource(c *SourceContext)
+
 	// EnterProgram is called when entering the program production.
 	EnterProgram(c *ProgramContext)
 
-	// EnterProgramHeading is called when entering the programHeading production.
-	EnterProgramHeading(c *ProgramHeadingContext)
+	// EnterUnit is called when entering the unit production.
+	EnterUnit(c *UnitContext)
+
+	// EnterFooter is called when entering the footer production.
+	EnterFooter(c *FooterContext)
 
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
+
+	// EnterTopLevelDeclarations is called when entering the topLevelDeclarations production.
+	EnterTopLevelDeclarations(c *TopLevelDeclarationsContext)
 
 	// EnterBlock is called when entering the block production.
 	EnterBlock(c *BlockContext)
@@ -365,14 +374,23 @@ type pascalListener interface {
 	// EnterRecordVariableList is called when entering the recordVariableList production.
 	EnterRecordVariableList(c *RecordVariableListContext)
 
+	// ExitSource is called when exiting the source production.
+	ExitSource(c *SourceContext)
+
 	// ExitProgram is called when exiting the program production.
 	ExitProgram(c *ProgramContext)
 
-	// ExitProgramHeading is called when exiting the programHeading production.
-	ExitProgramHeading(c *ProgramHeadingContext)
+	// ExitUnit is called when exiting the unit production.
+	ExitUnit(c *UnitContext)
+
+	// ExitFooter is called when exiting the footer production.
+	ExitFooter(c *FooterContext)
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)
+
+	// ExitTopLevelDeclarations is called when exiting the topLevelDeclarations production.
+	ExitTopLevelDeclarations(c *TopLevelDeclarationsContext)
 
 	// ExitBlock is called when exiting the block production.
 	ExitBlock(c *BlockContext)

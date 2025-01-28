@@ -42,17 +42,36 @@ options {
     caseInsensitive = true;
 }
 
-program
-    : programHeading (INTERFACE)? block DOT EOF
+source
+    : program
+    | unit
     ;
 
-programHeading
-    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI
-    | UNIT identifier SEMI
+program
+    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI topLevelDeclarations footer EOF
+    ;
+
+unit
+    : UNIT identifier SEMI INTERFACE topLevelDeclarations (IMPLEMENTATION topLevelDeclarations)? footer EOF
+    ;
+
+footer
+    : (BEGIN statements)? END DOT
     ;
 
 identifier
     : IDENT
+    ;
+
+topLevelDeclarations
+    : (
+        labelDeclarationPart
+        | constantDefinitionPart
+        | typeDefinitionPart
+        | variableDeclarationPart
+        | procedureAndFunctionDeclarationPart
+        | usesUnitsPart
+    )*
     ;
 
 block
@@ -63,7 +82,6 @@ block
         | variableDeclarationPart
         | procedureAndFunctionDeclarationPart
         | usesUnitsPart
-        | IMPLEMENTATION
     )* compoundStatement
     ;
 

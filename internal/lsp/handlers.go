@@ -12,7 +12,7 @@ func handleRequest(request LSPRequest) LSPResponse {
 
 	switch request.Method {
 	case "initialize":
-		var params map[string]interface{}
+		var params InitializeParams
 		if err := json.Unmarshal(request.Params, &params); err != nil {
 			return LSPResponse{
 				JsonRPC: "2.0",
@@ -20,7 +20,7 @@ func handleRequest(request LSPRequest) LSPResponse {
 				Error:   &LSPError{Code: -32602, Message: "Invalid params"},
 			}
 		}
-		return handleInitialize(request.ID)
+		return handleInitialize(request.ID, params)
 
 	case "textDocument/didOpen":
 		var params DidOpenTextDocumentParams
@@ -87,7 +87,7 @@ func handleRequest(request LSPRequest) LSPResponse {
 }
 
 // Handle initialize request
-func handleInitialize(id int) LSPResponse {
+func handleInitialize(id int, params InitializeParams) LSPResponse {
 	fmt.Println("Initialize request received")
 	return LSPResponse{
 		JsonRPC: "2.0",

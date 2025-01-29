@@ -29,6 +29,30 @@ type InitializeResult struct {
 	Capabilities map[string]interface{} `json:"capabilities"`
 }
 
+// InitializeParams structure
+type InitializeParams struct {
+	ProcessID             int                    `json:"processId"`
+	RootURI               string                 `json:"rootUri"`
+	Capabilities          ClientCapabilities     `json:"capabilities"`
+	InitializationOptions map[string]interface{} `json:"initializationOptions,omitempty"`
+	Trace                 string                 `json:"trace,omitempty"`
+}
+
+// ClientCapabilities structure
+type ClientCapabilities struct {
+	TextDocument TextDocumentClientCapabilities `json:"textDocument"`
+}
+
+// TextDocumentClientCapabilities structure
+type TextDocumentClientCapabilities struct {
+	Synchronization TextDocumentSyncClientCapabilities `json:"synchronization"`
+}
+
+// TextDocumentSyncClientCapabilities structure
+type TextDocumentSyncClientCapabilities struct {
+	DidSave bool `json:"didSave"`
+}
+
 // DidOpenTextDocumentParams structure
 type DidOpenTextDocumentParams struct {
 	TextDocument TextDocumentItem `json:"textDocument"`

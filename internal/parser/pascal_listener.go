@@ -17,8 +17,14 @@ type pascalListener interface {
 	// EnterUnit is called when entering the unit production.
 	EnterUnit(c *UnitContext)
 
-	// EnterFooter is called when entering the footer production.
-	EnterFooter(c *FooterContext)
+	// EnterImplementationSection is called when entering the implementationSection production.
+	EnterImplementationSection(c *ImplementationSectionContext)
+
+	// EnterInitializationSection is called when entering the initializationSection production.
+	EnterInitializationSection(c *InitializationSectionContext)
+
+	// EnterFinalizationSection is called when entering the finalizationSection production.
+	EnterFinalizationSection(c *FinalizationSectionContext)
 
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
@@ -383,8 +389,14 @@ type pascalListener interface {
 	// ExitUnit is called when exiting the unit production.
 	ExitUnit(c *UnitContext)
 
-	// ExitFooter is called when exiting the footer production.
-	ExitFooter(c *FooterContext)
+	// ExitImplementationSection is called when exiting the implementationSection production.
+	ExitImplementationSection(c *ImplementationSectionContext)
+
+	// ExitInitializationSection is called when exiting the initializationSection production.
+	ExitInitializationSection(c *InitializationSectionContext)
+
+	// ExitFinalizationSection is called when exiting the finalizationSection production.
+	ExitFinalizationSection(c *FinalizationSectionContext)
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)

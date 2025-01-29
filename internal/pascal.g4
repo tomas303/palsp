@@ -48,15 +48,27 @@ source
     ;
 
 program
-    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI topLevelDeclarations footer EOF
+    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI topLevelDeclarations BEGIN statements END DOT EOF
     ;
 
 unit
-    : UNIT identifier SEMI INTERFACE topLevelDeclarations (IMPLEMENTATION topLevelDeclarations)? footer EOF
+    : UNIT identifier SEMI INTERFACE topLevelDeclarations 
+      implementationSection?
+      initializationSection?
+      finalizationSection?
+      END DOT EOF
     ;
 
-footer
-    : (BEGIN statements)? END DOT
+implementationSection
+    : IMPLEMENTATION topLevelDeclarations
+    ;
+
+initializationSection
+    : INITIALIZATION statements
+    ;
+
+finalizationSection
+    : FINALIZATION statements
     ;
 
 identifier
@@ -986,6 +998,14 @@ FINALLY
 
 EXCEPT
     : 'EXCEPT'
+    ;
+
+INITIALIZATION
+    : 'INITIALIZATION'
+    ;
+
+FINALIZATION
+    : 'FINALIZATION'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

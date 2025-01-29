@@ -39,11 +39,23 @@ func (s *BasepascalListener) EnterUnit(ctx *UnitContext) {}
 // ExitUnit is called when production unit is exited.
 func (s *BasepascalListener) ExitUnit(ctx *UnitContext) {}
 
-// EnterFooter is called when production footer is entered.
-func (s *BasepascalListener) EnterFooter(ctx *FooterContext) {}
+// EnterImplementationSection is called when production implementationSection is entered.
+func (s *BasepascalListener) EnterImplementationSection(ctx *ImplementationSectionContext) {}
 
-// ExitFooter is called when production footer is exited.
-func (s *BasepascalListener) ExitFooter(ctx *FooterContext) {}
+// ExitImplementationSection is called when production implementationSection is exited.
+func (s *BasepascalListener) ExitImplementationSection(ctx *ImplementationSectionContext) {}
+
+// EnterInitializationSection is called when production initializationSection is entered.
+func (s *BasepascalListener) EnterInitializationSection(ctx *InitializationSectionContext) {}
+
+// ExitInitializationSection is called when production initializationSection is exited.
+func (s *BasepascalListener) ExitInitializationSection(ctx *InitializationSectionContext) {}
+
+// EnterFinalizationSection is called when production finalizationSection is entered.
+func (s *BasepascalListener) EnterFinalizationSection(ctx *FinalizationSectionContext) {}
+
+// ExitFinalizationSection is called when production finalizationSection is exited.
+func (s *BasepascalListener) ExitFinalizationSection(ctx *FinalizationSectionContext) {}
 
 // EnterIdentifier is called when production identifier is entered.
 func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}

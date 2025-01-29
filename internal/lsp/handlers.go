@@ -33,6 +33,50 @@ func handleRequest(request LSPRequest) LSPResponse {
 		}
 		return handleDidOpen(params, request.ID)
 
+	case "textDocument/didChange":
+		var params DidChangeTextDocumentParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return LSPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Error:   &LSPError{Code: -32602, Message: "Invalid params"},
+			}
+		}
+		return handleDidChange(params, request.ID)
+
+	case "textDocument/didClose":
+		var params DidCloseTextDocumentParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return LSPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Error:   &LSPError{Code: -32602, Message: "Invalid params"},
+			}
+		}
+		return handleDidClose(params, request.ID)
+
+	case "textDocument/completion":
+		var params CompletionParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return LSPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Error:   &LSPError{Code: -32602, Message: "Invalid params"},
+			}
+		}
+		return handleCompletion(params, request.ID)
+
+	case "textDocument/hover":
+		var params HoverParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return LSPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Error:   &LSPError{Code: -32602, Message: "Invalid params"},
+			}
+		}
+		return handleHover(params, request.ID)
+
 	default:
 		return LSPResponse{
 			JsonRPC: "2.0",
@@ -61,4 +105,32 @@ func handleDidOpen(params DidOpenTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File opened:", params.TextDocument.URI)
 	discover.HandleDidOpen(params.TextDocument.URI, params.TextDocument.Text)
 	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+}
+
+// Handle textDocument/didChange request
+func handleDidChange(params DidChangeTextDocumentParams, id int) LSPResponse {
+	fmt.Println("File changed:", params.TextDocument.URI)
+	// Dummy implementation
+	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+}
+
+// Handle textDocument/didClose request
+func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
+	fmt.Println("File closed:", params.TextDocument.URI)
+	// Dummy implementation
+	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+}
+
+// Handle textDocument/completion request
+func handleCompletion(params CompletionParams, id int) LSPResponse {
+	fmt.Println("Completion requested for:", params.TextDocument.URI)
+	// Dummy implementation
+	return LSPResponse{JsonRPC: "2.0", ID: id, Result: []CompletionItem{}}
+}
+
+// Handle textDocument/hover request
+func handleHover(params HoverParams, id int) LSPResponse {
+	fmt.Println("Hover requested for:", params.TextDocument.URI)
+	// Dummy implementation
+	return LSPResponse{JsonRPC: "2.0", ID: id, Result: Hover{}}
 }

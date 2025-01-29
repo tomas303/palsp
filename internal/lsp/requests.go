@@ -41,3 +41,54 @@ type TextDocumentItem struct {
 	Version    int    `json:"version"`
 	Text       string `json:"text"`
 }
+
+// DidChangeTextDocumentParams structure
+type DidChangeTextDocumentParams struct {
+	TextDocument   TextDocumentItem                 `json:"textDocument"`
+	ContentChanges []TextDocumentContentChangeEvent `json:"contentChanges"`
+}
+
+// TextDocumentContentChangeEvent structure
+type TextDocumentContentChangeEvent struct {
+	Text string `json:"text"`
+}
+
+// DidCloseTextDocumentParams structure
+type DidCloseTextDocumentParams struct {
+	TextDocument TextDocumentItem `json:"textDocument"`
+}
+
+// CompletionParams structure
+type CompletionParams struct {
+	TextDocument TextDocumentItem `json:"textDocument"`
+	Position     Position         `json:"position"`
+}
+
+// Position structure
+type Position struct {
+	Line      int `json:"line"`
+	Character int `json:"character"`
+}
+
+// CompletionItem structure
+type CompletionItem struct {
+	Label string `json:"label"`
+	Kind  int    `json:"kind"`
+}
+
+// HoverParams structure
+type HoverParams struct {
+	TextDocument TextDocumentItem `json:"textDocument"`
+	Position     Position         `json:"position"`
+}
+
+// Hover structure
+type Hover struct {
+	Contents []MarkedString `json:"contents"`
+}
+
+// MarkedString structure
+type MarkedString struct {
+	Language string `json:"language"`
+	Value    string `json:"value"`
+}

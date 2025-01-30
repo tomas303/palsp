@@ -17,6 +17,9 @@ type pascalListener interface {
 	// EnterUnit is called when entering the unit production.
 	EnterUnit(c *UnitContext)
 
+	// EnterInterfaceSection is called when entering the interfaceSection production.
+	EnterInterfaceSection(c *InterfaceSectionContext)
+
 	// EnterImplementationSection is called when entering the implementationSection production.
 	EnterImplementationSection(c *ImplementationSectionContext)
 
@@ -35,8 +38,8 @@ type pascalListener interface {
 	// EnterBlock is called when entering the block production.
 	EnterBlock(c *BlockContext)
 
-	// EnterUsesUnitsPart is called when entering the usesUnitsPart production.
-	EnterUsesUnitsPart(c *UsesUnitsPartContext)
+	// EnterUsesUnits is called when entering the usesUnits production.
+	EnterUsesUnits(c *UsesUnitsContext)
 
 	// EnterLabelDeclarationPart is called when entering the labelDeclarationPart production.
 	EnterLabelDeclarationPart(c *LabelDeclarationPartContext)
@@ -389,6 +392,9 @@ type pascalListener interface {
 	// ExitUnit is called when exiting the unit production.
 	ExitUnit(c *UnitContext)
 
+	// ExitInterfaceSection is called when exiting the interfaceSection production.
+	ExitInterfaceSection(c *InterfaceSectionContext)
+
 	// ExitImplementationSection is called when exiting the implementationSection production.
 	ExitImplementationSection(c *ImplementationSectionContext)
 
@@ -407,8 +413,8 @@ type pascalListener interface {
 	// ExitBlock is called when exiting the block production.
 	ExitBlock(c *BlockContext)
 
-	// ExitUsesUnitsPart is called when exiting the usesUnitsPart production.
-	ExitUsesUnitsPart(c *UsesUnitsPartContext)
+	// ExitUsesUnits is called when exiting the usesUnits production.
+	ExitUsesUnits(c *UsesUnitsContext)
 
 	// ExitLabelDeclarationPart is called when exiting the labelDeclarationPart production.
 	ExitLabelDeclarationPart(c *LabelDeclarationPartContext)

@@ -39,6 +39,12 @@ func (s *BasepascalListener) EnterUnit(ctx *UnitContext) {}
 // ExitUnit is called when production unit is exited.
 func (s *BasepascalListener) ExitUnit(ctx *UnitContext) {}
 
+// EnterInterfaceSection is called when production interfaceSection is entered.
+func (s *BasepascalListener) EnterInterfaceSection(ctx *InterfaceSectionContext) {}
+
+// ExitInterfaceSection is called when production interfaceSection is exited.
+func (s *BasepascalListener) ExitInterfaceSection(ctx *InterfaceSectionContext) {}
+
 // EnterImplementationSection is called when production implementationSection is entered.
 func (s *BasepascalListener) EnterImplementationSection(ctx *ImplementationSectionContext) {}
 
@@ -75,11 +81,11 @@ func (s *BasepascalListener) EnterBlock(ctx *BlockContext) {}
 // ExitBlock is called when production block is exited.
 func (s *BasepascalListener) ExitBlock(ctx *BlockContext) {}
 
-// EnterUsesUnitsPart is called when production usesUnitsPart is entered.
-func (s *BasepascalListener) EnterUsesUnitsPart(ctx *UsesUnitsPartContext) {}
+// EnterUsesUnits is called when production usesUnits is entered.
+func (s *BasepascalListener) EnterUsesUnits(ctx *UsesUnitsContext) {}
 
-// ExitUsesUnitsPart is called when production usesUnitsPart is exited.
-func (s *BasepascalListener) ExitUsesUnitsPart(ctx *UsesUnitsPartContext) {}
+// ExitUsesUnits is called when production usesUnits is exited.
+func (s *BasepascalListener) ExitUsesUnits(ctx *UsesUnitsContext) {}
 
 // EnterLabelDeclarationPart is called when production labelDeclarationPart is entered.
 func (s *BasepascalListener) EnterLabelDeclarationPart(ctx *LabelDeclarationPartContext) {}

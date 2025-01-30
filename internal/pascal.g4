@@ -48,19 +48,24 @@ source
     ;
 
 program
-    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI topLevelDeclarations BEGIN statements END DOT EOF
+    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI usesUnits? topLevelDeclarations BEGIN statements END DOT EOF
     ;
 
 unit
-    : UNIT identifier SEMI INTERFACE topLevelDeclarations 
+    : UNIT identifier SEMI 
+      interfaceSection
       implementationSection?
       initializationSection?
       finalizationSection?
       END DOT EOF
     ;
 
+interfaceSection
+    : INTERFACE usesUnits? topLevelDeclarations
+    ;
+
 implementationSection
-    : IMPLEMENTATION topLevelDeclarations
+    : IMPLEMENTATION usesUnits? topLevelDeclarations
     ;
 
 initializationSection
@@ -82,7 +87,6 @@ topLevelDeclarations
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureAndFunctionDeclarationPart
-        | usesUnitsPart
     )*
     ;
 
@@ -93,11 +97,10 @@ block
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureAndFunctionDeclarationPart
-        | usesUnitsPart
     )* compoundStatement
     ;
 
-usesUnitsPart
+usesUnits
     : USES identifierList SEMI
     ;
 

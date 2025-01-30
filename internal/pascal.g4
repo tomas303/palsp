@@ -48,7 +48,7 @@ source
     ;
 
 program
-    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI usesUnits? topLevelDeclarations BEGIN statements END DOT EOF
+    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI usesUnits? block BEGIN statements END DOT EOF
     ;
 
 unit
@@ -61,11 +61,11 @@ unit
     ;
 
 interfaceSection
-    : INTERFACE usesUnits? topLevelDeclarations
+    : INTERFACE usesUnits? block
     ;
 
 implementationSection
-    : IMPLEMENTATION usesUnits? topLevelDeclarations
+    : IMPLEMENTATION usesUnits? block
     ;
 
 initializationSection
@@ -80,16 +80,6 @@ identifier
     : IDENT
     ;
 
-topLevelDeclarations
-    : (
-        labelDeclarationPart
-        | constantDefinitionPart
-        | typeDefinitionPart
-        | variableDeclarationPart
-        | procedureAndFunctionDeclarationPart
-    )*
-    ;
-
 block
     : (
         labelDeclarationPart
@@ -97,7 +87,7 @@ block
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureAndFunctionDeclarationPart
-    )* compoundStatement
+    )*
     ;
 
 usesUnits
@@ -383,11 +373,11 @@ procedureOrFunctionDeclaration
     ;
 
 procedureDeclaration
-    : PROCEDURE identifier (formalParameterList)? SEMI block
+    : PROCEDURE identifier (formalParameterList)? SEMI block compoundStatement
     ;
 
 procedureMethodDeclaration
-    : PROCEDURE methodIdentifier (formalParameterList)? SEMI block
+    : PROCEDURE methodIdentifier (formalParameterList)? SEMI block compoundStatement
     ;
 
 formalParameterList
@@ -416,7 +406,7 @@ constList
     ;
 
 functionDeclaration
-    : FUNCTION identifier (formalParameterList)? COLON resultType SEMI block
+    : FUNCTION identifier (formalParameterList)? COLON resultType SEMI block compoundStatement
     ;
 
 resultType
@@ -424,7 +414,7 @@ resultType
     ;
 
 functionMethodDeclaration
-    : FUNCTION methodIdentifier (formalParameterList)? COLON resultType SEMI block
+    : FUNCTION methodIdentifier (formalParameterList)? COLON resultType SEMI block compoundStatement
     ;
 
 statement

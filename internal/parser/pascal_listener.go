@@ -32,9 +32,6 @@ type pascalListener interface {
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
 
-	// EnterTopLevelDeclarations is called when entering the topLevelDeclarations production.
-	EnterTopLevelDeclarations(c *TopLevelDeclarationsContext)
-
 	// EnterBlock is called when entering the block production.
 	EnterBlock(c *BlockContext)
 
@@ -406,9 +403,6 @@ type pascalListener interface {
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)
-
-	// ExitTopLevelDeclarations is called when exiting the topLevelDeclarations production.
-	ExitTopLevelDeclarations(c *TopLevelDeclarationsContext)
 
 	// ExitBlock is called when exiting the block production.
 	ExitBlock(c *BlockContext)

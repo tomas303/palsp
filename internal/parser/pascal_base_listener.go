@@ -69,12 +69,6 @@ func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}
 // ExitIdentifier is called when production identifier is exited.
 func (s *BasepascalListener) ExitIdentifier(ctx *IdentifierContext) {}
 
-// EnterTopLevelDeclarations is called when production topLevelDeclarations is entered.
-func (s *BasepascalListener) EnterTopLevelDeclarations(ctx *TopLevelDeclarationsContext) {}
-
-// ExitTopLevelDeclarations is called when production topLevelDeclarations is exited.
-func (s *BasepascalListener) ExitTopLevelDeclarations(ctx *TopLevelDeclarationsContext) {}
-
 // EnterBlock is called when production block is entered.
 func (s *BasepascalListener) EnterBlock(ctx *BlockContext) {}
 

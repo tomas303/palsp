@@ -1,4 +1,4 @@
-// Code generated from pascal.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from /home/tomas/development/tomas303/projects/palsp/internal/pascal.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package parser // pascal
 
@@ -68,6 +68,18 @@ func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}
 
 // ExitIdentifier is called when production identifier is exited.
 func (s *BasepascalListener) ExitIdentifier(ctx *IdentifierContext) {}
+
+// EnterInterfaceBlock is called when production interfaceBlock is entered.
+func (s *BasepascalListener) EnterInterfaceBlock(ctx *InterfaceBlockContext) {}
+
+// ExitInterfaceBlock is called when production interfaceBlock is exited.
+func (s *BasepascalListener) ExitInterfaceBlock(ctx *InterfaceBlockContext) {}
+
+// EnterImplementationBlock is called when production implementationBlock is entered.
+func (s *BasepascalListener) EnterImplementationBlock(ctx *ImplementationBlockContext) {}
+
+// ExitImplementationBlock is called when production implementationBlock is exited.
+func (s *BasepascalListener) ExitImplementationBlock(ctx *ImplementationBlockContext) {}
 
 // EnterBlock is called when production block is entered.
 func (s *BasepascalListener) EnterBlock(ctx *BlockContext) {}
@@ -443,13 +455,23 @@ func (s *BasepascalListener) EnterVariableDeclaration(ctx *VariableDeclarationCo
 // ExitVariableDeclaration is called when production variableDeclaration is exited.
 func (s *BasepascalListener) ExitVariableDeclaration(ctx *VariableDeclarationContext) {}
 
-// EnterProcedureAndFunctionDeclarationPart is called when production procedureAndFunctionDeclarationPart is entered.
-func (s *BasepascalListener) EnterProcedureAndFunctionDeclarationPart(ctx *ProcedureAndFunctionDeclarationPartContext) {
-}
+// EnterProcedureHeader is called when production procedureHeader is entered.
+func (s *BasepascalListener) EnterProcedureHeader(ctx *ProcedureHeaderContext) {}
 
-// ExitProcedureAndFunctionDeclarationPart is called when production procedureAndFunctionDeclarationPart is exited.
-func (s *BasepascalListener) ExitProcedureAndFunctionDeclarationPart(ctx *ProcedureAndFunctionDeclarationPartContext) {
-}
+// ExitProcedureHeader is called when production procedureHeader is exited.
+func (s *BasepascalListener) ExitProcedureHeader(ctx *ProcedureHeaderContext) {}
+
+// EnterFunctionHeader is called when production functionHeader is entered.
+func (s *BasepascalListener) EnterFunctionHeader(ctx *FunctionHeaderContext) {}
+
+// ExitFunctionHeader is called when production functionHeader is exited.
+func (s *BasepascalListener) ExitFunctionHeader(ctx *FunctionHeaderContext) {}
+
+// EnterProcedureOrFunctionHeader is called when production procedureOrFunctionHeader is entered.
+func (s *BasepascalListener) EnterProcedureOrFunctionHeader(ctx *ProcedureOrFunctionHeaderContext) {}
+
+// ExitProcedureOrFunctionHeader is called when production procedureOrFunctionHeader is exited.
+func (s *BasepascalListener) ExitProcedureOrFunctionHeader(ctx *ProcedureOrFunctionHeaderContext) {}
 
 // EnterProcedureOrFunctionDeclaration is called when production procedureOrFunctionDeclaration is entered.
 func (s *BasepascalListener) EnterProcedureOrFunctionDeclaration(ctx *ProcedureOrFunctionDeclarationContext) {
@@ -465,12 +487,23 @@ func (s *BasepascalListener) EnterProcedureDeclaration(ctx *ProcedureDeclaration
 // ExitProcedureDeclaration is called when production procedureDeclaration is exited.
 func (s *BasepascalListener) ExitProcedureDeclaration(ctx *ProcedureDeclarationContext) {}
 
-// EnterProcedureMethodDeclaration is called when production procedureMethodDeclaration is entered.
-func (s *BasepascalListener) EnterProcedureMethodDeclaration(ctx *ProcedureMethodDeclarationContext) {
-}
+// EnterFunctionDeclaration is called when production functionDeclaration is entered.
+func (s *BasepascalListener) EnterFunctionDeclaration(ctx *FunctionDeclarationContext) {}
 
-// ExitProcedureMethodDeclaration is called when production procedureMethodDeclaration is exited.
-func (s *BasepascalListener) ExitProcedureMethodDeclaration(ctx *ProcedureMethodDeclarationContext) {}
+// ExitFunctionDeclaration is called when production functionDeclaration is exited.
+func (s *BasepascalListener) ExitFunctionDeclaration(ctx *FunctionDeclarationContext) {}
+
+// EnterResultType is called when production resultType is entered.
+func (s *BasepascalListener) EnterResultType(ctx *ResultTypeContext) {}
+
+// ExitResultType is called when production resultType is exited.
+func (s *BasepascalListener) ExitResultType(ctx *ResultTypeContext) {}
+
+// EnterProcedureOrFunctionBody is called when production procedureOrFunctionBody is entered.
+func (s *BasepascalListener) EnterProcedureOrFunctionBody(ctx *ProcedureOrFunctionBodyContext) {}
+
+// ExitProcedureOrFunctionBody is called when production procedureOrFunctionBody is exited.
+func (s *BasepascalListener) ExitProcedureOrFunctionBody(ctx *ProcedureOrFunctionBodyContext) {}
 
 // EnterFormalParameterList is called when production formalParameterList is entered.
 func (s *BasepascalListener) EnterFormalParameterList(ctx *FormalParameterListContext) {}
@@ -501,24 +534,6 @@ func (s *BasepascalListener) EnterConstList(ctx *ConstListContext) {}
 
 // ExitConstList is called when production constList is exited.
 func (s *BasepascalListener) ExitConstList(ctx *ConstListContext) {}
-
-// EnterFunctionDeclaration is called when production functionDeclaration is entered.
-func (s *BasepascalListener) EnterFunctionDeclaration(ctx *FunctionDeclarationContext) {}
-
-// ExitFunctionDeclaration is called when production functionDeclaration is exited.
-func (s *BasepascalListener) ExitFunctionDeclaration(ctx *FunctionDeclarationContext) {}
-
-// EnterResultType is called when production resultType is entered.
-func (s *BasepascalListener) EnterResultType(ctx *ResultTypeContext) {}
-
-// ExitResultType is called when production resultType is exited.
-func (s *BasepascalListener) ExitResultType(ctx *ResultTypeContext) {}
-
-// EnterFunctionMethodDeclaration is called when production functionMethodDeclaration is entered.
-func (s *BasepascalListener) EnterFunctionMethodDeclaration(ctx *FunctionMethodDeclarationContext) {}
-
-// ExitFunctionMethodDeclaration is called when production functionMethodDeclaration is exited.
-func (s *BasepascalListener) ExitFunctionMethodDeclaration(ctx *FunctionMethodDeclarationContext) {}
 
 // EnterStatement is called when production statement is entered.
 func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}

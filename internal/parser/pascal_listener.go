@@ -1,4 +1,4 @@
-// Code generated from pascal.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from /home/tomas/development/tomas303/projects/palsp/internal/pascal.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package parser // pascal
 
@@ -31,6 +31,12 @@ type pascalListener interface {
 
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
+
+	// EnterInterfaceBlock is called when entering the interfaceBlock production.
+	EnterInterfaceBlock(c *InterfaceBlockContext)
+
+	// EnterImplementationBlock is called when entering the implementationBlock production.
+	EnterImplementationBlock(c *ImplementationBlockContext)
 
 	// EnterBlock is called when entering the block production.
 	EnterBlock(c *BlockContext)
@@ -215,8 +221,14 @@ type pascalListener interface {
 	// EnterVariableDeclaration is called when entering the variableDeclaration production.
 	EnterVariableDeclaration(c *VariableDeclarationContext)
 
-	// EnterProcedureAndFunctionDeclarationPart is called when entering the procedureAndFunctionDeclarationPart production.
-	EnterProcedureAndFunctionDeclarationPart(c *ProcedureAndFunctionDeclarationPartContext)
+	// EnterProcedureHeader is called when entering the procedureHeader production.
+	EnterProcedureHeader(c *ProcedureHeaderContext)
+
+	// EnterFunctionHeader is called when entering the functionHeader production.
+	EnterFunctionHeader(c *FunctionHeaderContext)
+
+	// EnterProcedureOrFunctionHeader is called when entering the procedureOrFunctionHeader production.
+	EnterProcedureOrFunctionHeader(c *ProcedureOrFunctionHeaderContext)
 
 	// EnterProcedureOrFunctionDeclaration is called when entering the procedureOrFunctionDeclaration production.
 	EnterProcedureOrFunctionDeclaration(c *ProcedureOrFunctionDeclarationContext)
@@ -224,8 +236,14 @@ type pascalListener interface {
 	// EnterProcedureDeclaration is called when entering the procedureDeclaration production.
 	EnterProcedureDeclaration(c *ProcedureDeclarationContext)
 
-	// EnterProcedureMethodDeclaration is called when entering the procedureMethodDeclaration production.
-	EnterProcedureMethodDeclaration(c *ProcedureMethodDeclarationContext)
+	// EnterFunctionDeclaration is called when entering the functionDeclaration production.
+	EnterFunctionDeclaration(c *FunctionDeclarationContext)
+
+	// EnterResultType is called when entering the resultType production.
+	EnterResultType(c *ResultTypeContext)
+
+	// EnterProcedureOrFunctionBody is called when entering the procedureOrFunctionBody production.
+	EnterProcedureOrFunctionBody(c *ProcedureOrFunctionBodyContext)
 
 	// EnterFormalParameterList is called when entering the formalParameterList production.
 	EnterFormalParameterList(c *FormalParameterListContext)
@@ -241,15 +259,6 @@ type pascalListener interface {
 
 	// EnterConstList is called when entering the constList production.
 	EnterConstList(c *ConstListContext)
-
-	// EnterFunctionDeclaration is called when entering the functionDeclaration production.
-	EnterFunctionDeclaration(c *FunctionDeclarationContext)
-
-	// EnterResultType is called when entering the resultType production.
-	EnterResultType(c *ResultTypeContext)
-
-	// EnterFunctionMethodDeclaration is called when entering the functionMethodDeclaration production.
-	EnterFunctionMethodDeclaration(c *FunctionMethodDeclarationContext)
 
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
@@ -403,6 +412,12 @@ type pascalListener interface {
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)
+
+	// ExitInterfaceBlock is called when exiting the interfaceBlock production.
+	ExitInterfaceBlock(c *InterfaceBlockContext)
+
+	// ExitImplementationBlock is called when exiting the implementationBlock production.
+	ExitImplementationBlock(c *ImplementationBlockContext)
 
 	// ExitBlock is called when exiting the block production.
 	ExitBlock(c *BlockContext)
@@ -587,8 +602,14 @@ type pascalListener interface {
 	// ExitVariableDeclaration is called when exiting the variableDeclaration production.
 	ExitVariableDeclaration(c *VariableDeclarationContext)
 
-	// ExitProcedureAndFunctionDeclarationPart is called when exiting the procedureAndFunctionDeclarationPart production.
-	ExitProcedureAndFunctionDeclarationPart(c *ProcedureAndFunctionDeclarationPartContext)
+	// ExitProcedureHeader is called when exiting the procedureHeader production.
+	ExitProcedureHeader(c *ProcedureHeaderContext)
+
+	// ExitFunctionHeader is called when exiting the functionHeader production.
+	ExitFunctionHeader(c *FunctionHeaderContext)
+
+	// ExitProcedureOrFunctionHeader is called when exiting the procedureOrFunctionHeader production.
+	ExitProcedureOrFunctionHeader(c *ProcedureOrFunctionHeaderContext)
 
 	// ExitProcedureOrFunctionDeclaration is called when exiting the procedureOrFunctionDeclaration production.
 	ExitProcedureOrFunctionDeclaration(c *ProcedureOrFunctionDeclarationContext)
@@ -596,8 +617,14 @@ type pascalListener interface {
 	// ExitProcedureDeclaration is called when exiting the procedureDeclaration production.
 	ExitProcedureDeclaration(c *ProcedureDeclarationContext)
 
-	// ExitProcedureMethodDeclaration is called when exiting the procedureMethodDeclaration production.
-	ExitProcedureMethodDeclaration(c *ProcedureMethodDeclarationContext)
+	// ExitFunctionDeclaration is called when exiting the functionDeclaration production.
+	ExitFunctionDeclaration(c *FunctionDeclarationContext)
+
+	// ExitResultType is called when exiting the resultType production.
+	ExitResultType(c *ResultTypeContext)
+
+	// ExitProcedureOrFunctionBody is called when exiting the procedureOrFunctionBody production.
+	ExitProcedureOrFunctionBody(c *ProcedureOrFunctionBodyContext)
 
 	// ExitFormalParameterList is called when exiting the formalParameterList production.
 	ExitFormalParameterList(c *FormalParameterListContext)
@@ -613,15 +640,6 @@ type pascalListener interface {
 
 	// ExitConstList is called when exiting the constList production.
 	ExitConstList(c *ConstListContext)
-
-	// ExitFunctionDeclaration is called when exiting the functionDeclaration production.
-	ExitFunctionDeclaration(c *FunctionDeclarationContext)
-
-	// ExitResultType is called when exiting the resultType production.
-	ExitResultType(c *ResultTypeContext)
-
-	// ExitFunctionMethodDeclaration is called when exiting the functionMethodDeclaration production.
-	ExitFunctionMethodDeclaration(c *FunctionMethodDeclarationContext)
 
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)

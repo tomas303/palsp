@@ -48,7 +48,7 @@ source
     ;
 
 program
-    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI usesUnits? block BEGIN statements END DOT EOF
+    : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI usesUnits? implementationBlock BEGIN statements END DOT EOF
     ;
 
 unit
@@ -61,11 +61,11 @@ unit
     ;
 
 interfaceSection
-    : INTERFACE usesUnits? block
+    : INTERFACE usesUnits? interfaceBlock
     ;
 
 implementationSection
-    : IMPLEMENTATION usesUnits? block
+    : IMPLEMENTATION usesUnits? implementationBlock
     ;
 
 initializationSection
@@ -80,13 +80,32 @@ identifier
     : IDENT
     ;
 
-block
+interfaceBlock
     : (
         labelDeclarationPart
         | constantDefinitionPart
         | typeDefinitionPart
         | variableDeclarationPart
-        | procedureAndFunctionDeclarationPart
+        | procedureOrFunctionHeader
+    )*
+    ;
+
+implementationBlock
+    : (
+        labelDeclarationPart
+        | constantDefinitionPart
+        | typeDefinitionPart
+        | variableDeclarationPart
+        | procedureOrFunctionHeader (procedureOrFunctionBody SEMI)?
+    )*
+    ;
+
+block
+    : (
+        labelDeclarationPart
+        | constantDefinitionPart
+        | variableDeclarationPart
+        | procedureOrFunctionDeclaration
     )*
     ;
 
@@ -361,23 +380,39 @@ variableDeclaration
     : identifierList COLON type_
     ;
 
-procedureAndFunctionDeclarationPart
-    : procedureOrFunctionDeclaration SEMI
+
+procedureHeader
+    : PROCEDURE (identifier|methodIdentifier) (formalParameterList)? SEMI
+    ;
+
+functionHeader
+    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType SEMI
+    ;
+
+procedureOrFunctionHeader
+    : procedureHeader
+    | functionHeader
     ;
 
 procedureOrFunctionDeclaration
     : procedureDeclaration
     | functionDeclaration
-    | procedureMethodDeclaration
-    | functionMethodDeclaration
     ;
 
 procedureDeclaration
-    : PROCEDURE identifier (formalParameterList)? SEMI block compoundStatement
+    : procedureHeader procedureOrFunctionBody SEMI
     ;
 
-procedureMethodDeclaration
-    : PROCEDURE methodIdentifier (formalParameterList)? SEMI block compoundStatement
+functionDeclaration
+    : functionHeader procedureOrFunctionBody SEMI
+    ;
+
+resultType
+    : typeIdentifier
+    ;
+
+procedureOrFunctionBody
+    : block compoundStatement
     ;
 
 formalParameterList
@@ -403,18 +438,6 @@ identifierList
 
 constList
     : constant (COMMA constant)*
-    ;
-
-functionDeclaration
-    : FUNCTION identifier (formalParameterList)? COLON resultType SEMI block compoundStatement
-    ;
-
-resultType
-    : typeIdentifier
-    ;
-
-functionMethodDeclaration
-    : FUNCTION methodIdentifier (formalParameterList)? COLON resultType SEMI block compoundStatement
     ;
 
 statement
@@ -449,7 +472,6 @@ variable
 
 expression
     : simpleExpression (relationaloperator expression)?
-    | expression AS typeIdentifier
     ;
 
 relationaloperator
@@ -489,7 +511,7 @@ signedFactor
     ;
 
 factor
-    : variable
+    : variable (AS identifier)?
     | LPAREN expression RPAREN
     | functionDesignator
     | unsignedConstant

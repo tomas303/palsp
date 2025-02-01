@@ -47,6 +47,8 @@ type
 
 implementation
 
+function TGroupForm.Edit(const AData: IRBData): Boolean;
+
 {$R *.lfm}
 
 { TGroupForm }

@@ -82,7 +82,7 @@ func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListene
 						dataChan <- listenerData{Listener: listener, Path: path}
 					}
 				}()
-				parseFromReader(file, listener, defaultOptions())
+				parseFromReader(file, listener, fullDebugOptions())
 			}(path, dataChan)
 		}
 		return nil

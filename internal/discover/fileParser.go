@@ -19,6 +19,13 @@ func defaultOptions() parseOptions {
 	}
 }
 
+func fullDebugOptions() parseOptions {
+	return parseOptions{
+		Trace:       true,
+		HandleError: true,
+	}
+}
+
 func parseFromContent(content string, listener antlr.ParseTreeListener, options parseOptions) {
 	input := antlr.NewInputStream(content)
 	lexer := parser.NewpascalLexer(input)

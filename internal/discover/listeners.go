@@ -34,29 +34,9 @@ type unitNameListener struct {
 
 	unitName string
 	isUnit   bool
-	depth    int
 }
 
-func (l *unitNameListener) VisitTerminal(node antlr.TerminalNode) {
-	l.BasepascalListener.VisitTerminal(node)
-}
-
-func (l *unitNameListener) VisitErrorNode(node antlr.ErrorNode) {
-	l.BasepascalListener.VisitErrorNode(node)
-}
-
-func (l *unitNameListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	l.depth++
-	if l.depth > 2 {
-		panic("this is not unit file")
-	}
-}
-
-func (l *unitNameListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	l.depth--
-}
-
-func (l *unitNameListener) EnterUnit(ctx *parser.UnitContext) {
+func (l *unitNameListener) ExitUnit(ctx *parser.UnitContext) {
 
 	identifier := ctx.Identifier()
 	if identifier != nil {

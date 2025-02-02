@@ -120,6 +120,10 @@ func (v *BasepascalVisitor) VisitProcedureType(ctx *ProcedureTypeContext) interf
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitForwardClassType(ctx *ForwardClassTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitClassType(ctx *ClassTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

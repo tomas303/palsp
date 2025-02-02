@@ -189,6 +189,12 @@ func (s *BasepascalListener) EnterProcedureType(ctx *ProcedureTypeContext) {}
 // ExitProcedureType is called when production procedureType is exited.
 func (s *BasepascalListener) ExitProcedureType(ctx *ProcedureTypeContext) {}
 
+// EnterForwardClassType is called when production forwardClassType is entered.
+func (s *BasepascalListener) EnterForwardClassType(ctx *ForwardClassTypeContext) {}
+
+// ExitForwardClassType is called when production forwardClassType is exited.
+func (s *BasepascalListener) ExitForwardClassType(ctx *ForwardClassTypeContext) {}
+
 // EnterClassType is called when production classType is entered.
 func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}
 

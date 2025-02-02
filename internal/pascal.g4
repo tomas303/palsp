@@ -174,15 +174,19 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : identifier EQUAL (type_ | functionType | procedureType)
+    : identifier EQUAL (type_ | functionType | procedureType | forwardClassType)
     ;
 
 functionType
-    : FUNCTION (formalParameterList)? COLON resultType
+    : FUNCTION (formalParameterList)? COLON resultType OFOBJECT?
     ;
 
 procedureType
-    : PROCEDURE (formalParameterList)?
+    : PROCEDURE (formalParameterList)? OFOBJECT?
+    ;
+
+forwardClassType
+    : CLASS
     ;
 
 classType
@@ -311,6 +315,7 @@ stringtype
 arrayType
     : ARRAY LBRACK typeList RBRACK OF componentType
     | ARRAY LBRACK2 typeList RBRACK2 OF componentType
+    | ARRAY OF componentType
     ;
 
 typeList
@@ -335,7 +340,7 @@ fieldList
     ;
 
 fixedPart
-    : recordSection (SEMI recordSection)*
+    : recordSection (SEMI recordSection)* SEMI?
     ;
 
 recordSection
@@ -1023,6 +1028,10 @@ FINALIZATION
     : 'FINALIZATION'
     ;
 
+OFOBJECT
+    : 'OF' WHITESPACE 'OBJECT'
+    ;
+
 fragment WHITESPACE : [ \t\r\n]+ ;
 
 WS
@@ -1035,6 +1044,10 @@ COMMENT_1
 
 COMMENT_2
     : '{' .*? '}' -> skip
+    ;
+
+COMMENT_3
+    : '//' ~[\r\n]* -> skip
     ;
 
 IDENT

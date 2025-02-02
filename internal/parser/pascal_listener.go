@@ -92,6 +92,9 @@ type pascalListener interface {
 	// EnterProcedureType is called when entering the procedureType production.
 	EnterProcedureType(c *ProcedureTypeContext)
 
+	// EnterForwardClassType is called when entering the forwardClassType production.
+	EnterForwardClassType(c *ForwardClassTypeContext)
+
 	// EnterClassType is called when entering the classType production.
 	EnterClassType(c *ClassTypeContext)
 
@@ -472,6 +475,9 @@ type pascalListener interface {
 
 	// ExitProcedureType is called when exiting the procedureType production.
 	ExitProcedureType(c *ProcedureTypeContext)
+
+	// ExitForwardClassType is called when exiting the forwardClassType production.
+	ExitForwardClassType(c *ForwardClassTypeContext)
 
 	// ExitClassType is called when exiting the classType production.
 	ExitClassType(c *ClassTypeContext)

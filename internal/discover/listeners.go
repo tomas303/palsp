@@ -30,7 +30,6 @@ type listenerFactory func() antlr.ParseTreeListener
 type listenerHandler func(listener antlr.ParseTreeListener, path string)
 
 type unitNameListener struct {
-	antlr.ParseTreeListener
 	parser.BasepascalListener
 
 	unitName string
@@ -39,11 +38,11 @@ type unitNameListener struct {
 }
 
 func (l *unitNameListener) VisitTerminal(node antlr.TerminalNode) {
-	l.ParseTreeListener.VisitTerminal(node)
+	l.BasepascalListener.VisitTerminal(node)
 }
 
 func (l *unitNameListener) VisitErrorNode(node antlr.ErrorNode) {
-	l.ParseTreeListener.VisitErrorNode(node)
+	l.BasepascalListener.VisitErrorNode(node)
 }
 
 func (l *unitNameListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
@@ -59,10 +58,13 @@ func (l *unitNameListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 
 func (l *unitNameListener) EnterUnit(ctx *parser.UnitContext) {
 
-	fmt.Println("Unit identified:", ctx.Identifier().GetText())
-	l.unitName = ctx.Identifier().GetText()
-	l.isUnit = true
-	panic(newFinishError("Unit ID rule hit"))
+	identifier := ctx.Identifier()
+	if identifier != nil {
+		fmt.Println("Unit identified:", identifier.GetText())
+		l.unitName = ctx.Identifier().GetText()
+		l.isUnit = true
+		panic(newFinishError("Unit ID rule hit"))
+	}
 }
 
 // GetUnitName returns the unit name identified by the listener

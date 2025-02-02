@@ -63,6 +63,13 @@ func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListene
 				listener := factory()
 				defer func() {
 					if r := recover(); r != nil {
+						// Capture caller file and line number
+						// _, fileName, line, ok := runtime.Caller(1)
+						// if ok {
+						// 	log.Printf("Recovered panic at %s:%d: %v\nCallStack:\n%s", fileName, line, r, debug.Stack())
+						// } else {
+						// 	log.Printf("Recovered panic: %v\nCallStack:\n%s", r, debug.Stack())
+						// }
 						if finishErr, ok := r.(*finishError); ok {
 							log.Printf("Listener finished extraction: %v", finishErr)
 							dataChan <- listenerData{Listener: listener, Path: path}
@@ -71,6 +78,7 @@ func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListene
 						}
 					} else {
 						log.Printf("Listener finished extraction")
+
 						dataChan <- listenerData{Listener: listener, Path: path}
 					}
 				}()

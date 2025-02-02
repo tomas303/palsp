@@ -233,6 +233,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#procedureOrFunctionHeader.
 	VisitProcedureOrFunctionHeader(ctx *ProcedureOrFunctionHeaderContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#procedureOrFunctionHeaderModifiers.
+	VisitProcedureOrFunctionHeaderModifiers(ctx *ProcedureOrFunctionHeaderModifiersContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#procedureOrFunctionDeclaration.
 	VisitProcedureOrFunctionDeclaration(ctx *ProcedureOrFunctionDeclarationContext) interface{}
 
@@ -391,4 +394,16 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#recordVariableList.
 	VisitRecordVariableList(ctx *RecordVariableListContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#abstract.
+	VisitAbstract(ctx *AbstractContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#virtual.
+	VisitVirtual(ctx *VirtualContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#override.
+	VisitOverride(ctx *OverrideContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#overload.
+	VisitOverload(ctx *OverloadContext) interface{}
 }

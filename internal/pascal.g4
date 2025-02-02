@@ -78,6 +78,7 @@ finalizationSection
 
 identifier
     : IDENT
+    | INDEX
     ;
 
 interfaceBlock
@@ -238,8 +239,8 @@ classDeclarationPart
     : identifierList COLON typeIdentifier SEMI
     | typeDefinitionPart
     | constantDefinitionPart
-    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI
-    | PROCEDURE identifier (formalParameterList)? SEMI
+    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI procedureOrFunctionHeaderModifiers
+    | PROCEDURE identifier (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
     | propertyDeclaration SEMI (DEFAULT SEMI)?
     ;
 
@@ -295,6 +296,7 @@ subrangeType
 typeIdentifier
     : identifier
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING)
+    | identifier LT typeIdentifier GT
     ;
 
 structuredType
@@ -387,19 +389,22 @@ variableDeclaration
     : identifierList COLON type_
     ;
 
-
 procedureHeader
-    : PROCEDURE (identifier|methodIdentifier) (formalParameterList)? SEMI
+    : PROCEDURE (identifier|methodIdentifier) (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
     ;
 
 functionHeader
-    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType SEMI
+    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType SEMI procedureOrFunctionHeaderModifiers
     ;
 
 procedureOrFunctionHeader
     : procedureHeader
     | functionHeader
     ;
+
+procedureOrFunctionHeaderModifiers: (
+		(abstract | virtual | override | overload) SEMI
+	)*;
 
 procedureOrFunctionDeclaration
     : procedureDeclaration
@@ -1033,6 +1038,23 @@ FINALIZATION
 OFOBJECT
     : 'OF' WHITESPACE 'OBJECT'
     ;
+
+abstract
+    : 'ABSTRACT'
+    ;
+
+virtual
+    : 'VIRTUAL'
+    ;
+
+override
+    : 'OVERRIDE'
+    ;    
+
+overload
+    : 'OVERLOAD'
+    ;
+
 
 fragment WHITESPACE : [ \t\r\n]+ ;
 

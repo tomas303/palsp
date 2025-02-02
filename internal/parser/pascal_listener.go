@@ -233,6 +233,9 @@ type pascalListener interface {
 	// EnterProcedureOrFunctionHeader is called when entering the procedureOrFunctionHeader production.
 	EnterProcedureOrFunctionHeader(c *ProcedureOrFunctionHeaderContext)
 
+	// EnterProcedureOrFunctionHeaderModifiers is called when entering the procedureOrFunctionHeaderModifiers production.
+	EnterProcedureOrFunctionHeaderModifiers(c *ProcedureOrFunctionHeaderModifiersContext)
+
 	// EnterProcedureOrFunctionDeclaration is called when entering the procedureOrFunctionDeclaration production.
 	EnterProcedureOrFunctionDeclaration(c *ProcedureOrFunctionDeclarationContext)
 
@@ -391,6 +394,18 @@ type pascalListener interface {
 
 	// EnterRecordVariableList is called when entering the recordVariableList production.
 	EnterRecordVariableList(c *RecordVariableListContext)
+
+	// EnterAbstract is called when entering the abstract production.
+	EnterAbstract(c *AbstractContext)
+
+	// EnterVirtual is called when entering the virtual production.
+	EnterVirtual(c *VirtualContext)
+
+	// EnterOverride is called when entering the override production.
+	EnterOverride(c *OverrideContext)
+
+	// EnterOverload is called when entering the overload production.
+	EnterOverload(c *OverloadContext)
 
 	// ExitSource is called when exiting the source production.
 	ExitSource(c *SourceContext)
@@ -617,6 +632,9 @@ type pascalListener interface {
 	// ExitProcedureOrFunctionHeader is called when exiting the procedureOrFunctionHeader production.
 	ExitProcedureOrFunctionHeader(c *ProcedureOrFunctionHeaderContext)
 
+	// ExitProcedureOrFunctionHeaderModifiers is called when exiting the procedureOrFunctionHeaderModifiers production.
+	ExitProcedureOrFunctionHeaderModifiers(c *ProcedureOrFunctionHeaderModifiersContext)
+
 	// ExitProcedureOrFunctionDeclaration is called when exiting the procedureOrFunctionDeclaration production.
 	ExitProcedureOrFunctionDeclaration(c *ProcedureOrFunctionDeclarationContext)
 
@@ -775,4 +793,16 @@ type pascalListener interface {
 
 	// ExitRecordVariableList is called when exiting the recordVariableList production.
 	ExitRecordVariableList(c *RecordVariableListContext)
+
+	// ExitAbstract is called when exiting the abstract production.
+	ExitAbstract(c *AbstractContext)
+
+	// ExitVirtual is called when exiting the virtual production.
+	ExitVirtual(c *VirtualContext)
+
+	// ExitOverride is called when exiting the override production.
+	ExitOverride(c *OverrideContext)
+
+	// ExitOverload is called when exiting the overload production.
+	ExitOverload(c *OverloadContext)
 }

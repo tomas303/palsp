@@ -479,6 +479,14 @@ func (s *BasepascalListener) EnterProcedureOrFunctionHeader(ctx *ProcedureOrFunc
 // ExitProcedureOrFunctionHeader is called when production procedureOrFunctionHeader is exited.
 func (s *BasepascalListener) ExitProcedureOrFunctionHeader(ctx *ProcedureOrFunctionHeaderContext) {}
 
+// EnterProcedureOrFunctionHeaderModifiers is called when production procedureOrFunctionHeaderModifiers is entered.
+func (s *BasepascalListener) EnterProcedureOrFunctionHeaderModifiers(ctx *ProcedureOrFunctionHeaderModifiersContext) {
+}
+
+// ExitProcedureOrFunctionHeaderModifiers is called when production procedureOrFunctionHeaderModifiers is exited.
+func (s *BasepascalListener) ExitProcedureOrFunctionHeaderModifiers(ctx *ProcedureOrFunctionHeaderModifiersContext) {
+}
+
 // EnterProcedureOrFunctionDeclaration is called when production procedureOrFunctionDeclaration is entered.
 func (s *BasepascalListener) EnterProcedureOrFunctionDeclaration(ctx *ProcedureOrFunctionDeclarationContext) {
 }
@@ -798,3 +806,27 @@ func (s *BasepascalListener) EnterRecordVariableList(ctx *RecordVariableListCont
 
 // ExitRecordVariableList is called when production recordVariableList is exited.
 func (s *BasepascalListener) ExitRecordVariableList(ctx *RecordVariableListContext) {}
+
+// EnterAbstract is called when production abstract is entered.
+func (s *BasepascalListener) EnterAbstract(ctx *AbstractContext) {}
+
+// ExitAbstract is called when production abstract is exited.
+func (s *BasepascalListener) ExitAbstract(ctx *AbstractContext) {}
+
+// EnterVirtual is called when production virtual is entered.
+func (s *BasepascalListener) EnterVirtual(ctx *VirtualContext) {}
+
+// ExitVirtual is called when production virtual is exited.
+func (s *BasepascalListener) ExitVirtual(ctx *VirtualContext) {}
+
+// EnterOverride is called when production override is entered.
+func (s *BasepascalListener) EnterOverride(ctx *OverrideContext) {}
+
+// ExitOverride is called when production override is exited.
+func (s *BasepascalListener) ExitOverride(ctx *OverrideContext) {}
+
+// EnterOverload is called when production overload is entered.
+func (s *BasepascalListener) EnterOverload(ctx *OverloadContext) {}
+
+// ExitOverload is called when production overload is exited.
+func (s *BasepascalListener) ExitOverload(ctx *OverloadContext) {}

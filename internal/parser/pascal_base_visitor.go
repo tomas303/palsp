@@ -308,6 +308,10 @@ func (v *BasepascalVisitor) VisitProcedureOrFunctionHeader(ctx *ProcedureOrFunct
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitProcedureOrFunctionHeaderModifiers(ctx *ProcedureOrFunctionHeaderModifiersContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitProcedureOrFunctionDeclaration(ctx *ProcedureOrFunctionDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -517,5 +521,21 @@ func (v *BasepascalVisitor) VisitTryFinallyStatement(ctx *TryFinallyStatementCon
 }
 
 func (v *BasepascalVisitor) VisitRecordVariableList(ctx *RecordVariableListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitAbstract(ctx *AbstractContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitVirtual(ctx *VirtualContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitOverride(ctx *OverrideContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitOverload(ctx *OverloadContext) interface{} {
 	return v.VisitChildren(ctx)
 }

@@ -236,6 +236,8 @@ classImplicitPublishedDeclaration
 
 classDeclarationPart
     : identifierList COLON typeIdentifier SEMI
+    | typeDefinitionPart
+    | constantDefinitionPart
     | FUNCTION identifier (formalParameterList)? COLON resultType SEMI
     | PROCEDURE identifier (formalParameterList)? SEMI
     | propertyDeclaration SEMI (DEFAULT SEMI)?

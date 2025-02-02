@@ -17,12 +17,12 @@ type listenerData struct {
 
 type fileCrawler struct{}
 
-func (c *fileCrawler) processPasFiles(rootDir string, factory func() antlr.ParseTreeListener, handler listenerHandler) {
+func (c *fileCrawler) processPasFiles(rootDir string, factory listenerFactory, handler listenerHandler) {
 	dataChan := make(chan listenerData)
 	var wg sync.WaitGroup
 
 	// Start a single goroutine to process listeners
-	go c.processListeners(dataChan, handler)
+	go c.processListeners(&wg, dataChan, handler)
 
 	// Ensure the channel is closed when all processing is done
 	defer close(dataChan)
@@ -40,7 +40,7 @@ func (c *fileCrawler) processPasFiles(rootDir string, factory func() antlr.Parse
 	wg.Wait()
 }
 
-func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListener, dataChan chan<- listenerData, wg *sync.WaitGroup, semaphore chan struct{}) error {
+func (c *fileCrawler) walk(rootDir string, factory listenerFactory, dataChan chan<- listenerData, wg *sync.WaitGroup, semaphore chan struct{}) error {
 	return filepath.Walk(rootDir, func(path string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
@@ -72,13 +72,14 @@ func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListene
 						// }
 						if finishErr, ok := r.(*finishError); ok {
 							log.Printf("Listener finished extraction: %v", finishErr)
+							wg.Add(1)
 							dataChan <- listenerData{Listener: listener, Path: path}
 						} else {
 							log.Printf("Error parsing file %s: %v", path, r)
 						}
 					} else {
 						log.Printf("Listener finished extraction")
-
+						wg.Add(1)
 						dataChan <- listenerData{Listener: listener, Path: path}
 					}
 				}()
@@ -89,8 +90,9 @@ func (c *fileCrawler) walk(rootDir string, factory func() antlr.ParseTreeListene
 	})
 }
 
-func (c *fileCrawler) processListeners(dataChan <-chan listenerData, handler listenerHandler) {
+func (c *fileCrawler) processListeners(wg *sync.WaitGroup, dataChan <-chan listenerData, handler listenerHandler) {
 	for data := range dataChan {
 		handler(data.Listener, data.Path)
+		wg.Done()
 	}
 }

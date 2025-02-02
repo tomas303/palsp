@@ -38,7 +38,8 @@ func createTables(db *symDB) error {
 	CREATE TABLE IF NOT EXISTS units (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		unitname TEXT,
-		unitpath TEXT
+		unitpath TEXT,
+		UNIQUE(unitname, unitpath)
 	);`
 	_, err := db.conn.Exec(createUnitsTableSQL)
 	if err != nil {

@@ -62,6 +62,9 @@ type pascalListener interface {
 	// EnterConstant is called when entering the constant production.
 	EnterConstant(c *ConstantContext)
 
+	// EnterArrayConstant is called when entering the arrayConstant production.
+	EnterArrayConstant(c *ArrayConstantContext)
+
 	// EnterUnsignedNumber is called when entering the unsignedNumber production.
 	EnterUnsignedNumber(c *UnsignedNumberContext)
 
@@ -79,6 +82,12 @@ type pascalListener interface {
 
 	// EnterString is called when entering the string production.
 	EnterString(c *StringContext)
+
+	// EnterResourceDefinitionPart is called when entering the resourceDefinitionPart production.
+	EnterResourceDefinitionPart(c *ResourceDefinitionPartContext)
+
+	// EnterResourceDefinition is called when entering the resourceDefinition production.
+	EnterResourceDefinition(c *ResourceDefinitionContext)
 
 	// EnterTypeDefinitionPart is called when entering the typeDefinitionPart production.
 	EnterTypeDefinitionPart(c *TypeDefinitionPartContext)
@@ -136,6 +145,9 @@ type pascalListener interface {
 
 	// EnterPropertyWriteDeclaration is called when entering the propertyWriteDeclaration production.
 	EnterPropertyWriteDeclaration(c *PropertyWriteDeclarationContext)
+
+	// EnterPropertyDefaultValueDeclaration is called when entering the propertyDefaultValueDeclaration production.
+	EnterPropertyDefaultValueDeclaration(c *PropertyDefaultValueDeclarationContext)
 
 	// EnterPropertyIndexDeclaration is called when entering the propertyIndexDeclaration production.
 	EnterPropertyIndexDeclaration(c *PropertyIndexDeclarationContext)
@@ -266,6 +278,9 @@ type pascalListener interface {
 	// EnterConstList is called when entering the constList production.
 	EnterConstList(c *ConstListContext)
 
+	// EnterDefaultValue is called when entering the defaultValue production.
+	EnterDefaultValue(c *DefaultValueContext)
+
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
 
@@ -335,6 +350,9 @@ type pascalListener interface {
 	// EnterGotoStatement is called when entering the gotoStatement production.
 	EnterGotoStatement(c *GotoStatementContext)
 
+	// EnterInheritedStatement is called when entering the inheritedStatement production.
+	EnterInheritedStatement(c *InheritedStatementContext)
+
 	// EnterEmptyStatement_ is called when entering the emptyStatement_ production.
 	EnterEmptyStatement_(c *EmptyStatement_Context)
 
@@ -395,18 +413,6 @@ type pascalListener interface {
 	// EnterRecordVariableList is called when entering the recordVariableList production.
 	EnterRecordVariableList(c *RecordVariableListContext)
 
-	// EnterAbstract is called when entering the abstract production.
-	EnterAbstract(c *AbstractContext)
-
-	// EnterVirtual is called when entering the virtual production.
-	EnterVirtual(c *VirtualContext)
-
-	// EnterOverride is called when entering the override production.
-	EnterOverride(c *OverrideContext)
-
-	// EnterOverload is called when entering the overload production.
-	EnterOverload(c *OverloadContext)
-
 	// ExitSource is called when exiting the source production.
 	ExitSource(c *SourceContext)
 
@@ -461,6 +467,9 @@ type pascalListener interface {
 	// ExitConstant is called when exiting the constant production.
 	ExitConstant(c *ConstantContext)
 
+	// ExitArrayConstant is called when exiting the arrayConstant production.
+	ExitArrayConstant(c *ArrayConstantContext)
+
 	// ExitUnsignedNumber is called when exiting the unsignedNumber production.
 	ExitUnsignedNumber(c *UnsignedNumberContext)
 
@@ -478,6 +487,12 @@ type pascalListener interface {
 
 	// ExitString is called when exiting the string production.
 	ExitString(c *StringContext)
+
+	// ExitResourceDefinitionPart is called when exiting the resourceDefinitionPart production.
+	ExitResourceDefinitionPart(c *ResourceDefinitionPartContext)
+
+	// ExitResourceDefinition is called when exiting the resourceDefinition production.
+	ExitResourceDefinition(c *ResourceDefinitionContext)
 
 	// ExitTypeDefinitionPart is called when exiting the typeDefinitionPart production.
 	ExitTypeDefinitionPart(c *TypeDefinitionPartContext)
@@ -535,6 +550,9 @@ type pascalListener interface {
 
 	// ExitPropertyWriteDeclaration is called when exiting the propertyWriteDeclaration production.
 	ExitPropertyWriteDeclaration(c *PropertyWriteDeclarationContext)
+
+	// ExitPropertyDefaultValueDeclaration is called when exiting the propertyDefaultValueDeclaration production.
+	ExitPropertyDefaultValueDeclaration(c *PropertyDefaultValueDeclarationContext)
 
 	// ExitPropertyIndexDeclaration is called when exiting the propertyIndexDeclaration production.
 	ExitPropertyIndexDeclaration(c *PropertyIndexDeclarationContext)
@@ -665,6 +683,9 @@ type pascalListener interface {
 	// ExitConstList is called when exiting the constList production.
 	ExitConstList(c *ConstListContext)
 
+	// ExitDefaultValue is called when exiting the defaultValue production.
+	ExitDefaultValue(c *DefaultValueContext)
+
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)
 
@@ -734,6 +755,9 @@ type pascalListener interface {
 	// ExitGotoStatement is called when exiting the gotoStatement production.
 	ExitGotoStatement(c *GotoStatementContext)
 
+	// ExitInheritedStatement is called when exiting the inheritedStatement production.
+	ExitInheritedStatement(c *InheritedStatementContext)
+
 	// ExitEmptyStatement_ is called when exiting the emptyStatement_ production.
 	ExitEmptyStatement_(c *EmptyStatement_Context)
 
@@ -793,16 +817,4 @@ type pascalListener interface {
 
 	// ExitRecordVariableList is called when exiting the recordVariableList production.
 	ExitRecordVariableList(c *RecordVariableListContext)
-
-	// ExitAbstract is called when exiting the abstract production.
-	ExitAbstract(c *AbstractContext)
-
-	// ExitVirtual is called when exiting the virtual production.
-	ExitVirtual(c *VirtualContext)
-
-	// ExitOverride is called when exiting the override production.
-	ExitOverride(c *OverrideContext)
-
-	// ExitOverload is called when exiting the overload production.
-	ExitOverload(c *OverloadContext)
 }

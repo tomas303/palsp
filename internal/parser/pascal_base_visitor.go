@@ -80,6 +80,10 @@ func (v *BasepascalVisitor) VisitConstant(ctx *ConstantContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitArrayConstant(ctx *ArrayConstantContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitUnsignedNumber(ctx *UnsignedNumberContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -101,6 +105,14 @@ func (v *BasepascalVisitor) VisitBool_(ctx *Bool_Context) interface{} {
 }
 
 func (v *BasepascalVisitor) VisitString(ctx *StringContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitResourceDefinitionPart(ctx *ResourceDefinitionPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitResourceDefinition(ctx *ResourceDefinitionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -177,6 +189,10 @@ func (v *BasepascalVisitor) VisitPropertyReadDeclaration(ctx *PropertyReadDeclar
 }
 
 func (v *BasepascalVisitor) VisitPropertyWriteDeclaration(ctx *PropertyWriteDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitPropertyDefaultValueDeclaration(ctx *PropertyDefaultValueDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -352,6 +368,10 @@ func (v *BasepascalVisitor) VisitConstList(ctx *ConstListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitDefaultValue(ctx *DefaultValueContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitStatement(ctx *StatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -444,6 +464,10 @@ func (v *BasepascalVisitor) VisitGotoStatement(ctx *GotoStatementContext) interf
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitInheritedStatement(ctx *InheritedStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitEmptyStatement_(ctx *EmptyStatement_Context) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -521,21 +545,5 @@ func (v *BasepascalVisitor) VisitTryFinallyStatement(ctx *TryFinallyStatementCon
 }
 
 func (v *BasepascalVisitor) VisitRecordVariableList(ctx *RecordVariableListContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitAbstract(ctx *AbstractContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitVirtual(ctx *VirtualContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitOverride(ctx *OverrideContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitOverload(ctx *OverloadContext) interface{} {
 	return v.VisitChildren(ctx)
 }

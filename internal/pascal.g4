@@ -79,12 +79,15 @@ finalizationSection
 identifier
     : IDENT
     | INDEX
+    | READ
+    | WRITE
     ;
 
 interfaceBlock
     : (
         labelDeclarationPart
         | constantDefinitionPart
+        | resourceDefinitionPart
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionHeader
@@ -95,9 +98,11 @@ implementationBlock
     : (
         labelDeclarationPart
         | constantDefinitionPart
+        | resourceDefinitionPart
         | typeDefinitionPart
         | variableDeclarationPart
-        | procedureOrFunctionHeader (procedureOrFunctionBody SEMI)?
+        | procedureOrFunctionDeclaration
+        | procedureOrFunctionHeader
     )*
     ;
 
@@ -141,6 +146,11 @@ constant
     | sign identifier
     | string
     | constantChr
+    | arrayConstant (PLUS (arrayConstant|identifier))*
+    ;
+
+arrayConstant
+    : LBRACK constant (COMMA constant)* RBRACK
     ;
 
 unsignedNumber
@@ -169,6 +179,14 @@ bool_
 string
     : STRING_LITERAL
     ;
+
+resourceDefinitionPart
+    : RESOURCESTRING resourceDefinition (resourceDefinition)+
+    ;
+
+resourceDefinition
+    : identifier EQUAL string SEMI
+    ;    
 
 typeDefinitionPart
     : TYPE (typeDefinition SEMI)+
@@ -240,12 +258,13 @@ classDeclarationPart
     | typeDefinitionPart
     | constantDefinitionPart
     | FUNCTION identifier (formalParameterList)? COLON resultType SEMI procedureOrFunctionHeaderModifiers
-    | PROCEDURE identifier (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
+    | (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
     | propertyDeclaration SEMI (DEFAULT SEMI)?
     ;
 
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyIndexDeclaration?
+    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration? propertyIndexDeclaration?
+    | PROPERTY identifier propertyDefaultValueDeclaration?
     ;
 
 propertyReadDeclaration
@@ -254,6 +273,10 @@ propertyReadDeclaration
 
 propertyWriteDeclaration
     : WRITE identifier
+    ;
+
+propertyDefaultValueDeclaration 
+    : DEFAULT expression
     ;
 
 propertyIndexDeclaration 
@@ -297,6 +320,7 @@ typeIdentifier
     : identifier
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING)
     | identifier LT typeIdentifier GT
+    | arrayType
     ;
 
 structuredType
@@ -306,8 +330,7 @@ structuredType
     ;
 
 unpackedStructuredType
-    : arrayType
-    | recordType
+    : recordType
     | setType
     | fileType
     ;
@@ -319,6 +342,7 @@ stringtype
 arrayType
     : ARRAY LBRACK typeList RBRACK OF componentType
     | ARRAY LBRACK2 typeList RBRACK2 OF componentType
+    | ARRAY OF CONST
     | ARRAY OF componentType
     ;
 
@@ -390,7 +414,7 @@ variableDeclaration
     ;
 
 procedureHeader
-    : PROCEDURE (identifier|methodIdentifier) (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
+    : (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
     ;
 
 functionHeader
@@ -403,7 +427,7 @@ procedureOrFunctionHeader
     ;
 
 procedureOrFunctionHeaderModifiers: (
-		(abstract | virtual | override | overload) SEMI
+		(ABSTRACT | VIRTUAL | OVERRIDE | OVERLOAD | INLINE) SEMI
 	)*;
 
 procedureOrFunctionDeclaration
@@ -441,8 +465,8 @@ formalParameterSection
     ;
 
 parameterGroup
-    : identifierList COLON typeIdentifier
-    ;
+    : identifierList COLON typeIdentifier defaultValue?
+	| (VAR | CONST) identifierList;
 
 identifierList
     : identifier (COMMA identifier)*
@@ -450,6 +474,10 @@ identifierList
 
 constList
     : constant (COMMA constant)*
+    ;
+
+defaultValue
+    : EQUAL expression
     ;
 
 statement
@@ -466,6 +494,7 @@ simpleStatement
     : assignmentStatement
     | procedureStatement
     | gotoStatement
+    | inheritedStatement
     | emptyStatement_
     ;
 
@@ -540,7 +569,7 @@ unsignedConstant
     ;
 
 functionDesignator
-    : identifier LPAREN parameterList RPAREN
+    : (identifier|methodIdentifier) LPAREN parameterList RPAREN
     ;
 
 parameterList
@@ -578,6 +607,10 @@ gotoStatement
     : GOTO label
     ;
 
+inheritedStatement
+    : INHERITED (identifier|methodIdentifier) (LPAREN parameterList RPAREN)?
+    ;
+
 emptyStatement_
     :
     ;
@@ -610,11 +643,11 @@ conditionalStatement
     ;
 
 ifStatement
-    : IF expression THEN statement (: ELSE statement)?
+    : IF expression THEN statement (ELSE statement)?
     ;
 
 caseStatement
-    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? END
+    : CASE expression OF caseListElement (SEMI caseListElement)* SEMI (SEMI ELSE statements)? END
     ;
 
 caseListElement
@@ -1039,22 +1072,41 @@ OFOBJECT
     : 'OF' WHITESPACE 'OBJECT'
     ;
 
-abstract
+INHERITED
+    : 'INHERITED'
+    ;
+
+ABSTRACT
     : 'ABSTRACT'
     ;
 
-virtual
+VIRTUAL
     : 'VIRTUAL'
     ;
 
-override
+OVERRIDE
     : 'OVERRIDE'
     ;    
 
-overload
+OVERLOAD
     : 'OVERLOAD'
     ;
 
+INLINE
+    : 'INLINE'
+    ;
+
+CONSTRUCTOR
+    : 'CONSTRUCTOR'
+    ;
+
+DESTRUCTOR
+    : 'DESTRUCTOR'
+    ;
+
+RESOURCESTRING
+    : 'resourcestring'
+    ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;
 
@@ -1092,4 +1144,8 @@ NUM_REAL
 
 fragment EXPONENT
     : ('E') ('+' | '-')? ('0' .. '9')+
+    ;
+
+UTF8BOM
+    : '\uFEFF' -> skip
     ;

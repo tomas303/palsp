@@ -129,6 +129,12 @@ func (s *BasepascalListener) EnterConstant(ctx *ConstantContext) {}
 // ExitConstant is called when production constant is exited.
 func (s *BasepascalListener) ExitConstant(ctx *ConstantContext) {}
 
+// EnterArrayConstant is called when production arrayConstant is entered.
+func (s *BasepascalListener) EnterArrayConstant(ctx *ArrayConstantContext) {}
+
+// ExitArrayConstant is called when production arrayConstant is exited.
+func (s *BasepascalListener) ExitArrayConstant(ctx *ArrayConstantContext) {}
+
 // EnterUnsignedNumber is called when production unsignedNumber is entered.
 func (s *BasepascalListener) EnterUnsignedNumber(ctx *UnsignedNumberContext) {}
 
@@ -164,6 +170,18 @@ func (s *BasepascalListener) EnterString(ctx *StringContext) {}
 
 // ExitString is called when production string is exited.
 func (s *BasepascalListener) ExitString(ctx *StringContext) {}
+
+// EnterResourceDefinitionPart is called when production resourceDefinitionPart is entered.
+func (s *BasepascalListener) EnterResourceDefinitionPart(ctx *ResourceDefinitionPartContext) {}
+
+// ExitResourceDefinitionPart is called when production resourceDefinitionPart is exited.
+func (s *BasepascalListener) ExitResourceDefinitionPart(ctx *ResourceDefinitionPartContext) {}
+
+// EnterResourceDefinition is called when production resourceDefinition is entered.
+func (s *BasepascalListener) EnterResourceDefinition(ctx *ResourceDefinitionContext) {}
+
+// ExitResourceDefinition is called when production resourceDefinition is exited.
+func (s *BasepascalListener) ExitResourceDefinition(ctx *ResourceDefinitionContext) {}
 
 // EnterTypeDefinitionPart is called when production typeDefinitionPart is entered.
 func (s *BasepascalListener) EnterTypeDefinitionPart(ctx *TypeDefinitionPartContext) {}
@@ -284,6 +302,14 @@ func (s *BasepascalListener) EnterPropertyWriteDeclaration(ctx *PropertyWriteDec
 
 // ExitPropertyWriteDeclaration is called when production propertyWriteDeclaration is exited.
 func (s *BasepascalListener) ExitPropertyWriteDeclaration(ctx *PropertyWriteDeclarationContext) {}
+
+// EnterPropertyDefaultValueDeclaration is called when production propertyDefaultValueDeclaration is entered.
+func (s *BasepascalListener) EnterPropertyDefaultValueDeclaration(ctx *PropertyDefaultValueDeclarationContext) {
+}
+
+// ExitPropertyDefaultValueDeclaration is called when production propertyDefaultValueDeclaration is exited.
+func (s *BasepascalListener) ExitPropertyDefaultValueDeclaration(ctx *PropertyDefaultValueDeclarationContext) {
+}
 
 // EnterPropertyIndexDeclaration is called when production propertyIndexDeclaration is entered.
 func (s *BasepascalListener) EnterPropertyIndexDeclaration(ctx *PropertyIndexDeclarationContext) {}
@@ -549,6 +575,12 @@ func (s *BasepascalListener) EnterConstList(ctx *ConstListContext) {}
 // ExitConstList is called when production constList is exited.
 func (s *BasepascalListener) ExitConstList(ctx *ConstListContext) {}
 
+// EnterDefaultValue is called when production defaultValue is entered.
+func (s *BasepascalListener) EnterDefaultValue(ctx *DefaultValueContext) {}
+
+// ExitDefaultValue is called when production defaultValue is exited.
+func (s *BasepascalListener) ExitDefaultValue(ctx *DefaultValueContext) {}
+
 // EnterStatement is called when production statement is entered.
 func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}
 
@@ -687,6 +719,12 @@ func (s *BasepascalListener) EnterGotoStatement(ctx *GotoStatementContext) {}
 // ExitGotoStatement is called when production gotoStatement is exited.
 func (s *BasepascalListener) ExitGotoStatement(ctx *GotoStatementContext) {}
 
+// EnterInheritedStatement is called when production inheritedStatement is entered.
+func (s *BasepascalListener) EnterInheritedStatement(ctx *InheritedStatementContext) {}
+
+// ExitInheritedStatement is called when production inheritedStatement is exited.
+func (s *BasepascalListener) ExitInheritedStatement(ctx *InheritedStatementContext) {}
+
 // EnterEmptyStatement_ is called when production emptyStatement_ is entered.
 func (s *BasepascalListener) EnterEmptyStatement_(ctx *EmptyStatement_Context) {}
 
@@ -806,27 +844,3 @@ func (s *BasepascalListener) EnterRecordVariableList(ctx *RecordVariableListCont
 
 // ExitRecordVariableList is called when production recordVariableList is exited.
 func (s *BasepascalListener) ExitRecordVariableList(ctx *RecordVariableListContext) {}
-
-// EnterAbstract is called when production abstract is entered.
-func (s *BasepascalListener) EnterAbstract(ctx *AbstractContext) {}
-
-// ExitAbstract is called when production abstract is exited.
-func (s *BasepascalListener) ExitAbstract(ctx *AbstractContext) {}
-
-// EnterVirtual is called when production virtual is entered.
-func (s *BasepascalListener) EnterVirtual(ctx *VirtualContext) {}
-
-// ExitVirtual is called when production virtual is exited.
-func (s *BasepascalListener) ExitVirtual(ctx *VirtualContext) {}
-
-// EnterOverride is called when production override is entered.
-func (s *BasepascalListener) EnterOverride(ctx *OverrideContext) {}
-
-// ExitOverride is called when production override is exited.
-func (s *BasepascalListener) ExitOverride(ctx *OverrideContext) {}
-
-// EnterOverload is called when production overload is entered.
-func (s *BasepascalListener) EnterOverload(ctx *OverloadContext) {}
-
-// ExitOverload is called when production overload is exited.
-func (s *BasepascalListener) ExitOverload(ctx *OverloadContext) {}

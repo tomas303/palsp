@@ -100,7 +100,8 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	ON CONFLICT(unitname, unitpath) DO NOTHING
 	RETURNING id;`
 	var unitID int
-	err := db.conn.QueryRow(insertUnitSQL, unitname, unitpath).Scan(&unitID)
+	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath)
+	err := row.Scan(&unitID)
 	if err == sql.ErrNoRows {
 		selectUnitIDSQL := `
 		SELECT id FROM units

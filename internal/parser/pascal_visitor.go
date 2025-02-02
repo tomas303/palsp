@@ -62,6 +62,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#constant.
 	VisitConstant(ctx *ConstantContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#arrayConstant.
+	VisitArrayConstant(ctx *ArrayConstantContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#unsignedNumber.
 	VisitUnsignedNumber(ctx *UnsignedNumberContext) interface{}
 
@@ -79,6 +82,12 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#string.
 	VisitString(ctx *StringContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#resourceDefinitionPart.
+	VisitResourceDefinitionPart(ctx *ResourceDefinitionPartContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#resourceDefinition.
+	VisitResourceDefinition(ctx *ResourceDefinitionContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#typeDefinitionPart.
 	VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{}
@@ -136,6 +145,9 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#propertyWriteDeclaration.
 	VisitPropertyWriteDeclaration(ctx *PropertyWriteDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#propertyDefaultValueDeclaration.
+	VisitPropertyDefaultValueDeclaration(ctx *PropertyDefaultValueDeclarationContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#propertyIndexDeclaration.
 	VisitPropertyIndexDeclaration(ctx *PropertyIndexDeclarationContext) interface{}
@@ -266,6 +278,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#constList.
 	VisitConstList(ctx *ConstListContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#defaultValue.
+	VisitDefaultValue(ctx *DefaultValueContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#statement.
 	VisitStatement(ctx *StatementContext) interface{}
 
@@ -335,6 +350,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#gotoStatement.
 	VisitGotoStatement(ctx *GotoStatementContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#inheritedStatement.
+	VisitInheritedStatement(ctx *InheritedStatementContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#emptyStatement_.
 	VisitEmptyStatement_(ctx *EmptyStatement_Context) interface{}
 
@@ -394,16 +412,4 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#recordVariableList.
 	VisitRecordVariableList(ctx *RecordVariableListContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#abstract.
-	VisitAbstract(ctx *AbstractContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#virtual.
-	VisitVirtual(ctx *VirtualContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#override.
-	VisitOverride(ctx *OverrideContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#overload.
-	VisitOverload(ctx *OverloadContext) interface{}
 }

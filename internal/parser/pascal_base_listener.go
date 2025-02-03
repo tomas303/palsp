@@ -605,6 +605,12 @@ func (s *BasepascalListener) EnterAssignmentStatement(ctx *AssignmentStatementCo
 // ExitAssignmentStatement is called when production assignmentStatement is exited.
 func (s *BasepascalListener) ExitAssignmentStatement(ctx *AssignmentStatementContext) {}
 
+// EnterRaiseExceptionStatement is called when production raiseExceptionStatement is entered.
+func (s *BasepascalListener) EnterRaiseExceptionStatement(ctx *RaiseExceptionStatementContext) {}
+
+// ExitRaiseExceptionStatement is called when production raiseExceptionStatement is exited.
+func (s *BasepascalListener) ExitRaiseExceptionStatement(ctx *RaiseExceptionStatementContext) {}
+
 // EnterVariable is called when production variable is entered.
 func (s *BasepascalListener) EnterVariable(ctx *VariableContext) {}
 

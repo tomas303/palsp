@@ -293,6 +293,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#assignmentStatement.
 	VisitAssignmentStatement(ctx *AssignmentStatementContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#raiseExceptionStatement.
+	VisitRaiseExceptionStatement(ctx *RaiseExceptionStatementContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#variable.
 	VisitVariable(ctx *VariableContext) interface{}
 

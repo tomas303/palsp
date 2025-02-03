@@ -388,6 +388,10 @@ func (v *BasepascalVisitor) VisitAssignmentStatement(ctx *AssignmentStatementCon
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitRaiseExceptionStatement(ctx *RaiseExceptionStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitVariable(ctx *VariableContext) interface{} {
 	return v.VisitChildren(ctx)
 }

@@ -102,7 +102,7 @@ implementationBlock
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
-        | procedureOrFunctionHeader
+        | procedureOrFunctionHeader FORWARD SEMI
     )*
     ;
 
@@ -181,7 +181,7 @@ string
     ;
 
 resourceDefinitionPart
-    : RESOURCESTRING resourceDefinition (resourceDefinition)+
+    : RESOURCESTRING (resourceDefinition)+
     ;
 
 resourceDefinition
@@ -496,10 +496,16 @@ simpleStatement
     | gotoStatement
     | inheritedStatement
     | emptyStatement_
+    | raiseExceptionStatement
     ;
 
 assignmentStatement
     : variable ASSIGN expression
+    | functionDesignator (LBRACK expression (COMMA expression)* RBRACK)? ASSIGN expression
+    ;
+
+raiseExceptionStatement
+    : RAISE expression
     ;
 
 variable
@@ -559,6 +565,8 @@ factor
     | set_
     | NOT factor
     | bool_
+    | factor LBRACK expression (COMMA expression)* RBRACK
+    | typeIdentifier
     ;
 
 unsignedConstant
@@ -569,7 +577,7 @@ unsignedConstant
     ;
 
 functionDesignator
-    : (identifier|methodIdentifier) LPAREN parameterList RPAREN
+    : (identifier|methodIdentifier) (LT typeIdentifier GT)? (LPAREN parameterList RPAREN)?
     ;
 
 parameterList
@@ -647,7 +655,7 @@ ifStatement
     ;
 
 caseStatement
-    : CASE expression OF caseListElement (SEMI caseListElement)* SEMI (SEMI ELSE statements)? END
+    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? SEMI? END
     ;
 
 caseListElement
@@ -686,6 +694,7 @@ finalValue
 
 withStatement
     : WITH recordVariableList DO statement
+    | WITH expression DO statement
     ;
 
 tryExceptStatement
@@ -1106,6 +1115,14 @@ DESTRUCTOR
 
 RESOURCESTRING
     : 'resourcestring'
+    ;
+
+FORWARD
+    : 'FORWARD'
+    ;
+
+RAISE
+    : 'RAISE'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

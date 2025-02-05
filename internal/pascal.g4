@@ -556,6 +556,8 @@ multiplicativeoperator
     | DIV
     | MOD
     | AND
+    | SHR
+    | SHL
     ;
 
 signedFactor
@@ -571,7 +573,7 @@ factor
     | NOT factor
     | bool_
     | factor LBRACK expression (COMMA expression)* RBRACK
-    | typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
+    | AT? typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
     | factor (DOT expression)+
     ;
 
@@ -1133,6 +1135,14 @@ FORWARD
 
 RAISE
     : 'RAISE'
+    ;
+
+SHR
+    : 'SHR'
+    ;
+
+SHL
+    : 'SHL'
     ;
 
 LONGBOOL

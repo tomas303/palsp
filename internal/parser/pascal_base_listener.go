@@ -617,6 +617,12 @@ func (s *BasepascalListener) EnterVariable(ctx *VariableContext) {}
 // ExitVariable is called when production variable is exited.
 func (s *BasepascalListener) ExitVariable(ctx *VariableContext) {}
 
+// EnterTypeCast is called when production typeCast is entered.
+func (s *BasepascalListener) EnterTypeCast(ctx *TypeCastContext) {}
+
+// ExitTypeCast is called when production typeCast is exited.
+func (s *BasepascalListener) ExitTypeCast(ctx *TypeCastContext) {}
+
 // EnterExpression is called when production expression is entered.
 func (s *BasepascalListener) EnterExpression(ctx *ExpressionContext) {}
 
@@ -706,6 +712,12 @@ func (s *BasepascalListener) EnterProcedureStatement(ctx *ProcedureStatementCont
 
 // ExitProcedureStatement is called when production procedureStatement is exited.
 func (s *BasepascalListener) ExitProcedureStatement(ctx *ProcedureStatementContext) {}
+
+// EnterMethodCallStatement is called when production methodCallStatement is entered.
+func (s *BasepascalListener) EnterMethodCallStatement(ctx *MethodCallStatementContext) {}
+
+// ExitMethodCallStatement is called when production methodCallStatement is exited.
+func (s *BasepascalListener) ExitMethodCallStatement(ctx *MethodCallStatementContext) {}
 
 // EnterActualParameter is called when production actualParameter is entered.
 func (s *BasepascalListener) EnterActualParameter(ctx *ActualParameterContext) {}

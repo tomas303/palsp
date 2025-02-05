@@ -299,6 +299,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#variable.
 	VisitVariable(ctx *VariableContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#typeCast.
+	VisitTypeCast(ctx *TypeCastContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#expression.
 	VisitExpression(ctx *ExpressionContext) interface{}
 
@@ -343,6 +346,9 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#procedureStatement.
 	VisitProcedureStatement(ctx *ProcedureStatementContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#methodCallStatement.
+	VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#actualParameter.
 	VisitActualParameter(ctx *ActualParameterContext) interface{}

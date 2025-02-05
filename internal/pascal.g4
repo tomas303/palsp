@@ -132,7 +132,7 @@ constantDefinitionPart
     ;
 
 constantDefinition
-    : identifier EQUAL constant
+    : identifier (COLON typeIdentifier)? EQUAL constant
     ;
 
 constantChr
@@ -318,7 +318,7 @@ subrangeType
 
 typeIdentifier
     : identifier
-    | (CHAR | BOOLEAN | INTEGER | REAL | STRING)
+    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | LONGBOOL | CARDINAL)
     | identifier LT typeIdentifier GT
     | arrayType
     ;
@@ -402,7 +402,7 @@ fileType
     ;
 
 pointerType
-    : POINTER typeIdentifier
+    : DEREFERENCE typeIdentifier
     ;
 
 variableDeclarationPart
@@ -492,6 +492,7 @@ unlabelledStatement
 
 simpleStatement
     : assignmentStatement
+    | methodCallStatement
     | procedureStatement
     | gotoStatement
     | inheritedStatement
@@ -501,7 +502,6 @@ simpleStatement
 
 assignmentStatement
     : variable ASSIGN expression
-    | functionDesignator (LBRACK expression (COMMA expression)* RBRACK)? ASSIGN expression
     ;
 
 raiseExceptionStatement
@@ -509,13 +509,18 @@ raiseExceptionStatement
     ;
 
 variable
-    : (AT identifier | identifier) (
+    : (typeCast | AT identifier | identifier) (
         LBRACK expression (COMMA expression)* RBRACK
         | LBRACK2 expression (COMMA expression)* RBRACK2
         | DOT identifier
-        | POINTER
+        | DEREFERENCE+
     )*
     ;
+
+typeCast
+    : typeIdentifier LPAREN expression RPAREN 
+    ;
+
 
 expression
     : simpleExpression (relationaloperator expression)?
@@ -566,7 +571,8 @@ factor
     | NOT factor
     | bool_
     | factor LBRACK expression (COMMA expression)* RBRACK
-    | typeIdentifier
+    | typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
+    | factor (DOT expression)+
     ;
 
 unsignedConstant
@@ -601,6 +607,10 @@ element
 procedureStatement
     : identifier (LPAREN parameterList RPAREN)?
     | methodIdentifier (LPAREN parameterList RPAREN)?
+    ;
+
+methodCallStatement
+    : variable (DOT variable)* DOT identifier (LPAREN parameterList RPAREN)?
     ;
 
 actualParameter
@@ -949,7 +959,7 @@ RBRACK2
     : '.)'
     ;
 
-POINTER
+DEREFERENCE
     : '^'
     ;
 
@@ -1123,6 +1133,14 @@ FORWARD
 
 RAISE
     : 'RAISE'
+    ;
+
+LONGBOOL
+    : 'LONGBOOL'
+    ;
+
+CARDINAL
+    : 'Cardinal'
     ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;

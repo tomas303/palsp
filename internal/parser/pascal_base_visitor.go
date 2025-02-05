@@ -396,6 +396,10 @@ func (v *BasepascalVisitor) VisitVariable(ctx *VariableContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitTypeCast(ctx *TypeCastContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitExpression(ctx *ExpressionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -453,6 +457,10 @@ func (v *BasepascalVisitor) VisitElement(ctx *ElementContext) interface{} {
 }
 
 func (v *BasepascalVisitor) VisitProcedureStatement(ctx *ProcedureStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

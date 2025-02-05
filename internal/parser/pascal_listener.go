@@ -299,6 +299,9 @@ type pascalListener interface {
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
 
+	// EnterTypeCast is called when entering the typeCast production.
+	EnterTypeCast(c *TypeCastContext)
+
 	// EnterExpression is called when entering the expression production.
 	EnterExpression(c *ExpressionContext)
 
@@ -343,6 +346,9 @@ type pascalListener interface {
 
 	// EnterProcedureStatement is called when entering the procedureStatement production.
 	EnterProcedureStatement(c *ProcedureStatementContext)
+
+	// EnterMethodCallStatement is called when entering the methodCallStatement production.
+	EnterMethodCallStatement(c *MethodCallStatementContext)
 
 	// EnterActualParameter is called when entering the actualParameter production.
 	EnterActualParameter(c *ActualParameterContext)
@@ -707,6 +713,9 @@ type pascalListener interface {
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)
 
+	// ExitTypeCast is called when exiting the typeCast production.
+	ExitTypeCast(c *TypeCastContext)
+
 	// ExitExpression is called when exiting the expression production.
 	ExitExpression(c *ExpressionContext)
 
@@ -751,6 +760,9 @@ type pascalListener interface {
 
 	// ExitProcedureStatement is called when exiting the procedureStatement production.
 	ExitProcedureStatement(c *ProcedureStatementContext)
+
+	// ExitMethodCallStatement is called when exiting the methodCallStatement production.
+	ExitMethodCallStatement(c *MethodCallStatementContext)
 
 	// ExitActualParameter is called when exiting the actualParameter production.
 	ExitActualParameter(c *ActualParameterContext)

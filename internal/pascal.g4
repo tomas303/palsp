@@ -505,7 +505,7 @@ assignmentStatement
     ;
 
 raiseExceptionStatement
-    : RAISE expression
+    : RAISE expression?
     ;
 
 variable
@@ -565,7 +565,7 @@ signedFactor
 factor
     : variable (AS identifier)?
     | LPAREN expression RPAREN
-    | functionDesignator
+    | INHERITED? functionDesignator
     | unsignedConstant
     | set_
     | NOT factor

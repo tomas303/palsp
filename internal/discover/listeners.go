@@ -3,6 +3,7 @@ package discover
 import (
 	"fmt"
 	"palsp/internal/parser" // Ensure this import is correct
+	"strings"               // added
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -37,11 +38,15 @@ type unitNameListener struct {
 }
 
 func (l *unitNameListener) ExitUnit(ctx *parser.UnitContext) {
-
-	identifier := ctx.Identifier()
-	if identifier != nil {
-		fmt.Println("Unit identified:", identifier.GetText())
-		l.unitName = ctx.Identifier().GetText()
+	identifiers := ctx.AllIdentifier() // get all identifiers
+	if len(identifiers) > 0 {          // if there is at least one identifier
+		var parts []string
+		for i := 0; i < len(identifiers); i++ {
+			parts = append(parts, identifiers[i].GetText())
+		}
+		unitName := strings.Join(parts, ".") // join with dot delimiter
+		fmt.Println("Unit identified:", unitName)
+		l.unitName = unitName
 		l.isUnit = true
 		panic(newFinishError("Unit ID rule hit"))
 	}

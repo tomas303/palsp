@@ -17,7 +17,8 @@ func TestDiscoverUnits(t *testing.T) {
 			}
 		}()
 		// Provide a valid directory (can be current directory) for testing.
-		d.Units("/home/tomas/testsrcs/short")
+		// d.Units("/home/tomas/testsrcs/short")
+		d.Units("/home/tomas/testsrcs/source")
 	}()
 
 	// Query the units table.

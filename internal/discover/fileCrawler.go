@@ -28,7 +28,7 @@ func (c *fileCrawler) processPasFiles(rootDir string, factory listenerFactory, h
 	defer close(dataChan)
 
 	// Create a semaphore with a limit on the number of concurrent goroutines
-	const maxConcurrentGoroutines = 1
+	const maxConcurrentGoroutines = 6
 	semaphore := make(chan struct{}, maxConcurrentGoroutines)
 
 	err := c.walk(rootDir, factory, dataChan, &wg, semaphore)
@@ -53,12 +53,12 @@ func (c *fileCrawler) walk(rootDir string, factory listenerFactory, dataChan cha
 				defer wg.Done()
 				defer func() { <-semaphore }() // Release the slot in the semaphore
 
-				file, err := os.Open(path)
+				data, err := os.ReadFile(path)
 				if err != nil {
-					log.Printf("Failed to open file %s: %v", path, err)
+					log.Printf("Failed to read file %s: %v", path, err)
 					return
 				}
-				defer file.Close()
+				content := string(data)
 
 				listener := factory()
 				defer func() {
@@ -83,7 +83,7 @@ func (c *fileCrawler) walk(rootDir string, factory listenerFactory, dataChan cha
 						dataChan <- listenerData{Listener: listener, Path: path}
 					}
 				}()
-				parseFromReader(file, listener, fullDebugOptions())
+				parseFromContent(content, listener, defaultOptions())
 			}(path, dataChan)
 		}
 		return nil

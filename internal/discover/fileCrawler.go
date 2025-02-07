@@ -17,7 +17,7 @@ type listenerData struct {
 
 type fileCrawler struct{}
 
-func (c *fileCrawler) processPasFiles(rootDir string, factory listenerFactory, handler listenerHandler) {
+func (c *fileCrawler) processPasListeners(rootDir string, factory listenerFactory, handler listenerHandler) {
 	dataChan := make(chan listenerData)
 	var wg sync.WaitGroup
 
@@ -95,4 +95,16 @@ func (c *fileCrawler) processListeners(wg *sync.WaitGroup, dataChan <-chan liste
 		handler(data.Listener, data.Path)
 		wg.Done()
 	}
+}
+
+func (c *fileCrawler) processPasFiles(rootDir string, handler func(path string)) error {
+	return filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".pas") {
+			handler(path)
+		}
+		return nil
+	})
 }

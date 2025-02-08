@@ -3,6 +3,7 @@ package discover
 import (
 	"database/sql"
 	"log"
+	"os" // added to read files
 
 	_ "github.com/glebarez/go-sqlite" // Registers the sqlite driver under "sqlite"
 )
@@ -12,6 +13,17 @@ var db *symDB
 type symDB struct {
 	conn *sql.DB
 }
+
+// SymbolKind represents the kind of public symbol as an integer.
+type SymbolKind int
+
+const (
+	ProcedureSymbol SymbolKind = iota // 0
+	FunctionSymbol                    // 1
+	ConstantSymbol                    // 2
+	VariableSymbol                    // 3
+	ClassSymbol                       // 4
+)
 
 func init() {
 	var err error
@@ -70,6 +82,7 @@ func createTables(db *symDB) error {
 		symbol TEXT,
 		scope TEXT,
 		kind INTEGER,
+		definition TEXT,
 		FOREIGN KEY(unit_id) REFERENCES units(id)
 	);`
 	_, err = db.conn.Exec(createSymbolsTableSQL)
@@ -104,9 +117,10 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath)
 	err := row.Scan(&unitID)
 	if err == sql.ErrNoRows {
+		// Use COLLATE NOCASE for explicit case insensitive matching on unitname
 		selectUnitIDSQL := `
 		SELECT id FROM units
-		WHERE unitname = ? AND unitpath = ?;`
+		WHERE unitname = ? COLLATE NOCASE AND unitpath = ?;`
 		err = db.conn.QueryRow(selectUnitIDSQL, unitname, unitpath).Scan(&unitID)
 		if err != nil {
 			return 0, err
@@ -117,15 +131,28 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	return unitID, nil
 }
 
-func (db *symDB) insertSymbol(unitname, unitpath, symbol, scope string, kind int) error {
-	unitID, err := db.insertUnit(unitname, unitpath)
-	if err != nil {
-		return err
-	}
-
+func (db *symDB) insertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
 	insertSymbolSQL := `
-	INSERT INTO symbols (unit_id, symbol, scope, kind)
+	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
 	VALUES (?, ?, ?, ?, ?);`
-	_, err = db.conn.Exec(insertSymbolSQL, unitID, symbol, scope, kind)
+	var err error
+	_, err = db.conn.Exec(insertSymbolSQL, unitID, symbol, scope, kind, definition)
 	return err
+}
+
+// GetUnitContent returns the unit id and locates the file path for the given unit name,
+// reads the file (assumed UTF-8 encoded), and returns its id and content as a string.
+func (db *symDB) GetUnitContent(unit string) (int, string, error) {
+	var unitID int
+	var unitpath string
+	// Updated query to select both unit id and unitpath with case insensitive comparison
+	query := "SELECT id, unitpath FROM units WHERE unitname = ? COLLATE NOCASE"
+	if err := db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath); err != nil {
+		return 0, "", err
+	}
+	data, err := os.ReadFile(unitpath)
+	if err != nil {
+		return 0, "", err
+	}
+	return unitID, string(data), nil
 }

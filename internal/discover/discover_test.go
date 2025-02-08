@@ -42,3 +42,41 @@ func TestDiscoverUnits(t *testing.T) {
 		t.Fatalf("Row error: %v", err)
 	}
 }
+
+func TestDiscoverPublicSymbols(t *testing.T) {
+	// Create a Discover instance.
+	d := &Discover{}
+
+	// Run PublicSymbols, and recover from any panics caused by our listener.
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered panic:", r)
+			}
+		}()
+		d.Units("/home/tomas/testsrcs/pubtest")
+		d.PublicSymbols("iNALCrypt")
+	}()
+
+	// Query the symbols table with a left join on units to get unitname.
+	dbConn := SymDB().conn
+	rows, err := dbConn.Query("SELECT s.symbol, s.scope, s.kind, s.definition, u.unitname FROM symbols s LEFT JOIN units u ON s.unit_id = u.id")
+	if err != nil {
+		t.Fatalf("Query failed: %v", err)
+	}
+	defer rows.Close()
+
+	fmt.Println("Symbols Table:")
+	fmt.Printf("%-20s %-20s %-5s %-20s %-50s\n", "symbol", "unitname", "kind", "scope", "definition")
+	for rows.Next() {
+		var kind int
+		var symbol, unitname, definition, scope string
+		if err := rows.Scan(&symbol, &scope, &kind, &definition, &unitname); err != nil {
+			t.Fatalf("Scan failed: %v", err)
+		}
+		fmt.Printf("%-20s %-20s %-5d %-20s %-50s\n", symbol, unitname, kind, scope, definition)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("Row error: %v", err)
+	}
+}

@@ -7,6 +7,10 @@ import (
 
 type Discover struct{}
 
+type DiscoverError struct {
+	Message string
+}
+
 func (d *Discover) Units(rootDir string) {
 	fc := fileCrawler{}
 	// fc.processPasListeners(rootDir,
@@ -28,4 +32,20 @@ func (d *Discover) Units(rootDir string) {
 			SymDB().insertUnit(unitName, path)
 		})
 
+}
+
+func (d *Discover) PublicSymbols(unit string) {
+
+	unit_id, content, err := SymDB().GetUnitContent(unit)
+	if err != nil {
+		panic(DiscoverError{Message: err.Error()})
+	}
+
+	l := &publicSymbolsListener{unit_id: unit_id, unitName: unit}
+	parseFromContent(content, l, defaultOptions())
+
+}
+
+func (e *DiscoverError) Error() string {
+	return e.Message
 }

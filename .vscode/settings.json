@@ -1,5 +1,19 @@
 {
     "go.testFlags": [
         "-v"
-    ]
+    ],
+    "antlr4.debug": {
+        
+        "visualParseTreeHorizontal": true,
+        "visualParseTreeClustered": false
+    },
+    "antlr4.log": "debug",
+    "antlr4.generation": {
+        "mode": "external",
+        "listeners": true,
+        "visitors": true,
+        "language": "Go",
+        "outputDir": "parser",
+    }
+
 }

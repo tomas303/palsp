@@ -37,9 +37,10 @@ type unitNameListener struct {
 type publicSymbolsListener struct {
 	parser.BasepascalListener
 
-	unitName   string
-	unit_id    int
-	scopeStack stack[string]
+	unitName             string
+	unit_id              int
+	scopeStack           stack[string]
+	identExitActionStack stack[func(identifier string)]
 }
 
 func (e *finishError) Error() string {
@@ -77,6 +78,28 @@ func (l *unitNameListener) IsUnit() bool {
 
 func (s *publicSymbolsListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
 	panic(newFinishError("implementation hit, no more public symbols"))
+}
+
+func (s *publicSymbolsListener) ExitIdentifier(ctx *parser.IdentifierContext) {
+	action := s.identExitActionStack.pop()
+	if action != nil {
+		identifier := s.getIdentifierText(ctx)
+		action(identifier)
+	}
+}
+
+func (s *publicSymbolsListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
+	s.identExitActionStack.push(func(identifier string) {
+		s.scopeStack.push(identifier)
+	})
+}
+
+func (s *publicSymbolsListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
+	if ctx.ForwardClassType() != nil {
+		s.scopeStack.pop()
+	} else {
+		s.insertSymbol(s.scopeStack.pop(), int(TypeSymbol), s.getTypeDef(ctx))
+	}
 }
 
 func (s *publicSymbolsListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
@@ -139,12 +162,30 @@ func (s *publicSymbolsListener) ExitVariableDeclaration(ctx *parser.VariableDecl
 	}
 }
 
-func (s *publicSymbolsListener) EnterClassType(ctx *parser.ClassTypeContext) {
-	// necessary solve public, protected, private ... in this case only protexted and public and must be distinguished, strict protected and protected kinda too
-	name := safeGetText(ctx.Identifier())
-	SymDB().insertSymbol(s.unit_id, name, s.scope(), int(ClassSymbol), "class( ... inherit, impelemntms)")
-	s.scopeStack.push(name)
-}
+// func (s *publicSymbolsListener) EnterClassType(ctx *parser.ClassTypeContext) {
+// 	// necessary solve public, protected, private ... in this case only protexted and public and must be distinguished, strict protected and protected kinda too
+// 	name := safeGetText(ctx.Identifier())
+// 	SymDB().insertSymbol(s.unit_id, name, s.scope(), int(ClassSymbol), "class( ... inherit, impelemntms)")
+// 	s.scopeStack.push(name)
+// }
+
+// func (s *publicSymbolsListener) ExitClassTypeHeader(ctx *parser.ClassTypeHeaderContext) {
+// 	name := safeGetText(ctx.Identifier())
+// 	if name == "" {
+// 		name = "TObject"
+// 	}
+// 	implements := ""
+// 	if ctx.ClassImplementsInterfaces() != nil {
+// 		for _, identifier := range ctx.ClassImplementsInterfaces().AllTypeIdentifier() {
+// 			implements += ", " + identifier.GetText()
+// 		}
+// 	}
+// 	if ctx.ABSTRACT() != nil {
+
+// 	}
+// 	s.insertSymbol(name, int(ClassSymbol), "class( ... inherit, impelemntmszzzzz)")
+// 	s.scopeStack.push(name)
+// }
 
 func (s *publicSymbolsListener) ExitClassType(ctx *parser.ClassTypeContext) {
 	s.scopeStack.pop()
@@ -174,4 +215,120 @@ func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition
 	if err != nil {
 		log.Printf("Non-fatal error encountered: %v", err)
 	}
+}
+
+func (s *publicSymbolsListener) getIdentifierText(ctx *parser.IdentifierContext) string {
+	nodes := ctx.AllIDENT()
+	if len(nodes) > 0 {
+		var texts []string
+		for _, node := range nodes {
+			texts = append(texts, node.GetText())
+		}
+		return strings.Join(texts, ".")
+	}
+	if ctx.INDEX() != nil {
+		return ctx.INDEX().GetText()
+	}
+	if ctx.READ() != nil {
+		return ctx.READ().GetText()
+	}
+	if ctx.WRITE() != nil {
+		return ctx.WRITE().GetText()
+	}
+	return ""
+}
+
+func (s *publicSymbolsListener) getStructuredTypeDef(ctx parser.IType_Context) string {
+	// Assume that the context is a structured type.
+	// This is a placeholder for more complex logic.
+	return "structured type"
+}
+
+func (s *publicSymbolsListener) getFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
+	result := ""
+	params := buildParameterList(ctx.FormalParameterList())
+	if ctx.ResultType() != nil {
+		result = ctx.ResultType().TypeIdentifier().GetText()
+	}
+	if result != "" {
+		result += fmt.Sprintf("function(%s): %s", params, result)
+	} else {
+		result += fmt.Sprintf("function(%s)", params)
+	}
+	result += safeGetText(ctx.ProcedureOrFunctionHeaderModifiers())
+	return result
+}
+func (s *publicSymbolsListener) getProcedureTypeDef(ctx parser.IProcedureTypeContext) string {
+	params := buildParameterList(ctx.FormalParameterList())
+	return fmt.Sprintf("procedure(%s)", params) + safeGetText(ctx.ProcedureOrFunctionHeaderModifiers())
+}
+
+func (s *publicSymbolsListener) getTypeDef(ctx *parser.TypeDefinitionContext) string {
+	// Attempt to use a more descriptive definition based on the context type.
+	// Note: Replace the context type names with those in your actual generated parser.
+
+	if ctx.Type_() != nil {
+		return s.getStructuredTypeDef(ctx.Type_())
+	}
+
+	if ctx.FunctionType() != nil {
+		return s.getFunctionTypeDef(ctx.FunctionType())
+	}
+
+	if ctx.ProcedureType() != nil {
+		return s.getProcedureTypeDef(ctx.ProcedureType())
+	}
+
+	return ""
+}
+
+func buildParameterGroup(ctx parser.IParameterGroupContext) string {
+	result := ""
+	if ctx.IdentifierList() != nil {
+		identifiers := ctx.IdentifierList().AllIdentifier()
+		for i, identifier := range identifiers {
+			result += identifier.GetText()
+			if i < len(identifiers)-1 {
+				result += ", "
+			}
+		}
+		if ctx.TypeIdentifier() != nil {
+			result += ": " + ctx.TypeIdentifier().GetText()
+		}
+		if ctx.DefaultValue() != nil {
+			result += " = " + ctx.DefaultValue().GetText()
+		}
+	}
+	return result
+}
+
+func buildParameterSection(ctx parser.IFormalParameterSectionContext) string {
+	result := ""
+	if ctx.VAR() != nil {
+		result += "var "
+	}
+	if ctx.CONST() != nil {
+		result += "const "
+	}
+	if ctx.OUT() != nil {
+		result += "out "
+	}
+	if ctx.FUNCTION() != nil {
+		result += "function "
+	}
+	if ctx.PROCEDURE() != nil {
+		result += "procedure "
+	}
+	if ctx.ParameterGroup() != nil {
+		result += buildParameterGroup(ctx.ParameterGroup())
+	}
+	return result
+}
+
+func buildParameterList(ctx parser.IFormalParameterListContext) string {
+	var params []string
+	for _, paramsection := range ctx.AllFormalParameterSection() {
+		params = append(params, buildParameterSection(paramsection))
+	}
+	return strings.Join(params, "; ")
 }

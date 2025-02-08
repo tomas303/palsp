@@ -42,7 +42,7 @@ func (d *Discover) PublicSymbols(unit string) {
 	}
 
 	l := &publicSymbolsListener{unit_id: unit_id, unitName: unit}
-	parseFromContent(content, l, defaultOptions())
+	parseFromContent(content, l, fullDebugOptions())
 
 }
 

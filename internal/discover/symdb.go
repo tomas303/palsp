@@ -23,6 +23,7 @@ const (
 	ConstantSymbol                    // 2
 	VariableSymbol                    // 3
 	ClassSymbol                       // 4
+	TypeSymbol                        // 5
 )
 
 func init() {

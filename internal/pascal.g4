@@ -469,8 +469,9 @@ formalParameterSection
     ;
 
 parameterGroup
-    : identifierList COLON typeIdentifier defaultValue?
-	| (VAR | CONST) identifierList;
+    : identifierList (COLON typeIdentifier)? defaultValue?
+	// | (VAR | CONST) identifierList
+    ;
 
 identifierList
     : identifier (COMMA identifier)*

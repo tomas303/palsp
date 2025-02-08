@@ -59,6 +59,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#constantChr.
 	VisitConstantChr(ctx *ConstantChrContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#hexConstant.
+	VisitHexConstant(ctx *HexConstantContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#constant.
 	VisitConstant(ctx *ConstantContext) interface{}
 

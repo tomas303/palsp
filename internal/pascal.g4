@@ -77,7 +77,7 @@ finalizationSection
     ;
 
 identifier
-    : IDENT
+    : IDENT (DOT IDENT)*
     | INDEX
     | READ
     | WRITE
@@ -139,6 +139,10 @@ constantChr
     : CHR LPAREN unsignedInteger RPAREN
     ;
 
+hexConstant
+    : HEX_LITERAL
+    ;
+
 constant
     : unsignedNumber
     | sign unsignedNumber
@@ -177,7 +181,7 @@ bool_
     ;
 
 string
-    : STRING_LITERAL
+    : (STRING_LITERAL | STRING_CROSSHATCH_LITERAL)+
     ;
 
 resourceDefinitionPart
@@ -197,19 +201,19 @@ typeDefinition
     ;
 
 functionType
-    : FUNCTION (formalParameterList)? COLON resultType OFOBJECT?
+    : FUNCTION (formalParameterList)? COLON resultType OFOBJECT? procedureOrFunctionHeaderModifiers
     ;
 
 procedureType
-    : PROCEDURE (formalParameterList)? OFOBJECT?
+    : PROCEDURE (formalParameterList)? OFOBJECT? procedureOrFunctionHeaderModifiers
     ;
 
 forwardClassType
-    : CLASS
+    : CLASS SEMI
     ;
 
 classType
-    : CLASS LPAREN identifier classImplementsInterfaces RPAREN classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
     ;
 
 classImplementsInterfaces
@@ -257,8 +261,8 @@ classDeclarationPart
     : identifierList COLON typeIdentifier SEMI
     | typeDefinitionPart
     | constantDefinitionPart
-    | FUNCTION identifier (formalParameterList)? COLON resultType SEMI procedureOrFunctionHeaderModifiers
-    | (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
+    | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    | CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     | propertyDeclaration SEMI (DEFAULT SEMI)?
     ;
 
@@ -313,7 +317,7 @@ scalarType
     ;
 
 subrangeType
-    : constant DOTDOT constant
+    : simpleExpression DOTDOT simpleExpression
     ;
 
 typeIdentifier
@@ -410,15 +414,15 @@ variableDeclarationPart
     ;
 
 variableDeclaration
-    : identifierList COLON type_
+    : identifierList COLON type_ (EQUAL simpleExpression)?
     ;
 
 procedureHeader
-    : (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? SEMI procedureOrFunctionHeaderModifiers
+    : (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType SEMI procedureOrFunctionHeaderModifiers
+    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader
@@ -427,7 +431,7 @@ procedureOrFunctionHeader
     ;
 
 procedureOrFunctionHeaderModifiers: (
-		(ABSTRACT | VIRTUAL | OVERRIDE | OVERLOAD | INLINE) SEMI
+		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | OVERLOAD | INLINE | STDCALL | CDECL)
 	)*;
 
 procedureOrFunctionDeclaration
@@ -580,6 +584,7 @@ factor
 unsignedConstant
     : unsignedNumber
     | constantChr
+    | hexConstant
     | string
     | NIL
     ;
@@ -1117,6 +1122,14 @@ INLINE
     : 'INLINE'
     ;
 
+CDECL
+    : 'CDECL'
+    ;
+
+STDCALL
+    : 'stdcall'
+    ;  
+
 CONSTRUCTOR
     : 'CONSTRUCTOR'
     ;
@@ -1172,11 +1185,19 @@ COMMENT_3
     ;
 
 IDENT
-    : ('A' .. 'Z') ('A' .. 'Z' | '0' .. '9' | '_')*
+    : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
+    ;
+
+HEX_LITERAL
+    : '$' ('A' .. 'F' | '0' .. '9')+
     ;
 
 STRING_LITERAL
     : '\'' ('\'\'' | ~ ('\''))* '\''
+    ;
+
+STRING_CROSSHATCH_LITERAL
+    : '#' [0-9]+
     ;
 
 NUM_INT

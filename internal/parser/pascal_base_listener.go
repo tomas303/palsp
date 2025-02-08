@@ -123,6 +123,12 @@ func (s *BasepascalListener) EnterConstantChr(ctx *ConstantChrContext) {}
 // ExitConstantChr is called when production constantChr is exited.
 func (s *BasepascalListener) ExitConstantChr(ctx *ConstantChrContext) {}
 
+// EnterHexConstant is called when production hexConstant is entered.
+func (s *BasepascalListener) EnterHexConstant(ctx *HexConstantContext) {}
+
+// ExitHexConstant is called when production hexConstant is exited.
+func (s *BasepascalListener) ExitHexConstant(ctx *HexConstantContext) {}
+
 // EnterConstant is called when production constant is entered.
 func (s *BasepascalListener) EnterConstant(ctx *ConstantContext) {}
 

@@ -76,6 +76,10 @@ func (v *BasepascalVisitor) VisitConstantChr(ctx *ConstantChrContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitHexConstant(ctx *HexConstantContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitConstant(ctx *ConstantContext) interface{} {
 	return v.VisitChildren(ctx)
 }

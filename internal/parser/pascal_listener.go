@@ -59,6 +59,9 @@ type pascalListener interface {
 	// EnterConstantChr is called when entering the constantChr production.
 	EnterConstantChr(c *ConstantChrContext)
 
+	// EnterHexConstant is called when entering the hexConstant production.
+	EnterHexConstant(c *HexConstantContext)
+
 	// EnterConstant is called when entering the constant production.
 	EnterConstant(c *ConstantContext)
 
@@ -472,6 +475,9 @@ type pascalListener interface {
 
 	// ExitConstantChr is called when exiting the constantChr production.
 	ExitConstantChr(c *ConstantChrContext)
+
+	// ExitHexConstant is called when exiting the hexConstant production.
+	ExitHexConstant(c *HexConstantContext)
 
 	// ExitConstant is called when exiting the constant production.
 	ExitConstant(c *ConstantContext)

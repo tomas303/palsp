@@ -30,6 +30,18 @@ type unitNameListener struct {
 	isUnit   bool
 }
 
+type AccessSpec int
+
+const (
+	AccUnknown AccessSpec = iota
+	AccPrivate
+	AccStrictPrivate
+	AccProtected
+	AccStrictProtected
+	AccPublic
+	AccPublished
+)
+
 // public and all symbols ... only difference that public stops on implementation, probably in different table
 // and probably less rules. So private shoudl wrap it and build on top of it
 // this will be used to scan units form interface section of opended files. That can be recursive to fill up class inheritance(later if deemed necessary)
@@ -37,10 +49,11 @@ type unitNameListener struct {
 type publicSymbolsListener struct {
 	parser.BasepascalListener
 
-	unitName             string
-	unit_id              int
-	scopeStack           stack[string]
-	identExitActionStack stack[func(identifier string)]
+	unitName              string
+	unit_id               int
+	scopeStack            stack[string]
+	identExitActionStack  stack[func(identifier string)]
+	accessSpecifiersStack stack[AccessSpec]
 }
 
 func (e *finishError) Error() string {
@@ -106,26 +119,45 @@ func (s *publicSymbolsListener) ExitTypeDefinition(ctx *parser.TypeDefinitionCon
 }
 
 func (s *publicSymbolsListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
-	name := ""
-	if ctx.MethodIdentifier() != nil {
-		name = ctx.MethodIdentifier().Identifier().GetText()
-	} else if ctx.Identifier() != nil {
-		name = ctx.Identifier().GetText()
+	result := ""
+	if ctx.CLASS() != nil {
+		result = "class "
 	}
-	if name != "" {
-		s.insertSymbol(name, int(ProcedureSymbol), name)
+	if ctx.PROCEDURE() != nil {
+		result += "procedure "
+	} else if ctx.CONSTRUCTOR() != nil {
+		result += "constructor "
+	} else if ctx.DESTRUCTOR() != nil {
+		result += "destructor "
+	}
+	if ctx.MethodIdentifier() != nil {
+		result += buildIdentifier(ctx.MethodIdentifier().Identifier())
+	} else if ctx.Identifier() != nil {
+		result += buildIdentifier(ctx.Identifier())
+	}
+	result += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	if result != "" {
+		s.insertSymbol(result, int(ProcedureSymbol), result)
 	}
 }
 
 func (s *publicSymbolsListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
-	name := ""
-	if ctx.MethodIdentifier() != nil {
-		name = ctx.MethodIdentifier().Identifier().GetText()
-	} else if ctx.Identifier() != nil {
-		name = ctx.Identifier().GetText()
+	result := ""
+	if ctx.CLASS() != nil {
+		result = "class "
 	}
-	if name != "" {
-		s.insertSymbol(name, int(FunctionSymbol), name)
+	result += "function "
+	if ctx.MethodIdentifier() != nil {
+		result += buildIdentifier(ctx.MethodIdentifier().Identifier())
+	} else if ctx.Identifier() != nil {
+		result += buildIdentifier(ctx.Identifier())
+	}
+	result += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	result += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
+	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	if result != "" {
+		s.insertSymbol(result, int(FunctionSymbol), result)
 	}
 }
 
@@ -162,12 +194,34 @@ func (s *publicSymbolsListener) ExitVariableDeclaration(ctx *parser.VariableDecl
 	}
 }
 
-func (s *publicSymbolsListener) EnterRecordType(ctx *parser.RecordTypeContext) {
-	s.scopeStack.push("record to be done")
+// func (s *publicSymbolsListener) EnterRecordType(ctx *parser.RecordTypeContext) {
+// 	s.scopeStack.push("record to be done")
+// }
+
+// func (s *publicSymbolsListener) ExitRecordType(ctx *parser.RecordTypeContext) {
+// 	s.scopeStack.pop()
+// }clo
+
+func (s *publicSymbolsListener) ExitAccessSpecifier(ctx *parser.AccessSpecifierContext) {
+	if ctx.PRIVATE() != nil {
+		s.accessSpecifiersStack.push(AccPrivate)
+	} else if ctx.STRICTPRIVATE() != nil {
+		s.accessSpecifiersStack.push(AccStrictPrivate)
+	} else if ctx.PROTECTED() != nil {
+		s.accessSpecifiersStack.push(AccProtected)
+	} else if ctx.STRICTPROTECTED() != nil {
+		s.accessSpecifiersStack.push(AccStrictProtected)
+	} else if ctx.PUBLIC() != nil {
+		s.accessSpecifiersStack.push(AccPublic)
+	} else if ctx.PUBLISHED() != nil {
+		s.accessSpecifiersStack.push(AccPublished)
+	} else {
+		s.accessSpecifiersStack.push(AccPublished)
+	}
 }
 
-func (s *publicSymbolsListener) ExitRecordType(ctx *parser.RecordTypeContext) {
-	s.scopeStack.pop()
+func (s *publicSymbolsListener) ExitClassDeclaration(ctx *parser.ClassDeclarationContext) {
+	s.accessSpecifiersStack.pop()
 }
 
 func safeGetText(ctx interface{ GetText() string }) string {
@@ -182,9 +236,11 @@ func (s *publicSymbolsListener) scope() string {
 }
 
 func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition string) {
-	err := SymDB().insertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
-	if err != nil {
-		log.Printf("Non-fatal error encountered: %v", err)
+	if s.accessSpecifiersStack.isEmpty() || s.accessSpecifiersStack.peek() == AccPublic || s.accessSpecifiersStack.peek() == AccPublished {
+		err := SymDB().insertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
+		if err != nil {
+			log.Printf("Non-fatal error encountered: %v", err)
+		}
 	}
 }
 

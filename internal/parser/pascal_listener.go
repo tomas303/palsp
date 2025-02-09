@@ -113,26 +113,11 @@ type pascalListener interface {
 	// EnterClassImplementsInterfaces is called when entering the classImplementsInterfaces production.
 	EnterClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
 
+	// EnterAccessSpecifier is called when entering the accessSpecifier production.
+	EnterAccessSpecifier(c *AccessSpecifierContext)
+
 	// EnterClassDeclaration is called when entering the classDeclaration production.
 	EnterClassDeclaration(c *ClassDeclarationContext)
-
-	// EnterClassPrivateDeclaration is called when entering the classPrivateDeclaration production.
-	EnterClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
-
-	// EnterClassStrictPrivateDeclaration is called when entering the classStrictPrivateDeclaration production.
-	EnterClassStrictPrivateDeclaration(c *ClassStrictPrivateDeclarationContext)
-
-	// EnterClassProtectedDeclaration is called when entering the classProtectedDeclaration production.
-	EnterClassProtectedDeclaration(c *ClassProtectedDeclarationContext)
-
-	// EnterClassStrictProtectedDeclaration is called when entering the classStrictProtectedDeclaration production.
-	EnterClassStrictProtectedDeclaration(c *ClassStrictProtectedDeclarationContext)
-
-	// EnterClassPublicDeclaration is called when entering the classPublicDeclaration production.
-	EnterClassPublicDeclaration(c *ClassPublicDeclarationContext)
-
-	// EnterClassPublishedDeclaration is called when entering the classPublishedDeclaration production.
-	EnterClassPublishedDeclaration(c *ClassPublishedDeclarationContext)
 
 	// EnterClassImplicitPublishedDeclaration is called when entering the classImplicitPublishedDeclaration production.
 	EnterClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
@@ -524,26 +509,11 @@ type pascalListener interface {
 	// ExitClassImplementsInterfaces is called when exiting the classImplementsInterfaces production.
 	ExitClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
 
+	// ExitAccessSpecifier is called when exiting the accessSpecifier production.
+	ExitAccessSpecifier(c *AccessSpecifierContext)
+
 	// ExitClassDeclaration is called when exiting the classDeclaration production.
 	ExitClassDeclaration(c *ClassDeclarationContext)
-
-	// ExitClassPrivateDeclaration is called when exiting the classPrivateDeclaration production.
-	ExitClassPrivateDeclaration(c *ClassPrivateDeclarationContext)
-
-	// ExitClassStrictPrivateDeclaration is called when exiting the classStrictPrivateDeclaration production.
-	ExitClassStrictPrivateDeclaration(c *ClassStrictPrivateDeclarationContext)
-
-	// ExitClassProtectedDeclaration is called when exiting the classProtectedDeclaration production.
-	ExitClassProtectedDeclaration(c *ClassProtectedDeclarationContext)
-
-	// ExitClassStrictProtectedDeclaration is called when exiting the classStrictProtectedDeclaration production.
-	ExitClassStrictProtectedDeclaration(c *ClassStrictProtectedDeclarationContext)
-
-	// ExitClassPublicDeclaration is called when exiting the classPublicDeclaration production.
-	ExitClassPublicDeclaration(c *ClassPublicDeclarationContext)
-
-	// ExitClassPublishedDeclaration is called when exiting the classPublishedDeclaration production.
-	ExitClassPublishedDeclaration(c *ClassPublishedDeclarationContext)
 
 	// ExitClassImplicitPublishedDeclaration is called when exiting the classImplicitPublishedDeclaration production.
 	ExitClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)

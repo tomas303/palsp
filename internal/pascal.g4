@@ -220,37 +220,17 @@ classImplementsInterfaces
     : (COMMA typeIdentifier)*
     ;
 
+accessSpecifier
+    : PRIVATE
+    | STRICTPRIVATE
+    | PROTECTED
+    | STRICTPROTECTED
+    | PUBLIC
+    | PUBLISHED
+    ;
+
 classDeclaration
-    : classPrivateDeclaration
-    | classStrictPrivateDeclaration
-    | classProtectedDeclaration
-    | classStrictProtectedDeclaration
-    | classPublicDeclaration
-    | classPublishedDeclaration
-    ;    
-
-classPrivateDeclaration
-    : PRIVATE classDeclarationPart*
-    ;
-
-classStrictPrivateDeclaration
-    : STRICTPRIVATE classDeclarationPart*
-    ;
-
-classProtectedDeclaration
-    : PROTECTED classDeclarationPart*
-    ;
-
-classStrictProtectedDeclaration
-    : STRICTPROTECTED classDeclarationPart*
-    ;
-
-classPublicDeclaration
-    : PUBLIC classDeclarationPart*
-    ;
-
-classPublishedDeclaration
-    : PUBLISHED classDeclarationPart*
+    : accessSpecifier classDeclarationPart*
     ;
 
 classImplicitPublishedDeclaration
@@ -261,8 +241,10 @@ classDeclarationPart
     : typedIdentifierList SEMI
     | typeDefinitionPart
     | constantDefinitionPart
-    | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
-    | CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    // | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    // | CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    | functionHeader
+    | procedureHeader
     | propertyDeclaration SEMI (DEFAULT SEMI)?
     ;
 
@@ -406,11 +388,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader

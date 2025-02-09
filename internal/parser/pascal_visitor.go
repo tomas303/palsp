@@ -113,26 +113,11 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#classImplementsInterfaces.
 	VisitClassImplementsInterfaces(ctx *ClassImplementsInterfacesContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#accessSpecifier.
+	VisitAccessSpecifier(ctx *AccessSpecifierContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#classDeclaration.
 	VisitClassDeclaration(ctx *ClassDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classPrivateDeclaration.
-	VisitClassPrivateDeclaration(ctx *ClassPrivateDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classStrictPrivateDeclaration.
-	VisitClassStrictPrivateDeclaration(ctx *ClassStrictPrivateDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classProtectedDeclaration.
-	VisitClassProtectedDeclaration(ctx *ClassProtectedDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classStrictProtectedDeclaration.
-	VisitClassStrictProtectedDeclaration(ctx *ClassStrictProtectedDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classPublicDeclaration.
-	VisitClassPublicDeclaration(ctx *ClassPublicDeclarationContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#classPublishedDeclaration.
-	VisitClassPublishedDeclaration(ctx *ClassPublishedDeclarationContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#classImplicitPublishedDeclaration.
 	VisitClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) interface{}

@@ -148,31 +148,11 @@ func (v *BasepascalVisitor) VisitClassImplementsInterfaces(ctx *ClassImplementsI
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitAccessSpecifier(ctx *AccessSpecifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitClassDeclaration(ctx *ClassDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassPrivateDeclaration(ctx *ClassPrivateDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassStrictPrivateDeclaration(ctx *ClassStrictPrivateDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassProtectedDeclaration(ctx *ClassProtectedDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassStrictProtectedDeclaration(ctx *ClassStrictProtectedDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassPublicDeclaration(ctx *ClassPublicDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassPublishedDeclaration(ctx *ClassPublishedDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

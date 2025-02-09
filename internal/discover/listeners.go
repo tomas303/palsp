@@ -255,12 +255,12 @@ func (s *publicSymbolsListener) getFunctionTypeDef(ctx parser.IFunctionTypeConte
 	} else {
 		result += fmt.Sprintf("function(%s)", params)
 	}
-	result += safeGetText(ctx.ProcedureOrFunctionHeaderModifiers())
+	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 	return result
 }
 func (s *publicSymbolsListener) getProcedureTypeDef(ctx parser.IProcedureTypeContext) string {
 	params := buildParameterList(ctx.FormalParameterList())
-	return fmt.Sprintf("procedure(%s)", params) + safeGetText(ctx.ProcedureOrFunctionHeaderModifiers())
+	return fmt.Sprintf("procedure(%s)", params) + buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 }
 
 func (s *publicSymbolsListener) getTypeDef(ctx *parser.TypeDefinitionContext) string {
@@ -331,4 +331,36 @@ func buildParameterList(ctx parser.IFormalParameterListContext) string {
 		params = append(params, buildParameterSection(paramsection))
 	}
 	return strings.Join(params, "; ")
+}
+
+func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHeaderModifiersContext) string {
+	result := ""
+	if len(ctx.AllABSTRACT()) > 0 {
+		result += "abstract;"
+	}
+	if len(ctx.AllVIRTUAL()) > 0 {
+		result += "virtual;"
+	}
+	if len(ctx.AllOVERRIDE()) > 0 {
+		result += "override;"
+	}
+	if len(ctx.AllREINTRODUCE()) > 0 {
+		result += "reintroduce;"
+	}
+	if len(ctx.AllOVERLOAD()) > 0 {
+		result += "overload;"
+	}
+	if len(ctx.AllINLINE()) > 0 {
+		result += "inline;"
+	}
+	if len(ctx.AllSTDCALL()) > 0 {
+		result += "stdcall;"
+	}
+	if len(ctx.AllCDECL()) > 0 {
+		result += "cdecl;"
+	}
+	if len(result) > 0 {
+		result = "; " + result
+	}
+	return result
 }

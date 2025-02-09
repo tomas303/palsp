@@ -431,7 +431,7 @@ procedureOrFunctionHeader
     ;
 
 procedureOrFunctionHeaderModifiers: (
-		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | OVERLOAD | INLINE | STDCALL | CDECL)
+		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | REINTRODUCE | OVERLOAD | INLINE | STDCALL | CDECL)
 	)*;
 
 procedureOrFunctionDeclaration
@@ -1105,6 +1105,10 @@ INHERITED
 
 ABSTRACT
     : 'ABSTRACT'
+    ;
+
+REINTRODUCE
+    : 'REINTRODUCE'
     ;
 
 VIRTUAL

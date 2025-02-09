@@ -258,7 +258,7 @@ classImplicitPublishedDeclaration
     ;
 
 classDeclarationPart
-    : identifierList COLON typeIdentifier SEMI
+    : typedIdentifierList SEMI
     | typeDefinitionPart
     | constantDefinitionPart
     | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
@@ -359,24 +359,20 @@ indexType
     ;
 
 recordType
-    : RECORD fieldList? END
+    : RECORD recordParts? END
     ;
 
-fieldList
-    : fixedPart (SEMI variantPart)?
-    | variantPart
+recordParts
+    : recordFixedPart (SEMI recordVariantPart)?
+    | recordVariantPart
     ;
 
-fixedPart
-    : recordSection (SEMI recordSection)* SEMI?
+recordFixedPart
+    : typedIdentifierList (SEMI typedIdentifierList)* SEMI?
     ;
 
-recordSection
-    : identifierList COLON type_
-    ;
-
-variantPart
-    : CASE tag OF variant (SEMI variant)*
+recordVariantPart
+    : CASE tag OF recordVariant (SEMI recordVariant)*
     ;
 
 tag
@@ -384,8 +380,8 @@ tag
     | typeIdentifier
     ;
 
-variant
-    : constList COLON LPAREN fieldList RPAREN
+recordVariant
+    : constList COLON LPAREN recordParts RPAREN
     ;
 
 setType
@@ -410,7 +406,7 @@ variableDeclarationPart
     ;
 
 variableDeclaration
-    : identifierList COLON type_ (EQUAL simpleExpression)?
+    : typedIdentifierList (EQUAL simpleExpression)?
     ;
 
 procedureHeader
@@ -479,6 +475,10 @@ constList
 
 defaultValue
     : EQUAL expression
+    ;
+
+typedIdentifierList
+    : identifierList COLON type_
     ;
 
 statement
@@ -707,7 +707,7 @@ finalValue
     ;
 
 withStatement
-    : WITH recordVariableList DO statement
+    : WITH withStatementVariableList DO statement
     | WITH expression DO statement
     ;
 
@@ -719,7 +719,7 @@ tryFinallyStatement
     : TRY statements FINALLY statements END
     ;
 
-recordVariableList
+withStatementVariableList
     : variable (COMMA variable)*
     ;
 

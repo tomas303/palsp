@@ -264,19 +264,15 @@ func (v *BasepascalVisitor) VisitRecordType(ctx *RecordTypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitFieldList(ctx *FieldListContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordParts(ctx *RecordPartsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitFixedPart(ctx *FixedPartContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordFixedPart(ctx *RecordFixedPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordSection(ctx *RecordSectionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitVariantPart(ctx *VariantPartContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordVariantPart(ctx *RecordVariantPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -284,7 +280,7 @@ func (v *BasepascalVisitor) VisitTag(ctx *TagContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitVariant(ctx *VariantContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordVariant(ctx *RecordVariantContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -369,6 +365,10 @@ func (v *BasepascalVisitor) VisitConstList(ctx *ConstListContext) interface{} {
 }
 
 func (v *BasepascalVisitor) VisitDefaultValue(ctx *DefaultValueContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitTypedIdentifierList(ctx *TypedIdentifierListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -556,6 +556,6 @@ func (v *BasepascalVisitor) VisitTryFinallyStatement(ctx *TryFinallyStatementCon
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordVariableList(ctx *RecordVariableListContext) interface{} {
+func (v *BasepascalVisitor) VisitWithStatementVariableList(ctx *WithStatementVariableListContext) interface{} {
 	return v.VisitChildren(ctx)
 }

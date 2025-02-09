@@ -200,23 +200,20 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#recordType.
 	VisitRecordType(ctx *RecordTypeContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#fieldList.
-	VisitFieldList(ctx *FieldListContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordParts.
+	VisitRecordParts(ctx *RecordPartsContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#fixedPart.
-	VisitFixedPart(ctx *FixedPartContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordFixedPart.
+	VisitRecordFixedPart(ctx *RecordFixedPartContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordSection.
-	VisitRecordSection(ctx *RecordSectionContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#variantPart.
-	VisitVariantPart(ctx *VariantPartContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordVariantPart.
+	VisitRecordVariantPart(ctx *RecordVariantPartContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#tag.
 	VisitTag(ctx *TagContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#variant.
-	VisitVariant(ctx *VariantContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordVariant.
+	VisitRecordVariant(ctx *RecordVariantContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#setType.
 	VisitSetType(ctx *SetTypeContext) interface{}
@@ -280,6 +277,9 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#defaultValue.
 	VisitDefaultValue(ctx *DefaultValueContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#typedIdentifierList.
+	VisitTypedIdentifierList(ctx *TypedIdentifierListContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#statement.
 	VisitStatement(ctx *StatementContext) interface{}
@@ -419,6 +419,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#tryFinallyStatement.
 	VisitTryFinallyStatement(ctx *TryFinallyStatementContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordVariableList.
-	VisitRecordVariableList(ctx *RecordVariableListContext) interface{}
+	// Visit a parse tree produced by pascalParser#withStatementVariableList.
+	VisitWithStatementVariableList(ctx *WithStatementVariableListContext) interface{}
 }

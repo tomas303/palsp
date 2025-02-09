@@ -145,23 +145,20 @@ func (s *publicSymbolsListener) ExitConstantDefinition(ctx *parser.ConstantDefin
 }
 
 func (s *publicSymbolsListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
-	//identifierList COLON type_
-	identifierList := ctx.IdentifierList()
-	// probably some custom logic here to get type ... who knows what typename will be
-	// typename := safeGetText(ctx.Type_())
-	// SimpleType() ISimpleTypeContext
-	// StructuredType() IStructuredTypeContext
-	// PointerType() IPointerTypeContext
-	typename := safeGetText(ctx.Type_())
-	for _, identifier := range identifierList.AllIdentifier() {
-		name := identifier.GetText()
+	defaultvalue := ""
+	if ctx.SimpleExpression() != nil {
+		defaultvalue += "=" + buildSimpleExpression(ctx.SimpleExpression())
+	}
+	fields, fieldtype := buildTypedIdentifierList(ctx.TypedIdentifierList())
+	fieldtype += defaultvalue
+	for _, field := range fields {
 		var definition string
-		if typename == "" {
-			definition = name
+		if fieldtype == "" {
+			definition = field
 		} else {
-			definition = fmt.Sprintf("%s: %s", name, typename)
+			definition = fmt.Sprintf("%s: %s", field, fieldtype)
 		}
-		s.insertSymbol(name, int(VariableSymbol), definition)
+		s.insertSymbol(field, int(VariableSymbol), definition)
 	}
 }
 
@@ -220,11 +217,14 @@ func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition
 	}
 }
 
-func buildStructuredTypeDef(ctx parser.IType_Context) string {
+func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
 	// Assume that the context is a structured type.
 	// This is a placeholder for more complex logic.
 	if ctx.SimpleType() != nil {
 		return buildSimpleTypeDef(ctx.SimpleType())
+	}
+	if ctx.StructuredType() != nil {
+		return buildStructuredTypeDef(ctx.StructuredType())
 	}
 	return ""
 }
@@ -261,6 +261,71 @@ func buildSimpleTypeDef(ctx parser.ISimpleTypeContext) string {
 	return result
 }
 
+func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
+	result := ""
+	if ctx.PACKED() != nil {
+		result += "packed "
+	}
+	if ctx.UnpackedStructuredType() != nil {
+		if ctx.UnpackedStructuredType().RecordType() != nil {
+			result += buildRecordTypeDef(ctx.UnpackedStructuredType().RecordType())
+		}
+	}
+	return result
+}
+
+func buildRecordTypeDef(ctx parser.IRecordTypeContext) string {
+	result := "record\n"
+	result += buildRecordParts(ctx.RecordParts())
+	result += "end"
+	return result
+}
+
+func buildRecordParts(ctx parser.IRecordPartsContext) string {
+	result := ""
+	if ctx != nil {
+		if ctx.RecordFixedPart() != nil {
+			result += buildRecordFixedPart(ctx.RecordFixedPart())
+			if ctx.RecordVariantPart() != nil {
+				result += buildRecordVariantPart(ctx.RecordVariantPart())
+			}
+		} else if ctx.RecordVariantPart() != nil {
+			result += buildRecordVariantPart(ctx.RecordVariantPart())
+		}
+	}
+	return result
+}
+
+func buildRecordFixedPart(ctx parser.IRecordFixedPartContext) string {
+	result := ""
+	for _, typeIdlist := range ctx.AllTypedIdentifierList() {
+		names, typedef := buildTypedIdentifierList(typeIdlist)
+		result += strings.Join(names, ",") + ": " + typedef + ";\n"
+	}
+	return result
+}
+
+func buildRecordVariantPart(ctx parser.IRecordVariantPartContext) string {
+	result := "case " + ctx.Tag().GetText() + " of\n"
+	for _, variant := range ctx.AllRecordVariant() {
+		result += buildRecordVariant(variant)
+	}
+	return result
+}
+
+func buildRecordVariant(ctx parser.IRecordVariantContext) string {
+	result := ""
+	result += buildConstList(ctx.ConstList())
+	if result != "" {
+		result += ": "
+	}
+	parts := buildRecordParts(ctx.RecordParts())
+	if parts != "" {
+		result += "(\n" + parts + ");\n"
+	}
+	return result
+}
+
 func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
 	result := ""
 	params := buildParameterList(ctx.FormalParameterList())
@@ -285,7 +350,7 @@ func buildTypeDef(ctx *parser.TypeDefinitionContext) string {
 	// Note: Replace the context type names with those in your actual generated parser.
 
 	if ctx.Type_() != nil {
-		return buildStructuredTypeDef(ctx.Type_())
+		return buildUnderscoreTypeDef(ctx.Type_())
 	}
 
 	if ctx.FunctionType() != nil {
@@ -452,12 +517,24 @@ func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
 	return ""
 }
 
+func buildTypedIdentifierList(ctx parser.ITypedIdentifierListContext) ([]string, string) {
+	if ctx == nil {
+		return []string{}, ""
+	}
+	typedef := buildUnderscoreTypeDef(ctx.Type_())
+	list := []string{}
+	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
+		list = append(list, buildIdentifier(identifier))
+	}
+	return list, typedef
+}
+
 func buildArrayType(ctx parser.IArrayTypeContext) string {
 	if ctx.TypeList() != nil {
-		return "array[" + buildTypeList(ctx.TypeList()) + "] of " + buildStructuredTypeDef(ctx.Type_())
+		return "array[" + buildTypeList(ctx.TypeList()) + "] of " + buildUnderscoreTypeDef(ctx.Type_())
 	}
 	if ctx.Type_() != nil {
-		return "array of " + buildStructuredTypeDef(ctx.Type_())
+		return "array of " + buildUnderscoreTypeDef(ctx.Type_())
 	}
 	if ctx.CONST() != nil {
 		return "array of const"
@@ -472,5 +549,13 @@ func buildTypeList(ctx parser.ITypeListContext) string {
 			types = append(types, buildSimpleTypeDef(indexType.SimpleType()))
 		}
 	}
-	return strings.Join(types, ", ")
+	return strings.Join(types, ",")
+}
+
+func buildConstList(ctx parser.IConstListContext) string {
+	consts := []string{}
+	for _, constant := range ctx.AllConstant() {
+		consts = append(consts, constant.GetText())
+	}
+	return strings.Join(consts, ",")
 }

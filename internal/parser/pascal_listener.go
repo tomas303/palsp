@@ -200,23 +200,20 @@ type pascalListener interface {
 	// EnterRecordType is called when entering the recordType production.
 	EnterRecordType(c *RecordTypeContext)
 
-	// EnterFieldList is called when entering the fieldList production.
-	EnterFieldList(c *FieldListContext)
+	// EnterRecordParts is called when entering the recordParts production.
+	EnterRecordParts(c *RecordPartsContext)
 
-	// EnterFixedPart is called when entering the fixedPart production.
-	EnterFixedPart(c *FixedPartContext)
+	// EnterRecordFixedPart is called when entering the recordFixedPart production.
+	EnterRecordFixedPart(c *RecordFixedPartContext)
 
-	// EnterRecordSection is called when entering the recordSection production.
-	EnterRecordSection(c *RecordSectionContext)
-
-	// EnterVariantPart is called when entering the variantPart production.
-	EnterVariantPart(c *VariantPartContext)
+	// EnterRecordVariantPart is called when entering the recordVariantPart production.
+	EnterRecordVariantPart(c *RecordVariantPartContext)
 
 	// EnterTag is called when entering the tag production.
 	EnterTag(c *TagContext)
 
-	// EnterVariant is called when entering the variant production.
-	EnterVariant(c *VariantContext)
+	// EnterRecordVariant is called when entering the recordVariant production.
+	EnterRecordVariant(c *RecordVariantContext)
 
 	// EnterSetType is called when entering the setType production.
 	EnterSetType(c *SetTypeContext)
@@ -280,6 +277,9 @@ type pascalListener interface {
 
 	// EnterDefaultValue is called when entering the defaultValue production.
 	EnterDefaultValue(c *DefaultValueContext)
+
+	// EnterTypedIdentifierList is called when entering the typedIdentifierList production.
+	EnterTypedIdentifierList(c *TypedIdentifierListContext)
 
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
@@ -419,8 +419,8 @@ type pascalListener interface {
 	// EnterTryFinallyStatement is called when entering the tryFinallyStatement production.
 	EnterTryFinallyStatement(c *TryFinallyStatementContext)
 
-	// EnterRecordVariableList is called when entering the recordVariableList production.
-	EnterRecordVariableList(c *RecordVariableListContext)
+	// EnterWithStatementVariableList is called when entering the withStatementVariableList production.
+	EnterWithStatementVariableList(c *WithStatementVariableListContext)
 
 	// ExitSource is called when exiting the source production.
 	ExitSource(c *SourceContext)
@@ -614,23 +614,20 @@ type pascalListener interface {
 	// ExitRecordType is called when exiting the recordType production.
 	ExitRecordType(c *RecordTypeContext)
 
-	// ExitFieldList is called when exiting the fieldList production.
-	ExitFieldList(c *FieldListContext)
+	// ExitRecordParts is called when exiting the recordParts production.
+	ExitRecordParts(c *RecordPartsContext)
 
-	// ExitFixedPart is called when exiting the fixedPart production.
-	ExitFixedPart(c *FixedPartContext)
+	// ExitRecordFixedPart is called when exiting the recordFixedPart production.
+	ExitRecordFixedPart(c *RecordFixedPartContext)
 
-	// ExitRecordSection is called when exiting the recordSection production.
-	ExitRecordSection(c *RecordSectionContext)
-
-	// ExitVariantPart is called when exiting the variantPart production.
-	ExitVariantPart(c *VariantPartContext)
+	// ExitRecordVariantPart is called when exiting the recordVariantPart production.
+	ExitRecordVariantPart(c *RecordVariantPartContext)
 
 	// ExitTag is called when exiting the tag production.
 	ExitTag(c *TagContext)
 
-	// ExitVariant is called when exiting the variant production.
-	ExitVariant(c *VariantContext)
+	// ExitRecordVariant is called when exiting the recordVariant production.
+	ExitRecordVariant(c *RecordVariantContext)
 
 	// ExitSetType is called when exiting the setType production.
 	ExitSetType(c *SetTypeContext)
@@ -694,6 +691,9 @@ type pascalListener interface {
 
 	// ExitDefaultValue is called when exiting the defaultValue production.
 	ExitDefaultValue(c *DefaultValueContext)
+
+	// ExitTypedIdentifierList is called when exiting the typedIdentifierList production.
+	ExitTypedIdentifierList(c *TypedIdentifierListContext)
 
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)
@@ -833,6 +833,6 @@ type pascalListener interface {
 	// ExitTryFinallyStatement is called when exiting the tryFinallyStatement production.
 	ExitTryFinallyStatement(c *TryFinallyStatementContext)
 
-	// ExitRecordVariableList is called when exiting the recordVariableList production.
-	ExitRecordVariableList(c *RecordVariableListContext)
+	// ExitWithStatementVariableList is called when exiting the withStatementVariableList production.
+	ExitWithStatementVariableList(c *WithStatementVariableListContext)
 }

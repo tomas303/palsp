@@ -415,29 +415,23 @@ func (s *BasepascalListener) EnterRecordType(ctx *RecordTypeContext) {}
 // ExitRecordType is called when production recordType is exited.
 func (s *BasepascalListener) ExitRecordType(ctx *RecordTypeContext) {}
 
-// EnterFieldList is called when production fieldList is entered.
-func (s *BasepascalListener) EnterFieldList(ctx *FieldListContext) {}
+// EnterRecordParts is called when production recordParts is entered.
+func (s *BasepascalListener) EnterRecordParts(ctx *RecordPartsContext) {}
 
-// ExitFieldList is called when production fieldList is exited.
-func (s *BasepascalListener) ExitFieldList(ctx *FieldListContext) {}
+// ExitRecordParts is called when production recordParts is exited.
+func (s *BasepascalListener) ExitRecordParts(ctx *RecordPartsContext) {}
 
-// EnterFixedPart is called when production fixedPart is entered.
-func (s *BasepascalListener) EnterFixedPart(ctx *FixedPartContext) {}
+// EnterRecordFixedPart is called when production recordFixedPart is entered.
+func (s *BasepascalListener) EnterRecordFixedPart(ctx *RecordFixedPartContext) {}
 
-// ExitFixedPart is called when production fixedPart is exited.
-func (s *BasepascalListener) ExitFixedPart(ctx *FixedPartContext) {}
+// ExitRecordFixedPart is called when production recordFixedPart is exited.
+func (s *BasepascalListener) ExitRecordFixedPart(ctx *RecordFixedPartContext) {}
 
-// EnterRecordSection is called when production recordSection is entered.
-func (s *BasepascalListener) EnterRecordSection(ctx *RecordSectionContext) {}
+// EnterRecordVariantPart is called when production recordVariantPart is entered.
+func (s *BasepascalListener) EnterRecordVariantPart(ctx *RecordVariantPartContext) {}
 
-// ExitRecordSection is called when production recordSection is exited.
-func (s *BasepascalListener) ExitRecordSection(ctx *RecordSectionContext) {}
-
-// EnterVariantPart is called when production variantPart is entered.
-func (s *BasepascalListener) EnterVariantPart(ctx *VariantPartContext) {}
-
-// ExitVariantPart is called when production variantPart is exited.
-func (s *BasepascalListener) ExitVariantPart(ctx *VariantPartContext) {}
+// ExitRecordVariantPart is called when production recordVariantPart is exited.
+func (s *BasepascalListener) ExitRecordVariantPart(ctx *RecordVariantPartContext) {}
 
 // EnterTag is called when production tag is entered.
 func (s *BasepascalListener) EnterTag(ctx *TagContext) {}
@@ -445,11 +439,11 @@ func (s *BasepascalListener) EnterTag(ctx *TagContext) {}
 // ExitTag is called when production tag is exited.
 func (s *BasepascalListener) ExitTag(ctx *TagContext) {}
 
-// EnterVariant is called when production variant is entered.
-func (s *BasepascalListener) EnterVariant(ctx *VariantContext) {}
+// EnterRecordVariant is called when production recordVariant is entered.
+func (s *BasepascalListener) EnterRecordVariant(ctx *RecordVariantContext) {}
 
-// ExitVariant is called when production variant is exited.
-func (s *BasepascalListener) ExitVariant(ctx *VariantContext) {}
+// ExitRecordVariant is called when production recordVariant is exited.
+func (s *BasepascalListener) ExitRecordVariant(ctx *RecordVariantContext) {}
 
 // EnterSetType is called when production setType is entered.
 func (s *BasepascalListener) EnterSetType(ctx *SetTypeContext) {}
@@ -580,6 +574,12 @@ func (s *BasepascalListener) EnterDefaultValue(ctx *DefaultValueContext) {}
 
 // ExitDefaultValue is called when production defaultValue is exited.
 func (s *BasepascalListener) ExitDefaultValue(ctx *DefaultValueContext) {}
+
+// EnterTypedIdentifierList is called when production typedIdentifierList is entered.
+func (s *BasepascalListener) EnterTypedIdentifierList(ctx *TypedIdentifierListContext) {}
+
+// ExitTypedIdentifierList is called when production typedIdentifierList is exited.
+func (s *BasepascalListener) ExitTypedIdentifierList(ctx *TypedIdentifierListContext) {}
 
 // EnterStatement is called when production statement is entered.
 func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}
@@ -857,8 +857,8 @@ func (s *BasepascalListener) EnterTryFinallyStatement(ctx *TryFinallyStatementCo
 // ExitTryFinallyStatement is called when production tryFinallyStatement is exited.
 func (s *BasepascalListener) ExitTryFinallyStatement(ctx *TryFinallyStatementContext) {}
 
-// EnterRecordVariableList is called when production recordVariableList is entered.
-func (s *BasepascalListener) EnterRecordVariableList(ctx *RecordVariableListContext) {}
+// EnterWithStatementVariableList is called when production withStatementVariableList is entered.
+func (s *BasepascalListener) EnterWithStatementVariableList(ctx *WithStatementVariableListContext) {}
 
-// ExitRecordVariableList is called when production recordVariableList is exited.
-func (s *BasepascalListener) ExitRecordVariableList(ctx *RecordVariableListContext) {}
+// ExitWithStatementVariableList is called when production withStatementVariableList is exited.
+func (s *BasepascalListener) ExitWithStatementVariableList(ctx *WithStatementVariableListContext) {}

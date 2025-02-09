@@ -197,9 +197,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#indexType.
 	VisitIndexType(ctx *IndexTypeContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#componentType.
-	VisitComponentType(ctx *ComponentTypeContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#recordType.
 	VisitRecordType(ctx *RecordTypeContext) interface{}
 

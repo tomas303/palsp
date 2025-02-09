@@ -322,7 +322,7 @@ subrangeType
 
 typeIdentifier
     : identifier
-    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | LONGBOOL | CARDINAL)
+    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
     | identifier LT typeIdentifier GT
     | arrayType
     ;
@@ -344,10 +344,10 @@ stringtype
     ;
 
 arrayType
-    : ARRAY LBRACK typeList RBRACK OF componentType
-    | ARRAY LBRACK2 typeList RBRACK2 OF componentType
+    : ARRAY LBRACK typeList RBRACK OF type_
+    | ARRAY LBRACK2 typeList RBRACK2 OF type_
     | ARRAY OF CONST
-    | ARRAY OF componentType
+    | ARRAY OF type_
     ;
 
 typeList
@@ -356,10 +356,6 @@ typeList
 
 indexType
     : simpleType
-    ;
-
-componentType
-    : type_
     ;
 
 recordType
@@ -1163,13 +1159,18 @@ SHL
     : 'SHL'
     ;
 
+CARDINAL
+    : 'Cardinal'
+    ;
+
 LONGBOOL
     : 'LONGBOOL'
     ;
 
-CARDINAL
-    : 'Cardinal'
+LONGINT
+    : 'LONGINT'
     ;
+
 
 fragment WHITESPACE : [ \t\r\n]+ ;
 

@@ -197,9 +197,6 @@ type pascalListener interface {
 	// EnterIndexType is called when entering the indexType production.
 	EnterIndexType(c *IndexTypeContext)
 
-	// EnterComponentType is called when entering the componentType production.
-	EnterComponentType(c *ComponentTypeContext)
-
 	// EnterRecordType is called when entering the recordType production.
 	EnterRecordType(c *RecordTypeContext)
 
@@ -613,9 +610,6 @@ type pascalListener interface {
 
 	// ExitIndexType is called when exiting the indexType production.
 	ExitIndexType(c *IndexTypeContext)
-
-	// ExitComponentType is called when exiting the componentType production.
-	ExitComponentType(c *ComponentTypeContext)
 
 	// ExitRecordType is called when exiting the recordType production.
 	ExitRecordType(c *RecordTypeContext)

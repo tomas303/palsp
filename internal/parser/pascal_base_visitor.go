@@ -260,10 +260,6 @@ func (v *BasepascalVisitor) VisitIndexType(ctx *IndexTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitComponentType(ctx *ComponentTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitRecordType(ctx *RecordTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

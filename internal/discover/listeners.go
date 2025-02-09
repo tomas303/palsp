@@ -83,13 +83,14 @@ func (s *publicSymbolsListener) EnterImplementationSection(ctx *parser.Implement
 func (s *publicSymbolsListener) ExitIdentifier(ctx *parser.IdentifierContext) {
 	action := s.identExitActionStack.pop()
 	if action != nil {
-		identifier := s.getIdentifierText(ctx)
+		identifier := buildIdentifier(ctx)
 		action(identifier)
 	}
 }
 
 func (s *publicSymbolsListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	s.identExitActionStack.push(func(identifier string) {
+		fmt.Printf("Entering type: %s\n", identifier)
 		s.scopeStack.push(identifier)
 	})
 }
@@ -98,7 +99,9 @@ func (s *publicSymbolsListener) ExitTypeDefinition(ctx *parser.TypeDefinitionCon
 	if ctx.ForwardClassType() != nil {
 		s.scopeStack.pop()
 	} else {
-		s.insertSymbol(s.scopeStack.pop(), int(TypeSymbol), s.getTypeDef(ctx))
+		identifier := s.scopeStack.pop()
+		fmt.Printf("Exiting type: %s\n", identifier)
+		s.insertSymbol(identifier, int(TypeSymbol), buildTypeDef(ctx))
 	}
 }
 
@@ -217,34 +220,48 @@ func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition
 	}
 }
 
-func (s *publicSymbolsListener) getIdentifierText(ctx *parser.IdentifierContext) string {
-	nodes := ctx.AllIDENT()
-	if len(nodes) > 0 {
-		var texts []string
-		for _, node := range nodes {
-			texts = append(texts, node.GetText())
-		}
-		return strings.Join(texts, ".")
-	}
-	if ctx.INDEX() != nil {
-		return ctx.INDEX().GetText()
-	}
-	if ctx.READ() != nil {
-		return ctx.READ().GetText()
-	}
-	if ctx.WRITE() != nil {
-		return ctx.WRITE().GetText()
+func buildStructuredTypeDef(ctx parser.IType_Context) string {
+	// Assume that the context is a structured type.
+	// This is a placeholder for more complex logic.
+	if ctx.SimpleType() != nil {
+		return buildSimpleTypeDef(ctx.SimpleType())
 	}
 	return ""
 }
 
-func (s *publicSymbolsListener) getStructuredTypeDef(ctx parser.IType_Context) string {
-	// Assume that the context is a structured type.
-	// This is a placeholder for more complex logic.
-	return "structured type"
+func buildSimpleTypeDef(ctx parser.ISimpleTypeContext) string {
+	result := ""
+	if ctx.ScalarType() != nil {
+		result = "(" + buildIdentifiers(ctx.ScalarType().IdentifierList()) + ")"
+	}
+	if ctx.SubrangeType() != nil {
+		if len(ctx.SubrangeType().AllSimpleExpression()) > 0 {
+			result = result + buildSimpleExpression(ctx.SubrangeType().SimpleExpression(0))
+		}
+		result = result + ".."
+		if len(ctx.SubrangeType().AllSimpleExpression()) > 1 {
+			result = result + buildSimpleExpression(ctx.SubrangeType().SimpleExpression(1))
+		}
+	}
+	if ctx.TypeIdentifier() != nil {
+		result = buildTypeIdentifier(ctx.TypeIdentifier())
+	}
+	if ctx.Stringtype() != nil {
+		result = "string"
+		if ctx.Stringtype().Identifier() != nil {
+			result = result + "[" + buildIdentifier(ctx.Stringtype().Identifier()) + "]"
+		}
+		if ctx.Stringtype().UnsignedNumber() != nil {
+			result = result + "[" + ctx.Stringtype().UnsignedNumber().GetText() + "]"
+		}
+	}
+	if result == "" {
+		result = "undetected: " + ctx.GetText()
+	}
+	return result
 }
 
-func (s *publicSymbolsListener) getFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
+func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
 	result := ""
 	params := buildParameterList(ctx.FormalParameterList())
 	if ctx.ResultType() != nil {
@@ -258,25 +275,25 @@ func (s *publicSymbolsListener) getFunctionTypeDef(ctx parser.IFunctionTypeConte
 	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 	return result
 }
-func (s *publicSymbolsListener) getProcedureTypeDef(ctx parser.IProcedureTypeContext) string {
+func buildProcedureTypeDef(ctx parser.IProcedureTypeContext) string {
 	params := buildParameterList(ctx.FormalParameterList())
 	return fmt.Sprintf("procedure(%s)", params) + buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 }
 
-func (s *publicSymbolsListener) getTypeDef(ctx *parser.TypeDefinitionContext) string {
+func buildTypeDef(ctx *parser.TypeDefinitionContext) string {
 	// Attempt to use a more descriptive definition based on the context type.
 	// Note: Replace the context type names with those in your actual generated parser.
 
 	if ctx.Type_() != nil {
-		return s.getStructuredTypeDef(ctx.Type_())
+		return buildStructuredTypeDef(ctx.Type_())
 	}
 
 	if ctx.FunctionType() != nil {
-		return s.getFunctionTypeDef(ctx.FunctionType())
+		return buildFunctionTypeDef(ctx.FunctionType())
 	}
 
 	if ctx.ProcedureType() != nil {
-		return s.getProcedureTypeDef(ctx.ProcedureType())
+		return buildProcedureTypeDef(ctx.ProcedureType())
 	}
 
 	return ""
@@ -363,4 +380,97 @@ func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHead
 		result = "; " + result
 	}
 	return result
+}
+
+func buildIdentifier(ctx parser.IIdentifierContext) string {
+	nodes := ctx.AllIDENT()
+	if len(nodes) > 0 {
+		var texts []string
+		for _, node := range nodes {
+			texts = append(texts, node.GetText())
+		}
+		return strings.Join(texts, ".")
+	}
+	if ctx.INDEX() != nil {
+		return ctx.INDEX().GetText()
+	}
+	if ctx.READ() != nil {
+		return ctx.READ().GetText()
+	}
+	if ctx.WRITE() != nil {
+		return ctx.WRITE().GetText()
+	}
+	return ""
+}
+
+func buildIdentifiers(ctx parser.IIdentifierListContext) string {
+	var ids []string
+	for _, identifier := range ctx.AllIdentifier() {
+		ids = append(ids, buildIdentifier(identifier))
+	}
+	return strings.Join(ids, ", ")
+}
+
+func buildSimpleExpression(ctx parser.ISimpleExpressionContext) string {
+	return ctx.GetText()
+}
+
+func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
+	if ctx.LT() != nil && ctx.GT() != nil {
+		return buildIdentifier(ctx.Identifier()) + "<" + buildTypeIdentifier(ctx.TypeIdentifier()) + ">"
+	}
+	if ctx.Identifier() != nil {
+		return buildIdentifier(ctx.Identifier())
+	}
+	if ctx.CHAR() != nil {
+		return "char"
+	}
+	if ctx.BOOLEAN() != nil {
+		return "boolean"
+	}
+	if ctx.INTEGER() != nil {
+		return "integer"
+	}
+	if ctx.REAL() != nil {
+		return "real"
+	}
+	if ctx.STRING() != nil {
+		return "string"
+	}
+	if ctx.CARDINAL() != nil {
+		return "cardinal"
+	}
+	if ctx.LONGBOOL() != nil {
+		return "longbool"
+	}
+	if ctx.LONGINT() != nil {
+		return "longint"
+	}
+	if ctx.ArrayType() != nil {
+		return buildArrayType(ctx.ArrayType())
+	}
+	return ""
+}
+
+func buildArrayType(ctx parser.IArrayTypeContext) string {
+	if ctx.TypeList() != nil {
+		return "array[" + buildTypeList(ctx.TypeList()) + "] of " + buildStructuredTypeDef(ctx.Type_())
+	}
+	if ctx.Type_() != nil {
+		return "array of " + buildStructuredTypeDef(ctx.Type_())
+	}
+	if ctx.CONST() != nil {
+		return "array of const"
+	}
+	return ""
+}
+
+func buildTypeList(ctx parser.ITypeListContext) string {
+	var types []string
+	for _, indexType := range ctx.AllIndexType() {
+		if indexType.SimpleType() != nil {
+			types = append(types, buildSimpleTypeDef(indexType.SimpleType()))
+		}
+	}
+	return strings.Join(types, ", ")
 }

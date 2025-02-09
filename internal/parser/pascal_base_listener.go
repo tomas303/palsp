@@ -409,12 +409,6 @@ func (s *BasepascalListener) EnterIndexType(ctx *IndexTypeContext) {}
 // ExitIndexType is called when production indexType is exited.
 func (s *BasepascalListener) ExitIndexType(ctx *IndexTypeContext) {}
 
-// EnterComponentType is called when production componentType is entered.
-func (s *BasepascalListener) EnterComponentType(ctx *ComponentTypeContext) {}
-
-// ExitComponentType is called when production componentType is exited.
-func (s *BasepascalListener) ExitComponentType(ctx *ComponentTypeContext) {}
-
 // EnterRecordType is called when production recordType is entered.
 func (s *BasepascalListener) EnterRecordType(ctx *RecordTypeContext) {}
 

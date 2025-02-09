@@ -218,9 +218,6 @@ type pascalListener interface {
 	// EnterSetType is called when entering the setType production.
 	EnterSetType(c *SetTypeContext)
 
-	// EnterBaseType is called when entering the baseType production.
-	EnterBaseType(c *BaseTypeContext)
-
 	// EnterFileType is called when entering the fileType production.
 	EnterFileType(c *FileTypeContext)
 
@@ -631,9 +628,6 @@ type pascalListener interface {
 
 	// ExitSetType is called when exiting the setType production.
 	ExitSetType(c *SetTypeContext)
-
-	// ExitBaseType is called when exiting the baseType production.
-	ExitBaseType(c *BaseTypeContext)
 
 	// ExitFileType is called when exiting the fileType production.
 	ExitFileType(c *FileTypeContext)

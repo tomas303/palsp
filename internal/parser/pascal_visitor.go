@@ -218,9 +218,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#setType.
 	VisitSetType(ctx *SetTypeContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#baseType.
-	VisitBaseType(ctx *BaseTypeContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#fileType.
 	VisitFileType(ctx *FileTypeContext) interface{}
 

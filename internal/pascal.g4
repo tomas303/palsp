@@ -385,11 +385,7 @@ recordVariant
     ;
 
 setType
-    : SET OF baseType
-    ;
-
-baseType
-    : simpleType
+    : SET OF simpleType
     ;
 
 fileType

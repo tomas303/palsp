@@ -288,10 +288,6 @@ func (v *BasepascalVisitor) VisitSetType(ctx *SetTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitBaseType(ctx *BaseTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitFileType(ctx *FileTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

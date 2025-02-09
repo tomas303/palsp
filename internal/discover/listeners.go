@@ -270,6 +270,12 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 		if ctx.UnpackedStructuredType().RecordType() != nil {
 			result += buildRecordTypeDef(ctx.UnpackedStructuredType().RecordType())
 		}
+		if ctx.UnpackedStructuredType().SetType() != nil {
+			result += buildSetTypeDef(ctx.UnpackedStructuredType().SetType())
+		}
+		if ctx.UnpackedStructuredType().FileType() != nil {
+			result += buildFileType(ctx.UnpackedStructuredType().FileType())
+		}
 	}
 	return result
 }
@@ -324,6 +330,21 @@ func buildRecordVariant(ctx parser.IRecordVariantContext) string {
 		result += "(\n" + parts + ");\n"
 	}
 	return result
+}
+
+func buildSetTypeDef(ctx parser.ISetTypeContext) string {
+	result := "set of "
+	if ctx.SimpleType() != nil {
+		result += buildSimpleTypeDef(ctx.SimpleType())
+	}
+	return result
+}
+
+func buildFileType(ctx parser.IFileTypeContext) string {
+	if ctx.Type_() != nil {
+		return "file of " + buildUnderscoreTypeDef(ctx.Type_())
+	}
+	return "file"
 }
 
 func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {

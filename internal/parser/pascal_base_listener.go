@@ -451,12 +451,6 @@ func (s *BasepascalListener) EnterSetType(ctx *SetTypeContext) {}
 // ExitSetType is called when production setType is exited.
 func (s *BasepascalListener) ExitSetType(ctx *SetTypeContext) {}
 
-// EnterBaseType is called when production baseType is entered.
-func (s *BasepascalListener) EnterBaseType(ctx *BaseTypeContext) {}
-
-// ExitBaseType is called when production baseType is exited.
-func (s *BasepascalListener) ExitBaseType(ctx *BaseTypeContext) {}
-
 // EnterFileType is called when production fileType is entered.
 func (s *BasepascalListener) EnterFileType(ctx *FileTypeContext) {}
 

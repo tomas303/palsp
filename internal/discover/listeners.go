@@ -162,35 +162,6 @@ func (s *publicSymbolsListener) ExitVariableDeclaration(ctx *parser.VariableDecl
 	}
 }
 
-// func (s *publicSymbolsListener) EnterClassType(ctx *parser.ClassTypeContext) {
-// 	// necessary solve public, protected, private ... in this case only protexted and public and must be distinguished, strict protected and protected kinda too
-// 	name := safeGetText(ctx.Identifier())
-// 	SymDB().insertSymbol(s.unit_id, name, s.scope(), int(ClassSymbol), "class( ... inherit, impelemntms)")
-// 	s.scopeStack.push(name)
-// }
-
-// func (s *publicSymbolsListener) ExitClassTypeHeader(ctx *parser.ClassTypeHeaderContext) {
-// 	name := safeGetText(ctx.Identifier())
-// 	if name == "" {
-// 		name = "TObject"
-// 	}
-// 	implements := ""
-// 	if ctx.ClassImplementsInterfaces() != nil {
-// 		for _, identifier := range ctx.ClassImplementsInterfaces().AllTypeIdentifier() {
-// 			implements += ", " + identifier.GetText()
-// 		}
-// 	}
-// 	if ctx.ABSTRACT() != nil {
-
-// 	}
-// 	s.insertSymbol(name, int(ClassSymbol), "class( ... inherit, impelemntmszzzzz)")
-// 	s.scopeStack.push(name)
-// }
-
-func (s *publicSymbolsListener) ExitClassType(ctx *parser.ClassTypeContext) {
-	s.scopeStack.pop()
-}
-
 func (s *publicSymbolsListener) EnterRecordType(ctx *parser.RecordTypeContext) {
 	s.scopeStack.push("record to be done")
 }
@@ -218,13 +189,14 @@ func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition
 }
 
 func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
-	// Assume that the context is a structured type.
-	// This is a placeholder for more complex logic.
 	if ctx.SimpleType() != nil {
 		return buildSimpleTypeDef(ctx.SimpleType())
 	}
 	if ctx.StructuredType() != nil {
 		return buildStructuredTypeDef(ctx.StructuredType())
+	}
+	if ctx.PointerType() != nil {
+		return "^" + buildTypeIdentifier(ctx.PointerType().TypeIdentifier())
 	}
 	return ""
 }
@@ -276,6 +248,9 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 		if ctx.UnpackedStructuredType().FileType() != nil {
 			result += buildFileType(ctx.UnpackedStructuredType().FileType())
 		}
+	}
+	if ctx.ClassType() != nil {
+		result += buildClassTypeDef(ctx.ClassType())
 	}
 	return result
 }
@@ -345,6 +320,52 @@ func buildFileType(ctx parser.IFileTypeContext) string {
 		return "file of " + buildUnderscoreTypeDef(ctx.Type_())
 	}
 	return "file"
+}
+
+func buildClassTypeDef(ctx parser.IClassTypeContext) string {
+	result := "class"
+	if ctx.LPAREN() != nil && ctx.RPAREN() != nil {
+		implements := []string{}
+		if ctx.ClassImplementsInterfaces() != nil {
+			for _, identifier := range ctx.ClassImplementsInterfaces().AllTypeIdentifier() {
+				implements = append(implements, identifier.GetText())
+			}
+		}
+		if ctx.Identifier() != nil {
+			result += "(" + buildIdentifier(ctx.Identifier())
+			if len(implements) > 0 {
+				result += ", " + strings.Join(implements, ", ")
+			}
+			result += ")"
+		}
+
+	}
+	if ctx.ABSTRACT() != nil {
+		result += " abstract"
+	}
+	result += "\n"
+	if ctx.ClassImplicitPublishedDeclaration() != nil {
+		result += buildClassImplicitPublishedDeclaration(ctx.ClassImplicitPublishedDeclaration())
+	}
+	result += "end"
+	return result
+}
+
+func buildClassImplicitPublishedDeclaration(ctx parser.IClassImplicitPublishedDeclarationContext) string {
+	result := "published\n"
+	for _, part := range ctx.AllClassDeclarationPart() {
+		result += buildClassDeclarationPart(part)
+	}
+	return result
+}
+
+func buildClassDeclarationPart(ctx parser.IClassDeclarationPartContext) string {
+	result := ""
+	if ctx.TypedIdentifierList() != nil {
+		list, typedef := buildTypedIdentifierList(ctx.TypedIdentifierList())
+		result += strings.Join(list, ", ") + ": " + typedef + ";\n"
+	}
+	return result
 }
 
 func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {

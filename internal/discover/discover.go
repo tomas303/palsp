@@ -1,6 +1,7 @@
 package discover
 
 import (
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -35,6 +36,15 @@ func (d *Discover) Units(rootDir string) {
 }
 
 func (d *Discover) PublicSymbols(unit string) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			if _, ok := r.(*finishError); ok {
+			} else {
+				log.Printf("Error collection public symbols %s: %v", unit, r)
+			}
+		}
+	}()
 
 	unit_id, content, err := SymDB().GetUnitContent(unit)
 	if err != nil {

@@ -527,8 +527,10 @@ func buildParameterSection(ctx parser.IFormalParameterSectionContext) string {
 
 func buildParameterList(ctx parser.IFormalParameterListContext) string {
 	var params []string
-	for _, paramsection := range ctx.AllFormalParameterSection() {
-		params = append(params, buildParameterSection(paramsection))
+	if ctx != nil {
+		for _, paramsection := range ctx.AllFormalParameterSection() {
+			params = append(params, buildParameterSection(paramsection))
+		}
 	}
 	return strings.Join(params, "; ")
 }

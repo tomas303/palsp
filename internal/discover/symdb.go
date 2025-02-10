@@ -42,7 +42,7 @@ func init() {
 func newSymDB() (*symDB, error) {
 	db := &symDB{}
 	var err error
-	db.conn, err = sql.Open("sqlite", ":memory:")
+	db.conn, err = sql.Open("sqlite", "file::memory:?cache=shared")
 	return db, err
 }
 

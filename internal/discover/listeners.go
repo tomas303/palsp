@@ -113,55 +113,70 @@ func (s *publicSymbolsListener) ExitTypeDefinition(ctx *parser.TypeDefinitionCon
 		s.scopeStack.pop()
 	} else {
 		identifier := s.scopeStack.pop()
-		fmt.Printf("Exiting type: %s\n", identifier)
-		s.insertSymbol(identifier, int(TypeSymbol), buildTypeDef(ctx))
+		if s.canPublish() {
+			fmt.Printf("Exiting type: %s\n", identifier)
+			s.insertSymbol(identifier, int(TypeSymbol), buildTypeDef(ctx))
+		}
 	}
 }
 
 func (s *publicSymbolsListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
-	result := ""
+	if !s.canPublish() {
+		return
+	}
+	definition := ""
+	name := ""
 	if ctx.CLASS() != nil {
-		result = "class "
+		definition = "class "
 	}
 	if ctx.PROCEDURE() != nil {
-		result += "procedure "
+		definition += "procedure "
 	} else if ctx.CONSTRUCTOR() != nil {
-		result += "constructor "
+		definition += "constructor "
 	} else if ctx.DESTRUCTOR() != nil {
-		result += "destructor "
+		definition += "destructor "
 	}
 	if ctx.MethodIdentifier() != nil {
-		result += buildIdentifier(ctx.MethodIdentifier().Identifier())
+		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
 	} else if ctx.Identifier() != nil {
-		result += buildIdentifier(ctx.Identifier())
+		name = buildIdentifier(ctx.Identifier())
 	}
-	result += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
-	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
-	if result != "" {
-		s.insertSymbol(result, int(ProcedureSymbol), result)
+	definition += name
+	definition += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	if definition != "" {
+		s.insertSymbol(name, int(ProcedureSymbol), definition)
 	}
 }
 
 func (s *publicSymbolsListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
-	result := ""
+	if !s.canPublish() {
+		return
+	}
+	definition := ""
+	name := ""
 	if ctx.CLASS() != nil {
-		result = "class "
+		definition = "class "
 	}
-	result += "function "
+	definition += "function "
 	if ctx.MethodIdentifier() != nil {
-		result += buildIdentifier(ctx.MethodIdentifier().Identifier())
+		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
 	} else if ctx.Identifier() != nil {
-		result += buildIdentifier(ctx.Identifier())
+		name = buildIdentifier(ctx.Identifier())
 	}
-	result += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
-	result += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
-	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
-	if result != "" {
-		s.insertSymbol(result, int(FunctionSymbol), result)
+	definition += name
+	definition += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	definition += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
+	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	if definition != "" {
+		s.insertSymbol(name, int(FunctionSymbol), definition)
 	}
 }
 
 func (s *publicSymbolsListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
+	if !s.canPublish() {
+		return
+	}
 	name := safeGetText(ctx.Identifier())
 	if name != "" {
 		typename := safeGetText(ctx.TypeIdentifier())
@@ -177,6 +192,9 @@ func (s *publicSymbolsListener) ExitConstantDefinition(ctx *parser.ConstantDefin
 }
 
 func (s *publicSymbolsListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
+	if !s.canPublish() {
+		return
+	}
 	defaultvalue := ""
 	if ctx.SimpleExpression() != nil {
 		defaultvalue += "=" + buildSimpleExpression(ctx.SimpleExpression())
@@ -236,12 +254,14 @@ func (s *publicSymbolsListener) scope() string {
 }
 
 func (s *publicSymbolsListener) insertSymbol(symbol string, kind int, definition string) {
-	if s.accessSpecifiersStack.isEmpty() || s.accessSpecifiersStack.peek() == AccPublic || s.accessSpecifiersStack.peek() == AccPublished {
-		err := SymDB().insertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
-		if err != nil {
-			log.Printf("Non-fatal error encountered: %v", err)
-		}
+	err := SymDB().insertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
+	if err != nil {
+		log.Printf("Non-fatal error encountered: %v", err)
 	}
+}
+
+func (s *publicSymbolsListener) canPublish() bool {
+	return s.accessSpecifiersStack.isEmpty() || s.accessSpecifiersStack.peek() == AccPublic || s.accessSpecifiersStack.peek() == AccPublished
 }
 
 func buildUnderscoreTypeDef(ctx parser.IType_Context) string {

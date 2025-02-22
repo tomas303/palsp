@@ -24,6 +24,9 @@ const (
 	VariableSymbol                    // 3
 	ClassSymbol                       // 4
 	TypeSymbol                        // 5
+	ParameterSymbol                   // 6
+	FunctionResult                    // 7
+	ClassVariable                     // 8
 )
 
 func init() {

@@ -46,6 +46,7 @@ const (
 // and probably less rules. So private shoudl wrap it and build on top of it
 // this will be used to scan units form interface section of opended files. That can be recursive to fill up class inheritance(later if deemed necessary)
 // this will be problaby heavy load but with more units already parsed it will be faster
+
 type publicSymbolsListener struct {
 	parser.BasepascalListener
 
@@ -54,6 +55,20 @@ type publicSymbolsListener struct {
 	scopeStack            stack[string]
 	identExitActionStack  stack[func(identifier string)]
 	accessSpecifiersStack stack[AccessSpec]
+}
+
+type scopeListener struct {
+	parser.BasepascalListener
+	unitScope topscope
+	actScope  scope
+}
+
+func newScopeListener(unit string) *scopeListener {
+	us := newUnitScope(unit)
+	return &scopeListener{
+		unitScope: us,
+		actScope:  us.(scope),
+	}
 }
 
 func (e *finishError) Error() string {
@@ -678,4 +693,126 @@ func buildConstList(ctx parser.IConstListContext) string {
 		consts = append(consts, constant.GetText())
 	}
 	return strings.Join(consts, ",")
+}
+
+// func (s *scopeListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
+// }
+
+// func (s *scopeListener) ExitImplementationSection(ctx *parser.ImplementationSectionContext) {
+// }
+
+func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
+	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
+		s.unitScope.addUses(buildIdentifier(identifier))
+	}
+}
+
+func (s *scopeListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
+	fields, fieldtype := buildTypedIdentifierList(ctx.TypedIdentifierList())
+	for _, field := range fields {
+		s.actScope.addSymbol(field, fieldtype, int(VariableSymbol))
+	}
+}
+
+func (s *scopeListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
+	fieldtype := ""
+	if ctx.TypeIdentifier() != nil {
+		fieldtype = buildTypeIdentifier(ctx.TypeIdentifier())
+	}
+	if fieldtype == "" {
+		if ctx.Constant().String_() != nil {
+			fieldtype = "string"
+		} else if ctx.Constant().UnsignedNumber() != nil {
+			fieldtype = "integer"
+		} else if ctx.Constant().Sign() != nil {
+			fieldtype = "integer"
+		}
+	}
+	s.actScope.addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol))
+}
+
+func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
+	for _, parSecCtx := range ctx.AllFormalParameterSection() {
+		parType := ""
+		if parSecCtx.ParameterGroup().TypeIdentifier() != nil {
+			parType = parSecCtx.ParameterGroup().TypeIdentifier().GetText()
+		}
+		// if ctx.DefaultValue() != nil {
+		// 	result += " = " + ctx.DefaultValue().GetText()
+		// }
+		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
+			s.actScope.addSymbol(buildIdentifier(id), parType, int(ParameterSymbol))
+		}
+		//
+	}
+}
+
+func (s *scopeListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPartContext) {
+	if ctx.TypedIdentifierList() != nil {
+		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
+		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
+			s.actScope.addSymbol(buildIdentifier(id), typedef, int(ClassVariable))
+		}
+	}
+}
+
+func (s *scopeListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+	if s.actScope.getName() != "procedure" {
+		s.actScope = s.actScope.addScope("procedure header")
+	}
+}
+
+func (s *scopeListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+	if s.actScope.getName() != "procedure" {
+		s.actScope.setName(buildIdentifier(ctx.Identifier()))
+		s.actScope = s.actScope.parent()
+	}
+}
+
+func (s *scopeListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
+	s.actScope = s.actScope.addScope("procedure")
+}
+
+func (s *scopeListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
+	s.actScope.setName(buildIdentifier(ctx.ProcedureHeader().Identifier()))
+	s.actScope = s.actScope.parent()
+}
+
+func (s *scopeListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
+	if s.actScope.getName() != "function" {
+		s.actScope = s.actScope.addScope("function header")
+	}
+}
+
+func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
+	if s.actScope.getName() != "function" {
+		funcName := buildIdentifier(ctx.Identifier())
+		if ctx.ResultType() != nil {
+			s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult))
+		}
+		s.actScope.setName(funcName)
+		s.actScope = s.actScope.parent()
+	}
+}
+
+func (s *scopeListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
+	s.actScope = s.actScope.addScope("function")
+}
+
+func (s *scopeListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
+	funcName := buildIdentifier(ctx.FunctionHeader().Identifier())
+	if ctx.FunctionHeader().ResultType() != nil {
+		s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult))
+	}
+	s.actScope.setName(funcName)
+	s.actScope = s.actScope.parent()
+}
+
+func (s *scopeListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
+	s.actScope = s.actScope.addScope("type")
+}
+
+func (s *scopeListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
+	s.actScope.setName(buildIdentifier(ctx.Identifier()))
+	s.actScope = s.actScope.parent()
 }

@@ -2,7 +2,9 @@ package discover
 
 import (
 	"io"
-	"palsp/internal/parser"
+	parser1 "palsp/internal/parser"
+
+	parser2 "palsp/internal/scopeparser/parser"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -28,9 +30,24 @@ func fullDebugOptions() parseOptions {
 
 func parseFromContent(content string, listener antlr.ParseTreeListener, options parseOptions) {
 	input := antlr.NewInputStream(content)
-	lexer := parser.NewpascalLexer(input)
+	lexer := parser1.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser.NewpascalParser(stream)
+	p := parser1.NewpascalParser(stream)
+	if options.Trace {
+		p.SetTrace(new(antlr.TraceListener))
+	}
+	if options.HandleError {
+		p.AddErrorListener(antlr.NewDiagnosticErrorListener(false))
+	}
+	p.AddParseListener(listener)
+	p.Source()
+}
+
+func scopeparseFromContent(content string, listener antlr.ParseTreeListener, options parseOptions) {
+	input := antlr.NewInputStream(content)
+	lexer := parser2.NewscopepascalLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	p := parser2.NewscopepascalParser(stream)
 	if options.Trace {
 		p.SetTrace(new(antlr.TraceListener))
 	}
@@ -43,9 +60,9 @@ func parseFromContent(content string, listener antlr.ParseTreeListener, options 
 
 func parseFromReader(reader io.Reader, listener antlr.ParseTreeListener, options parseOptions) {
 	input := antlr.NewIoStream(reader)
-	lexer := parser.NewpascalLexer(input)
+	lexer := parser1.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser.NewpascalParser(stream)
+	p := parser1.NewpascalParser(stream)
 	if options.Trace {
 		p.SetTrace(new(antlr.TraceListener))
 	}

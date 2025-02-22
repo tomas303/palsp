@@ -28,11 +28,11 @@ unit
     ;
 
 interfaceSection
-    : INTERFACE usesUnits? interfaceBlock
+    : INTERFACE unitList? interfaceBlock
     ;
 
 implementationSection
-    : IMPLEMENTATION usesUnits? implementationBlock
+    : IMPLEMENTATION unitList? implementationBlock
     ;
 
 initializationSection
@@ -46,11 +46,11 @@ finalizationSection
 
 interfaceBlock
     : (
-        labelDeclaration
-        | constDeclaration
-        | resourceDeclaration
-        | typeDeclaration
-        | varDeclaration
+        typeSection
+        | labelDeclaration
+        | constSection
+        | resourceSection
+        | varSection
         | functionOrProcedureDeclaration
     )*
     ;
@@ -58,16 +58,16 @@ interfaceBlock
 implementationBlock
     : (
         labelDeclaration
-        | constDeclaration
-        | resourceDeclaration
-        | typeDeclaration
-        | varDeclaration
+        | constSection
+        | resourceSection
+        | typeSection
+        | varSection
         | functionOrProcedure
     )*
     ;
 
 
-usesUnits
+unitList
     : USES identifierList SEMI
     ;
 
@@ -75,21 +75,33 @@ labelDeclaration
     : LABEL number (COMMA number)* SEMI
     ;
 
-constDeclaration
-    : CONST identifierList (COLON identifier)? EQUAL expression SEMI
+constSection
+    : CONST (identifierList (COLON identifier)? EQUAL expression SEMI)+
     ;
 
-resourceDeclaration
+resourceSection
     : RESOURCESTRING (identifier EQUAL expression SEMI)+
     ;
 
-typeDeclaration
-    : TYPE (identifier EQUAL (
-        classDeclaration
-        | recordDeclaration
-        | functionDeclaration
-        | procedureDeclaration
-        ) SEMI)+
+typeSection
+    : TYPE typeBlock
+    ;
+
+typeBlock
+    : (identifier EQUAL type SEMI)+
+    ;
+
+type
+    :classType
+    | recordType
+    | arrayType
+    | pointerType
+    | setType
+    | fileType
+    | scalarType
+    | subrangeType
+    | functionDeclaration
+    | procedureDeclaration
     ;
 
 accessSpecifier
@@ -110,12 +122,12 @@ classForwardDeclaration
     : CLASS SEMI
     ;
 
-classDeclaration
-    : CLASS (LPAREN identifier (COMMA identifierList)? RPAREN)? ABSTRACT? structuredDeclarationSection? (accessSpecifier structuredDeclarationSection)* END SEMI
+classType
+    : CLASS (LPAREN identifier (COMMA identifierList)? RPAREN)? ABSTRACT? blockDeclaration* (accessSpecifier blockDeclaration)* END
     ;
 
-recordDeclaration
-    : PACKED? RECORD identifier structuredDeclarationSection? (accessSpecifier structuredDeclarationSection)* END SEMI
+recordType
+    : PACKED? RECORD blockDeclaration? (accessSpecifier blockDeclaration)* recordVariantDeclaration* END
     ;
 
 propertyDeclaration
@@ -147,10 +159,38 @@ propertyIndexParametersList
     : identifierList COLON expression (SEMI identifierList COLON expression)*
     ;
 
-structuredDeclarationSection
-    : typeDeclaration
-    | varDeclaration
-    | constDeclaration
+arrayType
+    : ARRAY LBRACK identifierList RBRACK OF (type|identifier)
+    | ARRAY LBRACK expression DOUBLEDOT expression OF (type|identifier)
+    | ARRAY OF CONST
+    | ARRAY OF (type|identifier)
+    ;
+
+pointerType
+    : DEREFERENCE identifier
+    ;
+
+setType
+    : SET OF identifier
+    ;
+
+fileType
+    : FILE OF identifier
+    | FILE
+    ;
+
+scalarType
+    : LPAREN expressionList RPAREN
+    ;
+
+subrangeType
+    : expression DOUBLEDOT expression
+    ;
+
+blockDeclaration
+    : typeSection
+    | constSection
+    | varDeclaration SEMI?
     | functionOrProcedureDeclaration
     | propertyDeclaration
     ;
@@ -169,13 +209,23 @@ functionOrProcedureDeclaration
     ;    
 
 functionOrProcedure
-    : functionOrProcedureDeclaration (functionOrProcedure | varDeclaration)* blockStatement SEMI
+    : functionOrProcedureDeclaration (functionOrProcedure | varSection)* blockStatement SEMI
     | functionOrProcedureDeclaration FORWARD SEMI
     ;
 
 blockStatement
     : BEGIN (statement | statementError)* END
     ;
+
+
+recordVariantDeclaration
+    : CASE identifier(COLON identifier)? OF recordVariant (SEMI recordVariant)* SEMI?
+    ;
+
+recordVariant
+    : identifierList COLON LPAREN varDeclaration+ RPAREN
+    ;
+
 
 // Error-handling nodes (to tolerate broken syntax)
 statementError
@@ -185,7 +235,7 @@ statementError
 
 
 statement
-    : varDeclaration
+    : varSection
     | inlinedVarDeclaration
     | statementError
     ;
@@ -220,20 +270,17 @@ paramSpecifier
     | OUT
     ;
 
-varDeclaration
-    : VAR varDeclarationSection (SEMI varDeclarationSection)* SEMI
+varSection
+    : VAR (varDeclaration SEMI)+
     ;
 
-varDeclarationSection
-    : identifierList ((COLON identifier) | (EQUAL expression))
+varDeclaration
+    : identifierList (COLON identifier)? (EQUAL expression)?
     ;
 
 inlinedVarDeclaration
-    : VAR identifierList COLON identifier (EQUAL expression)? SEMI
-    | VAR identifier ASSIGN expression SEMI
+    : VAR identifierList (COLON identifier)? (ASSIGN expression)? SEMI
     ;
-
-
 
 
 
@@ -282,7 +329,8 @@ number
 expression
     : term (operator term)* | functionExpression | errorExpression ;
 
-term: IDENT  
+term
+    : AT? IDENT  
     | number  
     | string  
     | functionDesignator
@@ -293,12 +341,12 @@ term: IDENT
 
 // Lambda expression (Pascal anonymous function)
 functionExpression
-    : FUNCTION paramsDeclaration? COLON varDeclaration? blockStatement
+    : FUNCTION paramsDeclaration? COLON varSection? blockStatement
     ;
 
 // Lambda expression (Pascal anonymous procedure)
 procedureExpression
-    : PROCEDURE paramsDeclaration? varDeclaration? blockStatement
+    : PROCEDURE paramsDeclaration? varSection? blockStatement
     ;
 
 // Function call inside expression
@@ -343,6 +391,10 @@ OUT
 
 DOT
     : '.'
+    ;
+
+DOUBLEDOT
+    : '..'
     ;
 
 SEMI
@@ -589,6 +641,34 @@ WRITE
 
 INDEX
     : 'index'
+    ;
+
+ARRAY
+    : 'array'
+    ;
+
+OF
+    : 'of'
+    ;
+
+DEREFERENCE
+    : '^'
+    ;
+
+AT
+    : '@'
+    ;
+
+SET
+    : 'set'
+    ;
+
+FILE
+    : 'file'
+    ;
+
+CASE
+    : 'case'
     ;
 
 IDENT

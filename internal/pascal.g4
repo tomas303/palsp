@@ -537,6 +537,7 @@ multiplicativeoperator
     | AND
     | SHR
     | SHL
+    | XOR
     ;
 
 signedFactor
@@ -643,7 +644,7 @@ conditionalStatement
     ;
 
 ifStatement
-    : IF expression THEN statement (ELSE statement)?
+    : IF expression THEN statement (ELSE statement)? SEMI?
     ;
 
 caseStatement
@@ -1135,6 +1136,10 @@ SHR
 
 SHL
     : 'SHL'
+    ;
+
+XOR
+    : 'XOR'
     ;
 
 CARDINAL

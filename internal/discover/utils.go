@@ -36,6 +36,20 @@ func (s *stack[T]) peek() T {
 	return s.data[len(s.data)-1]
 }
 
+// Get returns the element at the specified index; returns the zero value if out of bounds.
+func (s *stack[T]) get(index int) T {
+	var zero T
+	if index < 0 || index >= len(s.data) {
+		return zero
+	}
+	return s.data[index]
+}
+
+// Enumerate returns a slice of all elements in the stack.
+func (s *stack[T]) all() []T {
+	return s.data
+}
+
 func (s *stack[T]) joinByDot() string {
 	parts := []string{}
 	for _, v := range s.data {
@@ -47,4 +61,9 @@ func (s *stack[T]) joinByDot() string {
 // IsEmpty returns true if the stack is empty.
 func (s *stack[T]) isEmpty() bool {
 	return len(s.data) == 0
+}
+
+// Length returns the number of elements in the stack.
+func (s *stack[T]) length() int {
+	return len(s.data)
 }

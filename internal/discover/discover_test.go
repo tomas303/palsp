@@ -100,3 +100,37 @@ func TestDiscoverPublicSymbols(t *testing.T) {
 	fmt.Printf("Total rows: %d\n", totalRows)
 
 }
+
+func TestDiscoverScopeSymbols(t *testing.T) {
+	// Create a Discover instance.
+
+	// Run PublicSymbols, and recover from any panics caused by our listener.
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered panic:", r)
+			}
+		}()
+		d := &Discover{}
+		d.Units("/home/tomas/testsrcs/pubtest")
+		sc := d.ScopeSymbols("iNALCrypt")
+		// {
+		// 	dbConn := SymDB().conn
+		// 	unitRows, err := dbConn.Query("SELECT unitname FROM units")
+		// 	if err != nil {
+		// 		t.Fatalf("Query for units failed: %v", err)
+		// 	}
+		// 	defer unitRows.Close()
+		// 	for unitRows.Next() {
+		// 		var unitname string
+		// 		if err := unitRows.Scan(&unitname); err != nil {
+		// 			t.Fatalf("Scan of unitname failed: %v", err)
+		// 		}
+		// 		d.ScopeSymbols(unitname)
+		// 	}
+		// }
+		println("\nRESULTS:\n")
+		showUnitScope(sc)
+	}()
+
+}

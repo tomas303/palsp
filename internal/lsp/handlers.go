@@ -3,7 +3,7 @@ package lsp
 import (
 	"encoding/json"
 	"fmt"
-	"palsp/internal/discover"
+	"palsp/internal/edit"
 )
 
 // Handle incoming JSON-RPC requests
@@ -100,25 +100,25 @@ func handleInitialize(id int, params InitializeParams) LSPResponse {
 	}
 }
 
-// Handle textDocument/didOpen request
+// Modified Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File opened:", params.TextDocument.URI)
-	discover.HandleDidOpen(params.TextDocument.URI, params.TextDocument.Text)
-	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+	opRes := edit.Lspi.DidOpen(params.TextDocument.URI, params.TextDocument.Text)
+	return opResultToLSPResponse(id, opRes)
 }
 
-// Handle textDocument/didChange request
+// Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File changed:", params.TextDocument.URI)
-	// Dummy implementation
-	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+	opRes := edit.Lspi.DidChange(params.TextDocument.URI, params.TextDocument.Text)
+	return opResultToLSPResponse(id, opRes)
 }
 
-// Handle textDocument/didClose request
+// Modified Handle textDocument/didClose request
 func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File closed:", params.TextDocument.URI)
-	// Dummy implementation
-	return LSPResponse{JsonRPC: "2.0", ID: id, Result: nil}
+	opRes := edit.Lspi.DidClose(params.TextDocument.URI)
+	return opResultToLSPResponse(id, opRes)
 }
 
 // Handle textDocument/completion request
@@ -128,9 +128,26 @@ func handleCompletion(params CompletionParams, id int) LSPResponse {
 	return LSPResponse{JsonRPC: "2.0", ID: id, Result: []CompletionItem{}}
 }
 
-// Handle textDocument/hover request
+// Modified Handle textDocument/hover request
 func handleHover(params HoverParams, id int) LSPResponse {
 	fmt.Println("Hover requested for:", params.TextDocument.URI)
-	// Dummy implementation
-	return LSPResponse{JsonRPC: "2.0", ID: id, Result: Hover{}}
+	// Pass line and character from params.Position
+	opRes := edit.Lspi.Hover(params.TextDocument.URI, params.Position.Line, params.Position.Character)
+	return opResultToLSPResponse(id, opRes)
+}
+
+// Helper: convert edit.OpResult to LSPResponse.
+func opResultToLSPResponse(id int, opResult edit.OpResult) LSPResponse {
+	if !opResult.Success {
+		return LSPResponse{
+			JsonRPC: "2.0",
+			ID:      id,
+			Error:   &LSPError{Code: -32000, Message: opResult.Message},
+		}
+	}
+	return LSPResponse{
+		JsonRPC: "2.0",
+		ID:      id,
+		Result:  opResult.Result,
+	}
 }

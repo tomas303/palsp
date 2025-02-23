@@ -57,7 +57,7 @@ func (d *Discover) PublicSymbols(unit string) {
 
 }
 
-func (d *Discover) ScopeSymbols(unit string) *unitScope {
+func (d *Discover) ScopeSymbols(unit string) *UnitScope {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -77,7 +77,7 @@ func (d *Discover) ScopeSymbols(unit string) *unitScope {
 	// scopeparseFromContent(content, l, fullDebugOptions())
 	l := newScopeListener(unit)
 	parseFromContent(content, l, fullDebugOptions())
-	return l.unitScope.(*unitScope)
+	return l.unitScope.(*UnitScope)
 
 }
 

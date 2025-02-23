@@ -30,7 +30,7 @@ type commonScope struct {
 	parentScope scope
 }
 
-type unitScope struct {
+type UnitScope struct {
 	scope
 	usesStack stack[string]
 }
@@ -48,7 +48,7 @@ func showScope(level int, scope *commonScope) {
 
 }
 
-func showUnitScope(scope *unitScope) {
+func showUnitScope(scope *UnitScope) {
 	for _, unit := range scope.usesStack.all() {
 		fmt.Printf("Uses %s\n", unit)
 	}
@@ -66,7 +66,7 @@ func newCommonScope(name string, parent scope, parentSWM int) scope {
 }
 
 func newUnitScope(unit string) topscope {
-	return &unitScope{
+	return &UnitScope{
 		scope:     newCommonScope(unit, nil, 0),
 		usesStack: stack[string]{},
 	}
@@ -90,7 +90,7 @@ func (s *commonScope) symbolStackLast() int {
 	return s.symbolStack.length() - 1
 }
 
-func (s *unitScope) addUses(unit string) {
+func (s *UnitScope) addUses(unit string) {
 	s.usesStack.push(unit)
 }
 

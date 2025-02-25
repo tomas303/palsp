@@ -72,3 +72,12 @@ func parseFromReader(reader io.Reader, listener antlr.ParseTreeListener, options
 	p.AddParseListener(listener)
 	p.Source()
 }
+
+func parseAST(content string) antlr.Tree {
+	input := antlr.NewInputStream(content)
+	lexer := parser1.NewpascalLexer(input)
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+	p := parser1.NewpascalParser(stream)
+	// Return the AST by invoking the Source rule
+	return p.Source()
+}

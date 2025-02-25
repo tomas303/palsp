@@ -4,6 +4,8 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+
+	"github.com/antlr4-go/antlr/v4"
 )
 
 type Discover struct{}
@@ -78,6 +80,27 @@ func (d *Discover) ScopeSymbols(unit string) *UnitScope {
 	l := newScopeListener(unit)
 	parseFromContent(content, l, fullDebugOptions())
 	return l.unitScope.(*UnitScope)
+
+}
+
+func (d *Discover) AST(unit string) antlr.Tree {
+
+	defer func() {
+		if r := recover(); r != nil {
+			if _, ok := r.(*finishError); ok {
+			} else {
+				log.Printf("Error collection ast %s: %v", unit, r)
+			}
+		}
+	}()
+
+	_, content, err := SymDB().GetUnitContent(unit)
+	if err != nil {
+		panic(DiscoverError{Message: err.Error()})
+	}
+
+	tree := parseAST(content)
+	return tree
 
 }
 

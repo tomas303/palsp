@@ -6,6 +6,8 @@ import (
 	"palsp/internal/discover"
 	dsc "palsp/internal/discover"
 	"path/filepath"
+
+	"github.com/antlr4-go/antlr/v4"
 )
 
 var Lspi *lsp
@@ -22,6 +24,7 @@ func init() {
 type file struct {
 	scope *discover.UnitScope
 	path  string
+	ast   antlr.Tree
 }
 
 type files struct {
@@ -34,34 +37,32 @@ type lsp struct {
 }
 
 // splitURI splits a URI into its path, name (without extension), and extension.
-func splitURI(uri string) (dir, name, ext string, err error) {
+func getUnitName(uri string) (name string, err error) {
 	parsed, err := url.Parse(uri)
 	if err != nil {
-		return "", "", "", err
+		return "", err
 	}
-	dir = parsed.Path
+	dir := parsed.Path
 	base := filepath.Base(dir)
-	ext = filepath.Ext(base)
+	ext := filepath.Ext(base)
 	name = base[:len(base)-len(ext)]
-	return dir, name, ext, nil
+	return name, nil
 }
 
 func (l *lsp) DidOpen(uri string, text string) OpResult {
-	dir, name, _, err := splitURI(uri)
+	unitName, err := getUnitName(uri)
 	if err != nil {
-		return NewOpResultFail(fmt.Sprintf("Invalid URI: %s", uri), err)
+		return OpFailure(fmt.Sprintf("Invalid URI: %s", uri), err)
 	}
-	delete(l.fls.fileDict, dir)
-	fileName := filepath.Base(dir)
-	unit := fileName[:len(fileName)-len(filepath.Ext(fileName))]
+	delete(l.fls.fileDict, uri)
 	d := &dsc.Discover{}
-	d.Units(name)
-	sc := d.ScopeSymbols(unit)
-	l.fls.fileDict[dir] = file{
-		scope: sc,
+	d.Units(unitName)
+	l.fls.fileDict[uri] = file{
+		scope: d.ScopeSymbols(unitName),
 		path:  uri,
+		ast:   d.AST(unitName),
 	}
-	return NewOpResultSuccess()
+	return OpSuccess()
 }
 
 func (l *lsp) DidChange(uri string, text string) OpResult {
@@ -69,24 +70,66 @@ func (l *lsp) DidChange(uri string, text string) OpResult {
 }
 
 func (l *lsp) DidClose(uri string) OpResult {
-	dir, _, _, err := splitURI(uri)
-	if err != nil {
-		return NewOpResultFail(fmt.Sprintf("Invalid URI: %s", uri), err)
-	}
-	delete(l.fls.fileDict, dir)
-	return NewOpResultSuccess()
+	delete(l.fls.fileDict, uri)
+	return OpSuccess()
 }
 
 func (l *lsp) Hover(uri string, line int, character int) OpResult {
+
+	f, ok := l.fls.fileDict[uri]
+	if !ok {
+		l.DidOpen(uri, "")
+		f = l.fls.fileDict[uri]
+	}
+
+	node, err := f.findOnPos(line, character)
+	if err != nil {
+		return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
+	}
+
 	hoverResp := Hover{
 		Contents: MarkupContent{
 			Kind:  "plaintext",
-			Value: fmt.Sprintf("Hover info for %s", uri),
+			Value: fmt.Sprintf("Hover info for %s", node.GetText()),
 		},
-		Range: &Range{
-			Start: Position{Line: line, Character: character},
-			End:   Position{Line: line, Character: character},
+		// Range: &Range{
+		// 	Start: Position{Line: line, Character: character},
+		// 	End:   Position{Line: line, Character: character},
+		// },
+	}
+	return OpSuccessWith(hoverResp)
+}
+
+func (l *lsp) Completion(uri string, line int, character int) OpResult {
+	// Dummy completion data implementation
+	items := []CompletionItem{
+		{
+			Label:         "dummyCompletion",
+			Kind:          1,
+			Detail:        "Dummy detail",
+			Documentation: "Documentation for dummy completion",
 		},
 	}
-	return NewOpResultSuccessWithResult(hoverResp)
+	cl := CompletionList{
+		IsIncomplete: false,
+		Items:        items,
+	}
+	return OpSuccessWith(cl)
+}
+
+func (f *file) walk(l antlr.ParseTreeListener) {
+	antlr.ParseTreeWalkerDefault.Walk(l, f.ast)
+}
+
+func (f *file) findOnPos(line int, character int) (antlr.ParseTree, error) {
+	l := newLsnFindOnPos(line, character)
+	defer func() {
+		if r := recover(); r != nil {
+			if r != "found" {
+				panic(r)
+			}
+		}
+	}()
+	f.walk(l)
+	return l.GetFound(), nil
 }

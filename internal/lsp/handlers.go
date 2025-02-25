@@ -121,11 +121,11 @@ func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
 	return opResultToLSPResponse(id, opRes)
 }
 
-// Handle textDocument/completion request
+// Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams, id int) LSPResponse {
 	fmt.Println("Completion requested for:", params.TextDocument.URI)
-	// Dummy implementation
-	return LSPResponse{JsonRPC: "2.0", ID: id, Result: []CompletionItem{}}
+	opRes := edit.Lspi.Completion(params.TextDocument.URI, params.Position.Line, params.Position.Character)
+	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/hover request

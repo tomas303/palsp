@@ -7,15 +7,15 @@ type OpResult struct {
 	Result  interface{}
 }
 
-func NewOpResultSuccess() OpResult {
+func OpSuccess() OpResult {
 	return OpResult{Success: true}
 }
 
-func NewOpResultSuccessWithResult(result interface{}) OpResult {
+func OpSuccessWith(result interface{}) OpResult {
 	return OpResult{Success: true, Result: result}
 }
 
-func NewOpResultFail(msg string, err error) OpResult {
+func OpFailure(msg string, err error) OpResult {
 	return OpResult{Success: false, Message: msg, Error: err}
 }
 
@@ -38,4 +38,17 @@ type Range struct {
 type Position struct {
 	Line      int `json:"line"`
 	Character int `json:"character"`
+}
+
+// LSP Completion response structures based on the LSP standard
+type CompletionItem struct {
+	Label         string `json:"label"`
+	Kind          int    `json:"kind,omitempty"`
+	Detail        string `json:"detail,omitempty"`
+	Documentation string `json:"documentation,omitempty"`
+}
+
+type CompletionList struct {
+	IsIncomplete bool             `json:"isIncomplete"`
+	Items        []CompletionItem `json:"items"`
 }

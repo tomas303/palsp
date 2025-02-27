@@ -16,35 +16,41 @@ func processConnection(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 
 	for {
-		// Read LSP headers
-		header, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("Client disconnected")
-			} else {
-				fmt.Println("Error reading header:", err.Error())
+		// Parse headers according to LSP spec
+		contentLength := 0
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					fmt.Println("Client disconnected")
+				} else {
+					fmt.Println("Error reading header:", err.Error())
+				}
+				return
 			}
-			break
+
+			// Trim trailing CR and LF
+			line = strings.TrimRight(line, "\r\n")
+
+			// Empty line indicates end of headers
+			if line == "" {
+				break
+			}
+
+			// Parse Content-Length header
+			if strings.HasPrefix(line, "Content-Length: ") {
+				fmt.Sscanf(line, "Content-Length: %d", &contentLength)
+			}
 		}
 
-		// Read LSP content length
-		if !strings.HasPrefix(header, "Content-Length: ") {
-			fmt.Println("Invalid header:", header)
+		if contentLength == 0 {
+			fmt.Println("Invalid Content-Length")
 			continue
-		}
-		var contentLength int
-		fmt.Sscanf(header, "Content-Length: %d", &contentLength)
-
-		// Read the blank line
-		_, err = reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading blank line:", err.Error())
-			break
 		}
 
 		// Read the content
 		content := make([]byte, contentLength)
-		_, err = io.ReadFull(reader, content)
+		_, err := io.ReadFull(reader, content)
 		if err != nil {
 			fmt.Println("Error reading content:", err.Error())
 			break
@@ -77,35 +83,41 @@ func processStdio() {
 	writer := bufio.NewWriter(os.Stdout)
 
 	for {
-		// Read LSP headers
-		header, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("Client disconnected")
-			} else {
-				fmt.Println("Error reading header:", err.Error())
+		// Parse headers according to LSP spec
+		contentLength := 0
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				if err == io.EOF {
+					fmt.Println("Client disconnected")
+				} else {
+					fmt.Println("Error reading header:", err.Error())
+				}
+				return
 			}
-			break
+
+			// Trim trailing CR and LF
+			line = strings.TrimRight(line, "\r\n")
+
+			// Empty line indicates end of headers
+			if line == "" {
+				break
+			}
+
+			// Parse Content-Length header
+			if strings.HasPrefix(line, "Content-Length: ") {
+				fmt.Sscanf(line, "Content-Length: %d", &contentLength)
+			}
 		}
 
-		// Read LSP content length
-		if !strings.HasPrefix(header, "Content-Length: ") {
-			fmt.Println("Invalid header:", header)
+		if contentLength == 0 {
+			fmt.Println("Invalid Content-Length")
 			continue
-		}
-		var contentLength int
-		fmt.Sscanf(header, "Content-Length: %d", &contentLength)
-
-		// Read the blank line
-		_, err = reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading blank line:", err.Error())
-			break
 		}
 
 		// Read the content
 		content := make([]byte, contentLength)
-		_, err = io.ReadFull(reader, content)
+		_, err := io.ReadFull(reader, content)
 		if err != nil {
 			fmt.Println("Error reading content:", err.Error())
 			break

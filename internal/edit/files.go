@@ -50,13 +50,19 @@ func getUnitName(uri string) (name string, err error) {
 }
 
 func (l *lsp) DidOpen(uri string, text string) OpResult {
+	d := &dsc.Discover{}
 	unitName, err := getUnitName(uri)
 	if err != nil {
 		return OpFailure(fmt.Sprintf("Invalid URI: %s", uri), err)
 	}
 	delete(l.fls.fileDict, uri)
-	d := &dsc.Discover{}
-	d.Units(unitName)
+
+	parsed, err := url.Parse(uri)
+	if err != nil {
+		return OpFailure(fmt.Sprintf("Invalid URI: %s", uri), err)
+	}
+	dir := filepath.Dir(parsed.Path)
+	d.Units(dir)
 	l.fls.fileDict[uri] = file{
 		scope: d.ScopeSymbols(unitName),
 		path:  uri,
@@ -87,10 +93,20 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 		return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 
+	var info string
+	switch n := node.(type) {
+	case antlr.TerminalNode:
+		info = n.GetText()
+	case antlr.RuleNode:
+		info = n.GetText()
+	default:
+		info = "Unknown node type"
+	}
+
 	hoverResp := Hover{
 		Contents: MarkupContent{
 			Kind:  "plaintext",
-			Value: fmt.Sprintf("Hover info for %s", node.GetText()),
+			Value: fmt.Sprintf("Hover info for %s", info),
 		},
 		// Range: &Range{
 		// 	Start: Position{Line: line, Character: character},

@@ -31,11 +31,24 @@ type InitializeResult struct {
 
 // InitializeParams structure
 type InitializeParams struct {
-	ProcessID             int                    `json:"processId"`
-	RootURI               string                 `json:"rootUri"`
-	Capabilities          ClientCapabilities     `json:"capabilities"`
-	InitializationOptions map[string]interface{} `json:"initializationOptions,omitempty"`
-	Trace                 string                 `json:"trace,omitempty"`
+	ProcessID    int                `json:"processId"`
+	RootURI      string             `json:"rootUri"`
+	Capabilities ClientCapabilities `json:"capabilities"`
+	// Replace generic options with structured options
+	InitializationOptions InitializationOptions `json:"initializationOptions,omitempty"`
+	Trace                 string                `json:"trace,omitempty"`
+	WorkspaceFolders      []WorkspaceFolder     `json:"workspaceFolders,omitempty"`
+}
+
+// Add new custom initialization options struct with SearchFolders as a subkey.
+type InitializationOptions struct {
+	SearchFolders []string `json:"searchFolders,omitempty"`
+}
+
+// WorkspaceFolder structure based on LSP standard
+type WorkspaceFolder struct {
+	URI  string `json:"uri"`
+	Name string `json:"name"`
 }
 
 // ClientCapabilities structure

@@ -708,9 +708,13 @@ func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 }
 
 func (s *scopeListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
-	fields, fieldtype := buildTypedIdentifierList(ctx.TypedIdentifierList())
-	for _, field := range fields {
-		s.actScope.addSymbol(field, fieldtype, int(VariableSymbol))
+	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
+	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
+		pos := Position{
+			Line:      identifier.GetStart().GetLine(),
+			Character: identifier.GetStart().GetColumn(),
+		}
+		s.actScope.addSymbol(buildIdentifier(identifier), typedef, int(VariableSymbol), pos)
 	}
 }
 
@@ -728,7 +732,11 @@ func (s *scopeListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCon
 			fieldtype = "integer"
 		}
 	}
-	s.actScope.addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol))
+	pos := Position{
+		Line:      ctx.Identifier().GetStart().GetLine(),
+		Character: ctx.Identifier().GetStart().GetColumn(),
+	}
+	s.actScope.addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol), pos)
 }
 
 func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
@@ -741,7 +749,11 @@ func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListC
 		// 	result += " = " + ctx.DefaultValue().GetText()
 		// }
 		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.actScope.addSymbol(buildIdentifier(id), parType, int(ParameterSymbol))
+			pos := Position{
+				Line:      id.GetStart().GetLine(),
+				Character: id.GetStart().GetColumn(),
+			}
+			s.actScope.addSymbol(buildIdentifier(id), parType, int(ParameterSymbol), pos)
 		}
 		//
 	}
@@ -751,14 +763,22 @@ func (s *scopeListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPar
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-			s.actScope.addSymbol(buildIdentifier(id), typedef, int(ClassVariable))
+			pos := Position{
+				Line:      id.GetStart().GetLine(),
+				Character: id.GetStart().GetColumn(),
+			}
+			s.actScope.addSymbol(buildIdentifier(id), typedef, int(ClassVariable), pos)
 		}
 	}
 }
 
 func (s *scopeListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.actScope.getName() != "procedure" {
-		s.actScope = s.actScope.addScope("procedure header")
+		pos := Position{
+			Line:      ctx.Identifier().GetStart().GetLine(),
+			Character: ctx.Identifier().GetStart().GetColumn(),
+		}
+		s.actScope = s.actScope.addScope("procedure header", pos)
 	}
 }
 
@@ -770,7 +790,11 @@ func (s *scopeListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) 
 }
 
 func (s *scopeListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
-	s.actScope = s.actScope.addScope("procedure")
+	pos := Position{
+		Line:      ctx.ProcedureHeader().Identifier().GetStart().GetLine(),
+		Character: ctx.ProcedureHeader().Identifier().GetStart().GetColumn(),
+	}
+	s.actScope = s.actScope.addScope("procedure", pos)
 }
 
 func (s *scopeListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
@@ -780,7 +804,11 @@ func (s *scopeListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclaratio
 
 func (s *scopeListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.actScope.getName() != "function" {
-		s.actScope = s.actScope.addScope("function header")
+		pos := Position{
+			Line:      ctx.Identifier().GetStart().GetLine(),
+			Character: ctx.Identifier().GetStart().GetColumn(),
+		}
+		s.actScope = s.actScope.addScope("function header", pos)
 	}
 }
 
@@ -788,7 +816,11 @@ func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.actScope.getName() != "function" {
 		funcName := buildIdentifier(ctx.Identifier())
 		if ctx.ResultType() != nil {
-			s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult))
+			pos := Position{
+				Line:      ctx.Identifier().GetStart().GetLine(),
+				Character: ctx.Identifier().GetStart().GetColumn(),
+			}
+			s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult), pos)
 		}
 		s.actScope.setName(funcName)
 		s.actScope = s.actScope.parent()
@@ -796,20 +828,32 @@ func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 }
 
 func (s *scopeListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
-	s.actScope = s.actScope.addScope("function")
+	pos := Position{
+		Line:      ctx.FunctionHeader().Identifier().GetStart().GetLine(),
+		Character: ctx.FunctionHeader().Identifier().GetStart().GetColumn(),
+	}
+	s.actScope = s.actScope.addScope("function", pos)
 }
 
 func (s *scopeListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	funcName := buildIdentifier(ctx.FunctionHeader().Identifier())
 	if ctx.FunctionHeader().ResultType() != nil {
-		s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult))
+		pos := Position{
+			Line:      ctx.FunctionHeader().Identifier().GetStart().GetLine(),
+			Character: ctx.FunctionHeader().Identifier().GetStart().GetColumn(),
+		}
+		s.actScope.addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult), pos)
 	}
 	s.actScope.setName(funcName)
 	s.actScope = s.actScope.parent()
 }
 
 func (s *scopeListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
-	s.actScope = s.actScope.addScope("type")
+	pos := Position{
+		Line:      ctx.Identifier().GetStart().GetLine(),
+		Character: ctx.Identifier().GetStart().GetColumn(),
+	}
+	s.actScope = s.actScope.addScope("type", pos)
 }
 
 func (s *scopeListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {

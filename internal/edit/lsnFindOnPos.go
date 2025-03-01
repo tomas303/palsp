@@ -1,6 +1,7 @@
 package edit
 
 import (
+	"palsp/internal/discover"
 	"palsp/internal/parser"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -8,16 +9,18 @@ import (
 
 type lsnFindOnPos struct {
 	parser.BasepascalListener
-	line      int
-	character int
+	position  discover.Position
 	found     antlr.ParseTree
 	foundSpan int
 }
 
 func newLsnFindOnPos(line, character int) *lsnFindOnPos {
 	return &lsnFindOnPos{
-		line:      line,
-		character: character,
+		position: discover.Position{
+			Line:      line,
+			Character: character,
+		},
+		foundSpan: 0,
 	}
 }
 
@@ -34,9 +37,9 @@ func (l *lsnFindOnPos) EnterEveryRule(ctx antlr.ParserRuleContext) {
 	endLine := stopToken.GetLine()
 	endCol := stopToken.GetColumn() + len(stopToken.GetText())
 
-	// Check if the position (l.line, l.character) is within the token's range
-	positionInRange := (startLine < l.line || (startLine == l.line && startCol <= l.character)) &&
-		(endLine > l.line || (endLine == l.line && endCol >= l.character))
+	// Check if the position (l.position.Line, l.position.Character) is within the token's range
+	positionInRange := (startLine < l.position.Line || (startLine == l.position.Line && startCol <= l.position.Character)) &&
+		(endLine > l.position.Line || (endLine == l.position.Line && endCol >= l.position.Character))
 
 	if positionInRange {
 		newSpan := stopToken.GetTokenIndex() - startToken.GetTokenIndex() + 1

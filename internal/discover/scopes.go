@@ -2,13 +2,20 @@ package discover
 
 import "fmt"
 
+// Position represents a position in source code
+type Position struct {
+	Line      int
+	Character int
+}
+
 type scope interface {
-	addSymbol(name string, definition string, kind int)
-	addScope(name string) scope
+	addSymbol(name string, definition string, kind int, position Position)
+	addScope(name string, position Position) scope
 	parent() scope
 	symbolStackLast() int
 	getName() string
 	setName(name string)
+	// findSymbol(name string) symbol
 }
 
 type topscope interface {
@@ -20,6 +27,7 @@ type symbol struct {
 	name       string
 	definition string
 	kind       int
+	position   Position
 }
 
 type commonScope struct {
@@ -28,6 +36,7 @@ type commonScope struct {
 	scopeStack  stack[scope]
 	parentSWM   int
 	parentScope scope
+	position    Position
 }
 
 type UnitScope struct {
@@ -55,29 +64,30 @@ func showUnitScope(scope *UnitScope) {
 	showScope(0, scope.scope.(*commonScope))
 }
 
-func newCommonScope(name string, parent scope, parentSWM int) scope {
+func newCommonScope(name string, parent scope, parentSWM int, position Position) scope {
 	return &commonScope{
 		name:        name,
 		symbolStack: stack[symbol]{},
 		scopeStack:  stack[scope]{},
 		parentSWM:   parentSWM,
 		parentScope: parent,
+		position:    position,
 	}
 }
 
 func newUnitScope(unit string) topscope {
 	return &UnitScope{
-		scope:     newCommonScope(unit, nil, 0),
+		scope:     newCommonScope(unit, nil, 0, Position{Line: 0, Character: 0}),
 		usesStack: stack[string]{},
 	}
 }
 
-func (s *commonScope) addSymbol(name string, definition string, kind int) {
-	s.symbolStack.push(symbol{name: name, definition: definition, kind: kind})
+func (s *commonScope) addSymbol(name string, definition string, kind int, position Position) {
+	s.symbolStack.push(symbol{name: name, definition: definition, kind: kind, position: position})
 }
 
-func (s *commonScope) addScope(name string) scope {
-	new := newCommonScope(name, s, s.symbolStack.length()-1)
+func (s *commonScope) addScope(name string, position Position) scope {
+	new := newCommonScope(name, s, s.symbolStack.length()-1, position)
 	s.scopeStack.push(new)
 	return new
 }

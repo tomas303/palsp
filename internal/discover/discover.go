@@ -83,7 +83,7 @@ func (d *Discover) ScopeSymbols(unit string) *UnitScope {
 
 }
 
-func (d *Discover) AST(unit string) antlr.Tree {
+func (d *Discover) CST(unit string) antlr.Tree {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -99,7 +99,7 @@ func (d *Discover) AST(unit string) antlr.Tree {
 		panic(DiscoverError{Message: err.Error()})
 	}
 
-	tree := parseAST(content)
+	tree := parseCST(content)
 	return tree
 
 }

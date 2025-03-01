@@ -11,6 +11,7 @@ type lsnFindOnPos struct {
 	line      int
 	character int
 	found     antlr.ParseTree
+	foundSpan int
 }
 
 func newLsnFindOnPos(line, character int) *lsnFindOnPos {
@@ -27,19 +28,21 @@ func (l *lsnFindOnPos) EnterEveryRule(ctx antlr.ParserRuleContext) {
 	if startToken == nil || stopToken == nil {
 		return
 	}
-	// Check if the token's span covers the target position.
-	// Condition: token starts before or at the target position and ends after or at the target.
-	if startToken.GetLine() < l.line ||
-		(startToken.GetLine() == l.line && startToken.GetColumn() <= l.character) {
-		// Compute end column from stop token text length.
-		text := stopToken.GetText()
-		endCol := stopToken.GetColumn() + len(text) - 1
-		if stopToken.GetLine() > l.line ||
-			(stopToken.GetLine() == l.line && endCol >= l.character) {
+
+	startLine := startToken.GetLine()
+	startCol := startToken.GetColumn()
+	endLine := stopToken.GetLine()
+	endCol := stopToken.GetColumn() + len(stopToken.GetText())
+
+	// Check if the position (l.line, l.character) is within the token's range
+	positionInRange := (startLine < l.line || (startLine == l.line && startCol <= l.character)) &&
+		(endLine > l.line || (endLine == l.line && endCol >= l.character))
+
+	if positionInRange {
+		newSpan := stopToken.GetTokenIndex() - startToken.GetTokenIndex() + 1
+		if newSpan < l.foundSpan || l.found == nil {
 			l.found = ctx
-			// Optionally print debug info:
-			// fmt.Println("Found node covering position", l.line, strconv.Itoa(l.character))
-			panic("found")
+			l.foundSpan = newSpan
 		}
 	}
 }

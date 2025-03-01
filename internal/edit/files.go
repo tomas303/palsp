@@ -24,7 +24,7 @@ func init() {
 type file struct {
 	scope *discover.UnitScope
 	path  string
-	ast   antlr.Tree
+	cst   antlr.Tree
 }
 
 type files struct {
@@ -66,7 +66,7 @@ func (l *lsp) DidOpen(uri string, text string) OpResult {
 	l.fls.fileDict[uri] = file{
 		scope: d.ScopeSymbols(unitName),
 		path:  uri,
-		ast:   d.AST(unitName),
+		cst:   d.CST(unitName),
 	}
 	return OpSuccess()
 }
@@ -134,18 +134,45 @@ func (l *lsp) Completion(uri string, line int, character int) OpResult {
 }
 
 func (f *file) walk(l antlr.ParseTreeListener) {
-	antlr.ParseTreeWalkerDefault.Walk(l, f.ast)
+	antlr.ParseTreeWalkerDefault.Walk(l, f.cst)
 }
 
 func (f *file) findOnPos(line int, character int) (antlr.ParseTree, error) {
-	l := newLsnFindOnPos(line, character)
-	defer func() {
-		if r := recover(); r != nil {
-			if r != "found" {
-				panic(r)
+	var result antlr.ParseTree
+	var err error
+
+	// Function to be executed in a deferred context
+	func() {
+		// Defer the recovery
+		defer func() {
+			if r := recover(); r != nil {
+				switch v := r.(type) {
+				case error:
+					// If the panic value is an error, store it
+					err = v
+				case string:
+					// If the panic value is a string, create an error from it
+					err = fmt.Errorf("%s", v)
+				default:
+					// For any other type, create a generic error
+					err = fmt.Errorf("unexpected panic: %v", r)
+				}
 			}
-		}
+		}()
+
+		// Create the listener and walk the tree
+		l := newLsnFindOnPos(line, character)
+		f.walk(l)
+		result = l.GetFound()
 	}()
-	f.walk(l)
-	return l.GetFound(), nil
+
+	// Check if we found a result or if there was an error
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		return nil, fmt.Errorf("no node found at position line: %d, character: %d", line, character)
+	}
+
+	return result, nil
 }

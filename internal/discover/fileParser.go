@@ -73,7 +73,7 @@ func parseFromReader(reader io.Reader, listener antlr.ParseTreeListener, options
 	p.Source()
 }
 
-func parseAST(content string) antlr.Tree {
+func parseCST(content string) antlr.Tree {
 	input := antlr.NewInputStream(content)
 	lexer := parser1.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)

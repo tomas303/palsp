@@ -11,7 +11,6 @@ type Position struct {
 type scope interface {
 	addSymbol(name string, definition string, kind int, position Position)
 	addScope(name string, position Position) scope
-	parent() scope
 	symbolStackLast() int
 	getName() string
 	setName(name string)
@@ -35,7 +34,6 @@ type commonScope struct {
 	symbolStack stack[symbol]
 	scopeStack  stack[scope]
 	parentSWM   int
-	parentScope scope
 	position    Position
 }
 
@@ -64,20 +62,19 @@ func showUnitScope(scope *UnitScope) {
 	showScope(0, scope.scope.(*commonScope))
 }
 
-func newCommonScope(name string, parent scope, parentSWM int, position Position) scope {
+func newCommonScope(name string, parentSWM int, position Position) scope {
 	return &commonScope{
 		name:        name,
 		symbolStack: stack[symbol]{},
 		scopeStack:  stack[scope]{},
 		parentSWM:   parentSWM,
-		parentScope: parent,
 		position:    position,
 	}
 }
 
 func newUnitScope(unit string) topscope {
 	return &UnitScope{
-		scope:     newCommonScope(unit, nil, 0, Position{Line: 0, Character: 0}),
+		scope:     newCommonScope(unit, 0, Position{Line: 0, Character: 0}),
 		usesStack: stack[string]{},
 	}
 }
@@ -87,13 +84,9 @@ func (s *commonScope) addSymbol(name string, definition string, kind int, positi
 }
 
 func (s *commonScope) addScope(name string, position Position) scope {
-	new := newCommonScope(name, s, s.symbolStack.length()-1, position)
+	new := newCommonScope(name, s.symbolStack.length()-1, position)
 	s.scopeStack.push(new)
 	return new
-}
-
-func (s *commonScope) parent() scope {
-	return s.parentScope
 }
 
 func (s *commonScope) symbolStackLast() int {

@@ -67,3 +67,10 @@ func (s *stack[T]) isEmpty() bool {
 func (s *stack[T]) length() int {
 	return len(s.data)
 }
+
+// newStack creates and returns a new empty stack.
+func newStack[T any]() *stack[T] {
+	return &stack[T]{
+		data: make([]T, 0),
+	}
+}

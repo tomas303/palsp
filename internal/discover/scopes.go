@@ -1,26 +1,21 @@
 package discover
 
-// Position represents a position in source code
-type Position struct {
-	Line      int
-	Character int
-}
-
-type scope interface {
-	addSymbol(name string, definition string, kind int, position Position)
-	addScope(name string, position Position) scope
-	symbolStackLast() int
+type Scope interface {
 	getName() string
-	setName(name string)
 	print()
 	findSymbol(position Position) *Symbol
 }
 
 type TopScope interface {
-	scope
-	addUses(unit string)
+	Scope
 	Print()
 	FindSymbol(position Position) *Symbol
+}
+
+// Position represents a position in source code
+type Position struct {
+	Line      int
+	Character int
 }
 
 type Symbol struct {
@@ -33,7 +28,7 @@ type Symbol struct {
 type commonScope struct {
 	name        string
 	symbolStack stack[Symbol]
-	scopeStack  stack[scope]
+	scopeStack  stack[Scope]
 	parentSWM   int
 	position    Position
 }
@@ -43,7 +38,7 @@ type commonScopeBuilder struct {
 }
 
 type UnitScope struct {
-	scope
+	Scope
 	usesStack stack[string]
 }
 
@@ -71,37 +66,6 @@ type UnitScopeBuilder struct {
 // 	}
 // 	showScope(0, &scope.commonScope)
 // }
-
-func newCommonScope(name string, parentSWM int, position Position) *commonScope {
-	return &commonScope{
-		name:        name,
-		symbolStack: stack[Symbol]{},
-		scopeStack:  stack[scope]{},
-		parentSWM:   parentSWM,
-		position:    position,
-	}
-}
-
-func newUnitScope(unit string) TopScope {
-	return &UnitScope{
-		scope:     newCommonScope(unit, 0, Position{Line: 0, Character: 0}),
-		usesStack: stack[string]{},
-	}
-}
-
-func (s *commonScope) addSymbol(name string, definition string, kind int, position Position) {
-	s.symbolStack.push(Symbol{Name: name, Definition: definition, Kind: kind, Position: position})
-}
-
-func (s *commonScope) addScope(name string, position Position) scope {
-	new := newCommonScope(name, s.symbolStack.length()-1, position)
-	s.scopeStack.push(new)
-	return new
-}
-
-func (s *commonScope) symbolStackLast() int {
-	return s.symbolStack.length() - 1
-}
 
 func (s *commonScope) print() {
 	println("Name: ", s.getName())
@@ -131,14 +95,6 @@ func (s *commonScope) getName() string {
 	return s.name
 }
 
-func (s *commonScope) setName(name string) {
-	s.name = name
-}
-
-func (s *UnitScope) addUses(unit string) {
-	s.usesStack.push(unit)
-}
-
 func (s *UnitScope) Print() {
 	println("Name: ", s.getName())
 	println("uses: ")
@@ -146,11 +102,11 @@ func (s *UnitScope) Print() {
 		print(unit)
 	}
 	println("symbols:")
-	s.scope.print()
+	s.Scope.print()
 }
 
 func (s *UnitScope) FindSymbol(position Position) *Symbol {
-	return s.scope.findSymbol(position)
+	return s.Scope.findSymbol(position)
 }
 
 func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position) *commonScopeBuilder {
@@ -159,7 +115,7 @@ func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int,
 	return b
 }
 
-func (b *commonScopeBuilder) addScope(sc scope) *commonScopeBuilder {
+func (b *commonScopeBuilder) addScope(sc Scope) *commonScopeBuilder {
 	b.cmsc.scopeStack.push(sc)
 	return b
 }
@@ -169,7 +125,7 @@ func (b *commonScopeBuilder) parentSWM(swm int) *commonScopeBuilder {
 	return b
 }
 
-func (b *commonScopeBuilder) finish() scope {
+func (b *commonScopeBuilder) finish() Scope {
 	return &b.cmsc
 }
 
@@ -182,6 +138,10 @@ func (b *commonScopeBuilder) getName() string {
 	return b.cmsc.name
 }
 
+func (b *commonScopeBuilder) symbolStackLast() int {
+	return b.cmsc.symbolStack.length() - 1
+}
+
 func (b *UnitScopeBuilder) addUses(unit string) *UnitScopeBuilder {
 	b.usesStack.push(unit)
 	return b
@@ -189,7 +149,7 @@ func (b *UnitScopeBuilder) addUses(unit string) *UnitScopeBuilder {
 
 func (b *UnitScopeBuilder) finish() TopScope {
 	return &UnitScope{
-		scope:     b.commonScopeBuilder.finish(),
+		Scope:     b.commonScopeBuilder.finish(),
 		usesStack: b.usesStack,
 	}
 }

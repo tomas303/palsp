@@ -69,32 +69,21 @@ type publicSymbolsListener struct {
 
 type scopeListener struct {
 	parser.BasepascalListener
-	unitScope TopScope
-	scopes    stack[scope]
-	usb       UnitScopeBuilder
-	sbs       stack[*commonScopeBuilder]
+	usb UnitScopeBuilder
+	sbs stack[*commonScopeBuilder]
 }
 
 func NewScopeListener(unit string) *scopeListener {
-	us := newUnitScope(unit)
-	scopes := newStack[scope]()
-	as := us.(scope)
-	scopes.push(as)
-
 	csb := commonScopeBuilder{cmsc: commonScope{name: unit}}
 	sbs := *newStack[*commonScopeBuilder]()
 	sbs.push(&csb)
-
 	usb := UnitScopeBuilder{
 		commonScopeBuilder: &csb,
 		usesStack:          *newStack[string](),
 	}
-
 	return &scopeListener{
-		unitScope: us,
-		scopes:    *scopes,
-		usb:       usb,
-		sbs:       sbs,
+		usb: usb,
+		sbs: sbs,
 	}
 }
 
@@ -738,7 +727,6 @@ func (s *scopeListener) ab() *commonScopeBuilder {
 
 func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
-		s.unitScope.addUses(buildIdentifier(identifier))
 		s.usb.addUses(buildIdentifier(identifier))
 	}
 }
@@ -746,7 +734,6 @@ func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 func (s *scopeListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
 	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-		s.scopes.peek().addSymbol(buildIdentifier(identifier), typedef, int(VariableSymbol), newPosition(identifier))
 		s.ab().addSymbol(buildIdentifier(identifier), typedef, int(VariableSymbol), newPosition(identifier))
 	}
 }
@@ -765,7 +752,6 @@ func (s *scopeListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCon
 			fieldtype = "integer"
 		}
 	}
-	s.scopes.peek().addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol), newPosition(ctx.Identifier()))
 	s.ab().addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol), newPosition(ctx.Identifier()))
 }
 
@@ -779,7 +765,6 @@ func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListC
 		// 	result += " = " + ctx.DefaultValue().GetText()
 		// }
 		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.scopes.peek().addSymbol(buildIdentifier(id), parType, int(ParameterSymbol), newPosition(id))
 			s.ab().addSymbol(buildIdentifier(id), parType, int(ParameterSymbol), newPosition(id))
 		}
 		//
@@ -790,17 +775,12 @@ func (s *scopeListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPar
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-			s.scopes.peek().addSymbol(buildIdentifier(id), typedef, int(ClassVariable), newPosition(id))
 			s.ab().addSymbol(buildIdentifier(id), typedef, int(ClassVariable), newPosition(id))
 		}
 	}
 }
 
 func (s *scopeListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
-	if s.scopes.peek().getName() != "procedure" {
-		newScope := s.scopes.peek().addScope("procedure header", newPosition(ctx.Identifier()))
-		s.scopes.push(newScope)
-	}
 	if s.ab().getName() != "procedure" {
 		newsb := commonScopeBuilder{cmsc: commonScope{name: buildIdentifier(ctx.Identifier()), position: newPosition(ctx.Identifier())}}
 		s.sbs.push(&newsb)
@@ -808,39 +788,27 @@ func (s *scopeListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext)
 }
 
 func (s *scopeListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
-	if s.scopes.peek().getName() != "procedure" {
-		s.scopes.peek().setName(buildIdentifier(ctx.Identifier()))
-		s.scopes.pop()
-	}
 	if s.ab().getName() != "procedure" {
 		sb := s.sbs.pop()
 		sb.setName(buildIdentifier(ctx.Identifier()))
-		sb.parentSWM(s.ab().cmsc.symbolStackLast())
+		sb.parentSWM(s.ab().symbolStackLast())
 		s.ab().addScope(sb.finish())
 	}
 }
 
 func (s *scopeListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
-	newScope := s.scopes.peek().addScope("procedure", newPosition(ctx.ProcedureHeader().Identifier()))
-	s.scopes.push(newScope)
 	newsb := commonScopeBuilder{cmsc: commonScope{name: buildIdentifier(ctx.ProcedureHeader().Identifier()), position: newPosition(ctx.ProcedureHeader().Identifier())}}
 	s.sbs.push(&newsb)
 }
 
 func (s *scopeListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
-	s.scopes.peek().setName(buildIdentifier(ctx.ProcedureHeader().Identifier()))
-	s.scopes.pop()
 	sb := s.sbs.pop()
 	sb.setName(buildIdentifier(ctx.ProcedureHeader().Identifier()))
-	sb.parentSWM(s.ab().cmsc.symbolStackLast())
+	sb.parentSWM(s.ab().symbolStackLast())
 	s.ab().addScope(sb.finish())
 }
 
 func (s *scopeListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
-	if s.scopes.peek().getName() != "function" {
-		newScope := s.scopes.peek().addScope("function header", newPosition(ctx.Identifier()))
-		s.scopes.push(newScope)
-	}
 	if s.ab().getName() != "function" {
 		newsb := commonScopeBuilder{cmsc: commonScope{name: buildIdentifier(ctx.Identifier()), position: newPosition(ctx.Identifier())}}
 		s.sbs.push(&newsb)
@@ -848,14 +816,6 @@ func (s *scopeListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
 }
 
 func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
-	if s.scopes.peek().getName() != "function" {
-		funcName := buildIdentifier(ctx.Identifier())
-		if ctx.ResultType() != nil {
-			s.scopes.peek().addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.Identifier()))
-		}
-		s.scopes.peek().setName(funcName)
-		s.scopes.pop()
-	}
 	if s.ab().getName() != "function" {
 		funcName := buildIdentifier(ctx.Identifier())
 		if ctx.ResultType() != nil {
@@ -863,14 +823,12 @@ func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 		}
 		sb := s.sbs.pop()
 		sb.setName(funcName)
-		sb.parentSWM(s.ab().cmsc.symbolStackLast())
+		sb.parentSWM(s.ab().symbolStackLast())
 		s.ab().addScope(sb.finish())
 	}
 }
 
 func (s *scopeListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
-	newScope := s.scopes.peek().addScope("function", newPosition(ctx.FunctionHeader().Identifier()))
-	s.scopes.push(newScope)
 	newsb := commonScopeBuilder{cmsc: commonScope{name: buildIdentifier(ctx.FunctionHeader().Identifier()), position: newPosition(ctx.FunctionHeader().Identifier())}}
 	s.sbs.push(&newsb)
 }
@@ -878,28 +836,22 @@ func (s *scopeListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclaration
 func (s *scopeListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	funcName := buildIdentifier(ctx.FunctionHeader().Identifier())
 	if ctx.FunctionHeader().ResultType() != nil {
-		s.scopes.peek().addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.FunctionHeader().Identifier()))
+		s.ab().addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.FunctionHeader().Identifier()))
 	}
-	s.scopes.peek().setName(funcName)
-	s.scopes.pop()
 	sb := s.sbs.pop()
 	sb.setName(funcName)
-	sb.parentSWM(s.ab().cmsc.symbolStackLast())
+	sb.parentSWM(s.ab().symbolStackLast())
 	s.ab().addScope(sb.finish())
 }
 
 func (s *scopeListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
-	newScope := s.scopes.peek().addScope("type", newPosition(ctx.Identifier()))
-	s.scopes.push(newScope)
 	newsb := commonScopeBuilder{cmsc: commonScope{name: buildIdentifier(ctx.Identifier()), position: newPosition(ctx.Identifier())}}
 	s.sbs.push(&newsb)
 }
 
 func (s *scopeListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
-	s.scopes.peek().setName(buildIdentifier(ctx.Identifier()))
-	s.scopes.pop()
 	sb := s.sbs.pop()
 	sb.setName(buildIdentifier(ctx.Identifier()))
-	sb.parentSWM(s.ab().cmsc.symbolStackLast())
+	sb.parentSWM(s.ab().symbolStackLast())
 	s.ab().addScope(sb.finish())
 }

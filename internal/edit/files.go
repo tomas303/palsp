@@ -22,7 +22,7 @@ func init() {
 }
 
 type file struct {
-	scope *discover.UnitScope
+	scope discover.TopScope
 	path  string
 	cst   antlr.Tree
 }
@@ -63,10 +63,14 @@ func (l *lsp) DidOpen(uri string, text string) OpResult {
 	}
 	dir := filepath.Dir(parsed.Path)
 	d.Units(dir)
+
+	cst := d.CST(unitName)
+	scope := d.ScopeSymbols2(cst)
+
 	l.fls.fileDict[uri] = file{
-		scope: d.ScopeSymbols(unitName),
+		scope: scope,
 		path:  uri,
-		cst:   d.CST(unitName),
+		cst:   cst,
 	}
 	return OpSuccess()
 }
@@ -88,20 +92,33 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 		f = l.fls.fileDict[uri]
 	}
 
-	node, err := f.findOnPos(line, character)
-	if err != nil {
-		return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
-	}
-
 	var info string
-	switch n := node.(type) {
-	case antlr.TerminalNode:
-		info = n.GetText()
-	case antlr.RuleNode:
-		info = n.GetText()
-	default:
-		info = "Unknown node type"
+	sym := f.scope.FindSymbol(discover.Position{Line: line, Character: character})
+	if sym == nil {
+
+		node, err := f.findOnPos(line, character)
+		if err != nil {
+			return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
+		}
+
+		switch n := node.(type) {
+		case antlr.TerminalNode:
+			info = n.GetText()
+		case antlr.RuleNode:
+			info = n.GetText()
+		default:
+			info = "Unknown node type"
+		}
+	} else {
+		info = sym.Name + " " + sym.Definition
 	}
+	// fmt.Printf("f.scope: %v\n", f.scope.print())
+	// f.scope.Print()
+
+	// sl := discover.NewScopeListener("")
+	// f.walk(sl)
+	// ts := sl.GetScope()
+	// ts.Print()
 
 	hoverResp := Hover{
 		Contents: MarkupContent{

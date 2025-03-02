@@ -59,7 +59,7 @@ func (d *Discover) PublicSymbols(unit string) {
 
 }
 
-func (d *Discover) ScopeSymbols(unit string) *UnitScope {
+func (d *Discover) ScopeSymbols(unit string) TopScope {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -77,9 +77,27 @@ func (d *Discover) ScopeSymbols(unit string) *UnitScope {
 
 	// l := &scopeSymbolsListener{unit_id: unit_id, unitName: unit}
 	// scopeparseFromContent(content, l, fullDebugOptions())
-	l := newScopeListener(unit)
+	l := NewScopeListener(unit)
 	parseFromContent(content, l, fullDebugOptions())
-	return l.unitScope.(*UnitScope)
+	// return l.unitScope.(*UnitScope)
+	return l.usb.finish()
+
+}
+
+func (d *Discover) ScopeSymbols2(cst antlr.Tree) TopScope {
+
+	defer func() {
+		if r := recover(); r != nil {
+			if _, ok := r.(*finishError); ok {
+			} else {
+				log.Printf("Error collection public symbols: %v", r)
+			}
+		}
+	}()
+
+	l := NewScopeListener("")
+	antlr.ParseTreeWalkerDefault.Walk(l, cst)
+	return l.usb.finish()
 
 }
 

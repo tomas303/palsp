@@ -113,7 +113,7 @@ func TestDiscoverScopeSymbols(t *testing.T) {
 		}()
 		d := &Discover{}
 		d.Units("/home/tomas/testsrcs/pubtest")
-		sc := d.ScopeSymbols("iNALCrypt")
+		// sc := d.ScopeSymbols("iNALCrypt")
 		// {
 		// 	dbConn := SymDB().conn
 		// 	unitRows, err := dbConn.Query("SELECT unitname FROM units")
@@ -130,7 +130,7 @@ func TestDiscoverScopeSymbols(t *testing.T) {
 		// 	}
 		// }
 		println("\nRESULTS:\n")
-		showUnitScope(sc)
+		// showUnitScope(sc)
 	}()
 
 }

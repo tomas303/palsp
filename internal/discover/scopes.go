@@ -1,11 +1,14 @@
+// Package discover provides functionality to discover and navigate code structures
 package discover
 
+// Scope represents a code scope that can be searched for symbols
 type Scope interface {
 	getName() string
 	print()
 	findSymbol(position Position) *Symbol
 }
 
+// TopScope represents a top-level scope with public methods for interaction
 type TopScope interface {
 	Scope
 	Print()
@@ -18,13 +21,15 @@ type Position struct {
 	Character int
 }
 
+// Symbol represents a code symbol with its metadata
 type Symbol struct {
 	Name       string
 	Definition string
-	Kind       int
 	Position   Position
+	Kind       int
 }
 
+// commonScope implements basic scope functionality
 type commonScope struct {
 	name        string
 	symbolStack stack[Symbol]
@@ -33,15 +38,18 @@ type commonScope struct {
 	position    Position
 }
 
+// commonScopeBuilder provides methods to construct a commonScope
 type commonScopeBuilder struct {
 	cmsc commonScope
 }
 
+// UnitScope represents a program unit scope (like a file or module)
 type UnitScope struct {
 	Scope
 	usesStack stack[string]
 }
 
+// UnitScopeBuilder provides methods to construct a UnitScope
 type UnitScopeBuilder struct {
 	*commonScopeBuilder
 	usesStack stack[string]
@@ -67,6 +75,12 @@ type UnitScopeBuilder struct {
 // 	showScope(0, &scope.commonScope)
 // }
 
+// getName returns the name of the scope
+func (s *commonScope) getName() string {
+	return s.name
+}
+
+// print outputs the scope hierarchy to standard output
 func (s *commonScope) print() {
 	println("Name: ", s.getName())
 	println("symbols:")
@@ -79,6 +93,7 @@ func (s *commonScope) print() {
 	}
 }
 
+// findSymbol locates a symbol at the given position within the scope
 func (s *commonScope) findSymbol(position Position) *Symbol {
 	for i := s.symbolStack.length() - 1; i >= 0; i-- {
 		sym := s.symbolStack.get(i)
@@ -91,10 +106,12 @@ func (s *commonScope) findSymbol(position Position) *Symbol {
 	return nil
 }
 
-func (s *commonScope) getName() string {
-	return s.name
+// FindSymbol implements TopScope interface to locate a symbol at the given position within the unit scope
+func (s *UnitScope) FindSymbol(position Position) *Symbol {
+	return s.Scope.findSymbol(position)
 }
 
+// Print outputs the unit scope to standard output, implementing TopScope interface
 func (s *UnitScope) Print() {
 	println("Name: ", s.getName())
 	println("uses: ")
@@ -105,43 +122,47 @@ func (s *UnitScope) Print() {
 	s.Scope.print()
 }
 
-func (s *UnitScope) FindSymbol(position Position) *Symbol {
-	return s.Scope.findSymbol(position)
-}
-
+// addSymbol adds a symbol to the scope being built
 func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position) *commonScopeBuilder {
 	smb := Symbol{Name: name, Definition: definition, Kind: kind, Position: position}
 	b.cmsc.symbolStack.push(smb)
 	return b
 }
 
+// addScope adds a child scope to the scope being built
 func (b *commonScopeBuilder) addScope(sc Scope) *commonScopeBuilder {
 	b.cmsc.scopeStack.push(sc)
 	return b
 }
 
+// parentSWM sets the parent SWM identifier for the scope
 func (b *commonScopeBuilder) parentSWM(swm int) *commonScopeBuilder {
 	b.cmsc.parentSWM = swm
 	return b
 }
 
-func (b *commonScopeBuilder) finish() Scope {
-	return &b.cmsc
-}
-
+// setName sets the name of the scope being built
 func (b *commonScopeBuilder) setName(name string) *commonScopeBuilder {
 	b.cmsc.name = name
 	return b
 }
 
+// getName gets the name of the scope being built
 func (b *commonScopeBuilder) getName() string {
 	return b.cmsc.name
 }
 
+// symbolStackLast returns the index of the last symbol in the stack
 func (b *commonScopeBuilder) symbolStackLast() int {
 	return b.cmsc.symbolStack.length() - 1
 }
 
+// finish completes the scope building process and returns the built Scope
+func (b *commonScopeBuilder) finish() Scope {
+	return &b.cmsc
+}
+
+// addUses adds a unit dependency to the UnitScope being built
 func (b *UnitScopeBuilder) addUses(unit string) *UnitScopeBuilder {
 	b.usesStack.push(unit)
 	return b

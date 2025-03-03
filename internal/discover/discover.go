@@ -84,23 +84,6 @@ func (d *Discover) ScopeSymbols(unit string) TopScope {
 
 }
 
-func (d *Discover) ScopeSymbols2(cst antlr.Tree) TopScope {
-
-	defer func() {
-		if r := recover(); r != nil {
-			if _, ok := r.(*finishError); ok {
-			} else {
-				log.Printf("Error collection public symbols: %v", r)
-			}
-		}
-	}()
-
-	l := NewScopeListener("")
-	antlr.ParseTreeWalkerDefault.Walk(l, cst)
-	return l.usb.finish()
-
-}
-
 func (d *Discover) CST(unit string) antlr.Tree {
 
 	defer func() {

@@ -6,6 +6,7 @@ import (
 	"palsp/internal/discover"
 	dsc "palsp/internal/discover"
 	"path/filepath"
+	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -65,7 +66,10 @@ func (l *lsp) DidOpen(uri string, text string) OpResult {
 	d.Units(dir)
 
 	cst := d.CST(unitName)
-	scope := d.ScopeSymbols2(cst)
+
+	sl := discover.NewScopeListener("")
+	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
+	scope := sl.GetScope()
 
 	l.fls.fileDict[uri] = file{
 		scope: scope,
@@ -92,26 +96,29 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 		f = l.fls.fileDict[uri]
 	}
 
-	var info string
-	sym := f.scope.FindSymbol(discover.Position{Line: line, Character: character})
-	if sym == nil {
-
-		node, err := f.findOnPos(line, character)
-		if err != nil {
-			return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
-		}
-
-		switch n := node.(type) {
-		case antlr.TerminalNode:
-			info = n.GetText()
-		case antlr.RuleNode:
-			info = n.GetText()
-		default:
-			info = "Unknown node type"
-		}
-	} else {
-		info = sym.Name + " " + sym.Definition
+	node, err := f.findOnPos(line, character)
+	if err != nil {
+		return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
+
+	var name string
+	switch n := node.(type) {
+	case antlr.TerminalNode:
+		name = strings.ToLower(n.GetText())
+	case antlr.RuleNode:
+		name = strings.ToLower(n.GetText())
+	default:
+		return OpFailure(fmt.Sprintf("found node of unexpected type: %T", node), fmt.Errorf("unexpected node type"))
+	}
+
+	var info string
+	sym := f.scope.LocateSymbol(name, discover.Position{Line: line, Character: character})
+	if sym != nil {
+		info = sym.Name + " " + sym.Definition
+	} else {
+		info = "Unknown node type"
+	}
+
 	// fmt.Printf("f.scope: %v\n", f.scope.print())
 	// f.scope.Print()
 

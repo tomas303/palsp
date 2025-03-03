@@ -1,9 +1,16 @@
 // Package discover provides functionality to discover and navigate code structures
 package discover
 
+import (
+	"strings"
+)
+
 // Scope represents a code scope that can be searched for symbols
 type Scope interface {
 	getName() string
+	getPosition() Position
+	getParentSWM() int
+	locateSymbol(name string, position Position) *Symbol
 	print()
 	findSymbol(position Position) *Symbol
 }
@@ -13,6 +20,7 @@ type TopScope interface {
 	Scope
 	Print()
 	FindSymbol(position Position) *Symbol
+	LocateSymbol(name string, position Position) *Symbol
 }
 
 // Position represents a position in source code
@@ -80,6 +88,17 @@ func (s *commonScope) getName() string {
 	return s.name
 }
 
+// getPosition returns the scoping position of the scope.
+// It provides access to the location information within the source code.
+func (s *commonScope) getPosition() Position {
+	return s.position
+}
+
+// getParentSWM returns the parent SWM identifier for the scope
+func (s *commonScope) getParentSWM() int {
+	return s.parentSWM
+}
+
 // print outputs the scope hierarchy to standard output
 func (s *commonScope) print() {
 	println("Name: ", s.getName())
@@ -106,9 +125,56 @@ func (s *commonScope) findSymbol(position Position) *Symbol {
 	return nil
 }
 
+// locateSymbol finds a symbol by name and position by recursively traversing scopes
+func (s *commonScope) locateSymbol(name string, position Position) *Symbol {
+
+	var hitScope Scope
+	// Search from most recently added (most specific) to first added (most general)
+	for i := s.scopeStack.length() - 1; i >= 0; i-- {
+		scope := s.scopeStack.get(i)
+		// We need to determine if this scope is relevant for the position
+		// This is a simplified check - in a real implementation you'd need better logic
+		// to determine scope boundaries
+		if scope.getPosition().Line <= position.Line {
+			hitScope = scope
+			break
+		}
+	}
+
+	var watermark int
+	// If we found a more specific scope, search there first
+	if hitScope != nil {
+		// Recursively search in the more specific scope
+		if symbol := hitScope.locateSymbol(name, position); symbol != nil {
+			return symbol
+		}
+		watermark = hitScope.getParentSWM()
+
+	} else {
+		watermark = s.symbolStack.length() - 1
+	}
+
+	// If symbol not found in nested scope, we search in the current scope
+	// BUT only up to watermark (which is the symbol index when the nested scope was created)
+	for i := watermark; i >= 0; i-- {
+		sym := s.symbolStack.get(i)
+		if sym.Name == name {
+			return &sym
+		}
+	}
+
+	// Symbol not found in this scope hierarchy
+	return nil
+}
+
 // FindSymbol implements TopScope interface to locate a symbol at the given position within the unit scope
 func (s *UnitScope) FindSymbol(position Position) *Symbol {
 	return s.Scope.findSymbol(position)
+}
+
+// LocateSymbol implements TopScope interface to find a symbol by name and position by recursively traversing scopes
+func (s *UnitScope) LocateSymbol(name string, position Position) *Symbol {
+	return s.Scope.locateSymbol(name, position)
 }
 
 // Print outputs the unit scope to standard output, implementing TopScope interface
@@ -124,7 +190,7 @@ func (s *UnitScope) Print() {
 
 // addSymbol adds a symbol to the scope being built
 func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position) *commonScopeBuilder {
-	smb := Symbol{Name: name, Definition: definition, Kind: kind, Position: position}
+	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position}
 	b.cmsc.symbolStack.push(smb)
 	return b
 }

@@ -3,7 +3,6 @@ package edit
 import (
 	"fmt"
 	"net/url"
-	"palsp/internal/discover"
 	dsc "palsp/internal/discover"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func init() {
 }
 
 type file struct {
-	scope discover.TopScope
+	scope dsc.TopScope
 	path  string
 	cst   antlr.Tree
 }
@@ -67,7 +66,7 @@ func (l *lsp) DidOpen(uri string, text string) OpResult {
 
 	cst := d.CST(unitName)
 
-	sl := discover.NewScopeListener("")
+	sl := dsc.NewScopeListener("")
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	scope := sl.GetScope()
 
@@ -112,11 +111,56 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 	}
 
 	var info string
-	sym := f.scope.LocateSymbol(name, discover.Position{Line: line, Character: character})
+	sym := f.scope.LocateSymbol(name, dsc.Position{Line: line, Character: character})
 	if sym != nil {
 		info = sym.Name + " " + sym.Definition
 	} else {
-		info = "Unknown node type"
+		info = ""
+		// based on position find out if is in implementation ,,, probably enough to find out implementation position
+		// then go through topscope uses and try to find out. if not exists then load and then find out public symbols
+		// classes will be more dificult. Problem is that when loading sql query will be searching again and again.
+		// that is not true ... I can put there where condition. So next time.
+
+		//discover.SymDB().IsUnitLoaded(name)
+		if f.scope.IsInImplementation(dsc.Position{Line: line, Character: character}) {
+			for _, unit := range f.scope.ImplementationUses() {
+				if !dsc.SymDB().IsUnitLoaded(unit) {
+					d := &dsc.Discover{}
+					d.PublicSymbols(unit)
+				}
+				symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, name)
+				if err != nil {
+					return OpFailure(fmt.Sprintf("failed to search symbols: %v", err), err)
+				}
+				for _, sym := range symbols {
+					if sym.Name == name {
+						info = sym.Name + " " + sym.Definition
+						break
+					}
+				}
+			}
+		}
+		if info == "" {
+			for _, unit := range f.scope.InteraceUsese() {
+				if !dsc.SymDB().IsUnitLoaded(unit) {
+					d := &dsc.Discover{}
+					d.PublicSymbols(unit)
+				}
+				symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, name)
+				if err != nil {
+					return OpFailure(fmt.Sprintf("failed to search symbols: %v", err), err)
+				}
+				for _, sym := range symbols {
+					if sym.Name == name {
+						info = sym.Name + " " + sym.Definition
+						break
+					}
+				}
+			}
+		}
+	}
+	if info == "" {
+		info = "No information found"
 	}
 
 	// fmt.Printf("f.scope: %v\n", f.scope.print())

@@ -21,6 +21,9 @@ type TopScope interface {
 	Print()
 	FindSymbol(position Position) *Symbol
 	LocateSymbol(name string, position Position) *Symbol
+	IsInImplementation(position Position) bool
+	InteraceUsese() []string
+	ImplementationUses() []string
 }
 
 // Position represents a position in source code
@@ -35,6 +38,7 @@ type Symbol struct {
 	Definition string
 	Position   Position
 	Kind       int
+	Scope      string
 }
 
 // commonScope implements basic scope functionality
@@ -54,13 +58,17 @@ type commonScopeBuilder struct {
 // UnitScope represents a program unit scope (like a file or module)
 type UnitScope struct {
 	Scope
-	usesStack stack[string]
+	interfaceUses      stack[string]
+	implementationUses stack[string]
+	implementationPos  Position
 }
 
 // UnitScopeBuilder provides methods to construct a UnitScope
 type UnitScopeBuilder struct {
 	*commonScopeBuilder
-	usesStack stack[string]
+	interfaceUses      stack[string]
+	implementationUses stack[string]
+	implementationPos  Position
 }
 
 // func showScope(level int, scope *commonScope) {
@@ -181,11 +189,29 @@ func (s *UnitScope) LocateSymbol(name string, position Position) *Symbol {
 func (s *UnitScope) Print() {
 	println("Name: ", s.getName())
 	println("uses: ")
-	for _, unit := range s.usesStack.all() {
+	for _, unit := range s.interfaceUses.all() {
+		print(unit)
+	}
+	for _, unit := range s.implementationUses.all() {
 		print(unit)
 	}
 	println("symbols:")
 	s.Scope.print()
+}
+
+// IsInImplementation checks if the position is within the implementation part of the unit
+func (s *UnitScope) IsInImplementation(position Position) bool {
+	return position.Line >= s.implementationPos.Line
+}
+
+// InteraceUsese returns the list of interface unit dependencies
+func (s *UnitScope) InteraceUsese() []string {
+	return s.interfaceUses.all()
+}
+
+// ImplementationUses returns the list of implementation unit dependencies
+func (s *UnitScope) ImplementationUses() []string {
+	return s.implementationUses.all()
 }
 
 // addSymbol adds a symbol to the scope being built
@@ -228,15 +254,28 @@ func (b *commonScopeBuilder) finish() Scope {
 	return &b.cmsc
 }
 
-// addUses adds a unit dependency to the UnitScope being built
-func (b *UnitScopeBuilder) addUses(unit string) *UnitScopeBuilder {
-	b.usesStack.push(unit)
+// addUses adds a interface unit dependency to the UnitScope being built
+func (b *UnitScopeBuilder) addInterfaceUses(unit string) *UnitScopeBuilder {
+	b.interfaceUses.push(unit)
+	return b
+}
+
+// addUses adds a implementation unit dependency to the UnitScope being built
+func (b *UnitScopeBuilder) addImplementationUses(unit string) *UnitScopeBuilder {
+	b.implementationUses.push(unit)
+	return b
+}
+
+func (b *UnitScopeBuilder) setImplementationPos(pos Position) *UnitScopeBuilder {
+	b.implementationPos = pos
 	return b
 }
 
 func (b *UnitScopeBuilder) finish() TopScope {
 	return &UnitScope{
-		Scope:     b.commonScopeBuilder.finish(),
-		usesStack: b.usesStack,
+		Scope:              b.commonScopeBuilder.finish(),
+		interfaceUses:      b.interfaceUses,
+		implementationUses: b.implementationUses,
+		implementationPos:  b.implementationPos,
 	}
 }

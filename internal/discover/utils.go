@@ -50,6 +50,15 @@ func (s *stack[T]) all() []T {
 	return s.data
 }
 
+// Reverse returns a slice of all elements in the stack in reverse order.
+func (s *stack[T]) reverse() []T {
+	result := make([]T, len(s.data))
+	for i := 0; i < len(s.data); i++ {
+		result[i] = s.data[len(s.data)-1-i]
+	}
+	return result
+}
+
 func (s *stack[T]) joinByDot() string {
 	parts := []string{}
 	for _, v := range s.data {

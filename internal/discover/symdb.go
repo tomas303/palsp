@@ -160,3 +160,55 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 	}
 	return unitID, string(data), nil
 }
+
+// IsUnitLoaded checks if a unit with the given name exists in the database.
+func (db *symDB) IsUnitLoaded(unit string) bool {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM units WHERE unitname = ? COLLATE NOCASE)"
+	err := db.conn.QueryRow(query, unit).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}
+
+// SearchSymbolsWithinUnit searches for symbols within a specific unit that match the search term.
+// It returns a slice of matching symbol information.
+func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, error) {
+	var unitID int
+	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
+	err := db.conn.QueryRow(query, unit).Scan(&unitID)
+	if err != nil {
+		return nil, err
+	}
+
+	searchQuery := `
+	SELECT symbol, scope, kind, definition 
+	FROM symbols 
+	WHERE unit_id = ? AND symbol LIKE ? COLLATE NOCASE
+	ORDER BY symbol COLLATE NOCASE`
+
+	rows, err := db.conn.Query(searchQuery, unitID, "%"+searchTerm+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []Symbol
+	for rows.Next() {
+		// var symbol, scope, definition string
+		// var kind int
+		var sym Symbol
+		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
+			return nil, err
+		}
+
+		results = append(results, sym)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}

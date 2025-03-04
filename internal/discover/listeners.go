@@ -69,8 +69,9 @@ type publicSymbolsListener struct {
 
 type scopeListener struct {
 	parser.BasepascalListener
-	usb UnitScopeBuilder
-	sbs stack[*commonScopeBuilder]
+	usb              UnitScopeBuilder
+	sbs              stack[*commonScopeBuilder]
+	inImplementation bool
 }
 
 func NewScopeListener(unit string) *scopeListener {
@@ -79,7 +80,8 @@ func NewScopeListener(unit string) *scopeListener {
 	sbs.push(&csb)
 	usb := UnitScopeBuilder{
 		commonScopeBuilder: &csb,
-		usesStack:          *newStack[string](),
+		interfaceUses:      *newStack[string](),
+		implementationUses: *newStack[string](),
 	}
 	return &scopeListener{
 		usb: usb,
@@ -711,8 +713,10 @@ func buildConstList(ctx parser.IConstListContext) string {
 	return strings.Join(consts, ",")
 }
 
-// func (s *scopeListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
-// }
+func (s *scopeListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
+	s.inImplementation = true
+	s.usb.setImplementationPos(newPosition(ctx))
+}
 
 // func (s *scopeListener) ExitImplementationSection(ctx *parser.ImplementationSectionContext) {
 // }
@@ -727,7 +731,11 @@ func (s *scopeListener) ab() *commonScopeBuilder {
 
 func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
-		s.usb.addUses(buildIdentifier(identifier))
+		if s.inImplementation {
+			s.usb.addImplementationUses(buildIdentifier(identifier))
+		} else {
+			s.usb.addInterfaceUses(buildIdentifier(identifier))
+		}
 	}
 }
 

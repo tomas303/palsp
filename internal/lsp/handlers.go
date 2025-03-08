@@ -89,15 +89,21 @@ func handleRequest(request LSPRequest) LSPResponse {
 // Handle initialize request
 func handleInitialize(id int, params InitializeParams) LSPResponse {
 	fmt.Println("Initialize request received")
-	return LSPResponse{
-		JsonRPC: "2.0",
-		ID:      id,
-		Result: InitializeResult{
-			Capabilities: map[string]interface{}{
-				"textDocumentSync": 1, // Full document sync
-			},
-		},
+
+	// Extract paths from workspace folders
+	workspaceFolderPaths := make([]string, 0)
+	if params.WorkspaceFolders != nil {
+		for _, folder := range params.WorkspaceFolders {
+			workspaceFolderPaths = append(workspaceFolderPaths, folder.URI)
+		}
 	}
+
+	// Combine workspace folder paths with search folders from initialization options
+	searchFolders := params.InitializationOptions.SearchFolders
+	allFolders := append(workspaceFolderPaths, searchFolders...)
+
+	opRes := edit.Lspi.Init(allFolders)
+	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didOpen request

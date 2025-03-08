@@ -49,6 +49,20 @@ func getUnitName(uri string) (name string, err error) {
 	return name, nil
 }
 
+func (l *lsp) Init(searchFolders []string) OpResult {
+	dsc.SymDB()
+	d := &dsc.Discover{}
+	for _, folder := range searchFolders {
+		d.Units(folder)
+	}
+	resp := InitializeResult{
+		Capabilities: map[string]interface{}{
+			"textDocumentSync": 1, // Full document sync
+		},
+	}
+	return OpSuccessWith(resp)
+}
+
 func (l *lsp) DidOpen(uri string, text string) OpResult {
 	d := &dsc.Discover{}
 	unitName, err := getUnitName(uri)
@@ -116,47 +130,13 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 		info = sym.Name + " " + sym.Definition
 	} else {
 		info = ""
-		// based on position find out if is in implementation ,,, probably enough to find out implementation position
-		// then go through topscope uses and try to find out. if not exists then load and then find out public symbols
-		// classes will be more dificult. Problem is that when loading sql query will be searching again and again.
-		// that is not true ... I can put there where condition. So next time.
 
-		//discover.SymDB().IsUnitLoaded(name)
 		if f.scope.IsInImplementation(dsc.Position{Line: line, Character: character}) {
-			for _, unit := range f.scope.ImplementationUses() {
-				if !dsc.SymDB().IsUnitLoaded(unit) {
-					d := &dsc.Discover{}
-					d.PublicSymbols(unit)
-				}
-				symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, name)
-				if err != nil {
-					return OpFailure(fmt.Sprintf("failed to search symbols: %v", err), err)
-				}
-				for _, sym := range symbols {
-					if sym.Name == name {
-						info = sym.Name + " " + sym.Definition
-						break
-					}
-				}
-			}
+			info = searchSymbolInUnits(name, f.scope.ImplementationUses())
 		}
+
 		if info == "" {
-			for _, unit := range f.scope.InteraceUsese() {
-				if !dsc.SymDB().IsUnitLoaded(unit) {
-					d := &dsc.Discover{}
-					d.PublicSymbols(unit)
-				}
-				symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, name)
-				if err != nil {
-					return OpFailure(fmt.Sprintf("failed to search symbols: %v", err), err)
-				}
-				for _, sym := range symbols {
-					if sym.Name == name {
-						info = sym.Name + " " + sym.Definition
-						break
-					}
-				}
-			}
+			info = searchSymbolInUnits(name, f.scope.InteraceUsese())
 		}
 	}
 	if info == "" {
@@ -182,6 +162,28 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 		// },
 	}
 	return OpSuccessWith(hoverResp)
+}
+
+// searchSymbolInUnits looks for a symbol by name in the given list of units
+// and returns formatted information if found
+func searchSymbolInUnits(symbolName string, units []string) string {
+	for _, unit := range units {
+		if !dsc.SymDB().IsUnitLoaded(unit) {
+			dsc.SymDB().RescanUnits()
+		}
+		d := &dsc.Discover{}
+		d.PublicSymbols(unit)
+		symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, symbolName)
+		if err != nil {
+			continue
+		}
+		for _, sym := range symbols {
+			if sym.Name == symbolName {
+				return sym.Name + " " + sym.Definition
+			}
+		}
+	}
+	return ""
 }
 
 func (l *lsp) Completion(uri string, line int, character int) OpResult {

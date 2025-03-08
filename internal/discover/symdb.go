@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os" // added to read files
+	"strings"
 
 	_ "github.com/glebarez/go-sqlite" // Registers the sqlite driver under "sqlite"
 )
@@ -11,7 +12,8 @@ import (
 var db *symDB
 
 type symDB struct {
-	conn *sql.DB
+	conn          *sql.DB
+	searchFolders []string
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -134,13 +136,12 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	}
 	return unitID, nil
 }
-
 func (db *symDB) insertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
 	insertSymbolSQL := `
 	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
 	VALUES (?, ?, ?, ?, ?);`
 	var err error
-	_, err = db.conn.Exec(insertSymbolSQL, unitID, symbol, scope, kind, definition)
+	_, err = db.conn.Exec(insertSymbolSQL, unitID, strings.ToLower(symbol), scope, kind, definition)
 	return err
 }
 
@@ -211,4 +212,16 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 	}
 
 	return results, nil
+}
+
+func (db *symDB) SetSearchFolders(folders []string) {
+	db.searchFolders = folders
+	db.RescanUnits()
+}
+
+func (db *symDB) RescanUnits() {
+	d := &Discover{}
+	for _, folder := range db.searchFolders {
+		d.Units(folder)
+	}
 }

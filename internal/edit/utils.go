@@ -19,6 +19,10 @@ func OpFailure(msg string, err error) OpResult {
 	return OpResult{Success: false, Message: msg, Error: err}
 }
 
+type InitializeResult struct {
+	Capabilities map[string]interface{} `json:"capabilities"`
+}
+
 // LSP Hover response structures based on the LSP standard
 type Hover struct {
 	Contents MarkupContent `json:"contents"`

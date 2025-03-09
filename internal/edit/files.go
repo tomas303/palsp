@@ -58,6 +58,7 @@ func (l *lsp) Init(searchFolders []string) OpResult {
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
 			"textDocumentSync": 1, // Full document sync
+			"hoverProvider":    true,
 		},
 	}
 	return OpSuccessWith(resp)

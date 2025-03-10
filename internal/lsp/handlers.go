@@ -138,7 +138,7 @@ func handleCompletion(params CompletionParams, id int) LSPResponse {
 func handleHover(params HoverParams, id int) LSPResponse {
 	fmt.Println("Hover requested for:", params.TextDocument.URI)
 	// Pass line and character from params.Position
-	opRes := edit.Lspi.Hover(params.TextDocument.URI, params.Position.Line, params.Position.Character)
+	opRes := edit.Lspi.Hover(params.TextDocument.URI, params.Position.Line+1, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)
 }
 

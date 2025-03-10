@@ -32,6 +32,41 @@ type Position struct {
 	Character int
 }
 
+// Compare compares this position with another position
+// Returns:
+//
+//	-1 if this position is before other
+//	 0 if positions are equal
+//	+1 if this position is after other
+func (p Position) Compare(other Position) int {
+	if p.Line < other.Line {
+		return -1
+	}
+	if p.Line > other.Line {
+		return 1
+	}
+	// Lines are equal, compare characters
+	if p.Character < other.Character {
+		return -1
+	}
+	if p.Character > other.Character {
+		return 1
+	}
+	return 0 // Positions are equal
+}
+
+func (p Position) Equal(other Position) bool {
+	return p.Compare(other) == 0
+}
+
+func (p Position) Before(other Position) bool {
+	return p.Compare(other) < 0
+}
+
+func (p Position) After(other Position) bool {
+	return p.Compare(other) > 0
+}
+
 // Symbol represents a code symbol with its metadata
 type Symbol struct {
 	Name       string

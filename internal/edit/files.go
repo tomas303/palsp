@@ -114,34 +114,25 @@ func (l *lsp) Hover(uri string, line int, character int) OpResult {
 	if err != nil {
 		return OpFailure(fmt.Sprintf("problem locate position URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
-
-	var name string
-	switch n := node.(type) {
-	case antlr.TerminalNode:
-		name = strings.ToLower(n.GetText())
-	case antlr.RuleNode:
-		name = strings.ToLower(n.GetText())
-	default:
-		return OpFailure(fmt.Sprintf("found node of unexpected type: %T", node), fmt.Errorf("unexpected node type"))
-	}
+	text := strings.ToLower(node.GetText())
 
 	var info string
-	sym := f.scope.LocateSymbol(name, dsc.Position{Line: line, Character: character})
+	sym := f.scope.LocateSymbol(text, dsc.Position{Line: line, Character: character})
 	if sym != nil {
 		info = sym.Name + " " + sym.Definition
 	} else {
 		info = ""
 
 		if f.scope.IsInImplementation(dsc.Position{Line: line, Character: character}) {
-			info = searchSymbolInUnits(name, f.scope.ImplementationUses())
+			info = searchSymbolInUnits(text, f.scope.ImplementationUses())
 		}
 
 		if info == "" {
-			info = searchSymbolInUnits(name, f.scope.InteraceUsese())
+			info = searchSymbolInUnits(text, f.scope.InteraceUsese())
 		}
 	}
 	if info == "" {
-		info = "No information found"
+		info = "No information found for " + text
 	}
 
 	// fmt.Printf("f.scope: %v\n", f.scope.print())
@@ -208,8 +199,8 @@ func (f *file) walk(l antlr.ParseTreeListener) {
 	antlr.ParseTreeWalkerDefault.Walk(l, f.cst)
 }
 
-func (f *file) findOnPos(line int, character int) (antlr.ParseTree, error) {
-	var result antlr.ParseTree
+func (f *file) findOnPos(line int, character int) (antlr.TerminalNode, error) {
+	var result antlr.TerminalNode
 	var err error
 
 	// Function to be executed in a deferred context

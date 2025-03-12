@@ -106,6 +106,16 @@ func createTables(db *symDB) error {
 		return err
 	}
 
+	createPathsTableSQL := `
+	CREATE TABLE IF NOT EXISTS paths (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		path TEXT UNIQUE
+	);`
+	_, err = db.conn.Exec(createPathsTableSQL)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -212,6 +222,58 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 	}
 
 	return results, nil
+}
+
+// PathExists checks if a path already exists in the paths table
+func (db *symDB) PathExists(path string) bool {
+	var exists bool
+	query := "SELECT EXISTS(SELECT 1 FROM paths WHERE path = ?)"
+	err := db.conn.QueryRow(query, path).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}
+
+// AddPath inserts a path into the paths table if it doesn't already exist
+func (db *symDB) AddPath(path string) error {
+	insertPathSQL := `
+	INSERT INTO paths (path)
+	VALUES (?)
+	ON CONFLICT(path) DO NOTHING;`
+	_, err := db.conn.Exec(insertPathSQL, path)
+	return err
+}
+
+// GetAllPaths returns all paths stored in the database
+func (db *symDB) GetAllPaths() ([]string, error) {
+	query := "SELECT path FROM paths"
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var paths []string
+	for rows.Next() {
+		var path string
+		if err := rows.Scan(&path); err != nil {
+			return nil, err
+		}
+		paths = append(paths, path)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return paths, nil
+}
+
+// ClearPaths removes all paths from the paths table
+func (db *symDB) ClearPaths() error {
+	_, err := db.conn.Exec("DELETE FROM paths")
+	return err
 }
 
 func (db *symDB) SetSearchFolders(folders []string) {

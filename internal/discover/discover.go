@@ -15,18 +15,11 @@ type DiscoverError struct {
 }
 
 func (d *Discover) Units(rootDir string) {
+	if SymDB().PathExists(rootDir) {
+		log.Printf("Path %s already scanned", rootDir)
+		return
+	}
 	fc := fileCrawler{}
-	// fc.processPasListeners(rootDir,
-	// 	func() antlr.ParseTreeListener {
-	// 		return &unitNameListener{}
-	// 	},
-	// 	func(listener antlr.ParseTreeListener, path string) {
-	// 		unitNameListener := listener.(*unitNameListener)
-	// 		if unitNameListener.IsUnit() {
-	// 			fmt.Println("Unit found:", unitNameListener.UnitName())
-	// 			SymDB().insertUnit(unitNameListener.UnitName(), path)
-	// 		}
-	// 	})
 	fc.processPasFiles(rootDir,
 		func(path string) {
 			filename := filepath.Base(path)
@@ -35,7 +28,7 @@ func (d *Discover) Units(rootDir string) {
 			println("Unit found:", unitName)
 			SymDB().insertUnit(unitName, path)
 		})
-
+	SymDB().AddPath(rootDir)
 }
 
 func (d *Discover) PublicSymbols(unit string) {
@@ -100,7 +93,7 @@ func (d *Discover) CST(unit string) antlr.Tree {
 		panic(DiscoverError{Message: err.Error()})
 	}
 
-	tree := parseCST(content)
+	tree := ParseCST(content)
 	return tree
 
 }

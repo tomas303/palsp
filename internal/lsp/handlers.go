@@ -3,7 +3,7 @@ package lsp
 import (
 	"encoding/json"
 	"fmt"
-	"palsp/internal/edit"
+	edit "palsp/internal/documents"
 )
 
 // Handle incoming JSON-RPC requests
@@ -102,35 +102,35 @@ func handleInitialize(id int, params InitializeParams) LSPResponse {
 	searchFolders := params.InitializationOptions.SearchFolders
 	allFolders := append(workspaceFolderPaths, searchFolders...)
 
-	opRes := edit.Lspi.Init(allFolders)
+	opRes := edit.Mgr.Init(allFolders)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File opened:", params.TextDocument.URI)
-	opRes := edit.Lspi.DidOpen(params.TextDocument.URI, params.TextDocument.Text)
+	opRes := edit.Mgr.DidOpen(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File changed:", params.TextDocument.URI)
-	opRes := edit.Lspi.DidChange(params.TextDocument.URI, params.TextDocument.Text)
+	opRes := edit.Mgr.DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didClose request
 func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
 	fmt.Println("File closed:", params.TextDocument.URI)
-	opRes := edit.Lspi.DidClose(params.TextDocument.URI)
+	opRes := edit.Mgr.DidClose(params.TextDocument.URI)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams, id int) LSPResponse {
 	fmt.Println("Completion requested for:", params.TextDocument.URI)
-	opRes := edit.Lspi.Completion(params.TextDocument.URI, params.Position.Line, params.Position.Character)
+	opRes := edit.Mgr.Completion(params.TextDocument.URI, params.Position.Line, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)
 }
 
@@ -138,7 +138,7 @@ func handleCompletion(params CompletionParams, id int) LSPResponse {
 func handleHover(params HoverParams, id int) LSPResponse {
 	fmt.Println("Hover requested for:", params.TextDocument.URI)
 	// Pass line and character from params.Position
-	opRes := edit.Lspi.Hover(params.TextDocument.URI, params.Position.Line+1, params.Position.Character)
+	opRes := edit.Mgr.Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)
 }
 

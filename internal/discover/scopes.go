@@ -32,6 +32,11 @@ type Position struct {
 	Character int
 }
 
+// NewPosition creates a new Position instance
+func NewPosition(line, character int) Position {
+	return Position{Line: line, Character: character}
+}
+
 // Compare compares this position with another position
 // Returns:
 //
@@ -313,4 +318,23 @@ func (b *UnitScopeBuilder) finish() TopScope {
 		implementationUses: b.implementationUses,
 		implementationPos:  b.implementationPos,
 	}
+}
+
+func (smb *Symbol) String() string {
+	return smb.Name
+}
+
+func (smb *Symbol) HoverInfo() string {
+	var result strings.Builder
+
+	result.WriteString("scope: ")
+	result.WriteString(smb.Scope)
+	result.WriteString("\n")
+	result.WriteString(smb.Name)
+	if smb.Definition != "" {
+		result.WriteString(": ")
+		result.WriteString(smb.Definition)
+	}
+
+	return result.String()
 }

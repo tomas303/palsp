@@ -143,12 +143,7 @@ func (mgr *Manager) Completion(uri string, line int, character int) OpResult {
 // searchSymbolInUnits looks for a symbol by name in the given list of units
 // and returns formatted information if found
 func searchSymbolInUnits(symbolName string, units []string) string {
-	d := &dsc.Discover{}
 	for _, unit := range units {
-		if !dsc.SymDB().IsUnitLoaded(unit) {
-			dsc.SymDB().RescanUnits()
-		}
-		d.PublicSymbols(unit)
 		symbols, err := dsc.SymDB().SearchSymbolsWithinUnit(unit, symbolName)
 		if err != nil {
 			continue

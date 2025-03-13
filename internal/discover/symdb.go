@@ -55,8 +55,10 @@ func createTables(db *symDB) error {
 	createUnitsTableSQL := `
 	CREATE TABLE IF NOT EXISTS units (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		unitname TEXT,
-		unitpath TEXT,
+		unitname TEXT NOT NULL,
+		unitpath TEXT NOT NULL,
+		last_modified INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+		scanned INTEGER NOT NULL DEFAULT 0,
 		UNIQUE(unitname, unitpath)
 	);`
 	_, err := db.conn.Exec(createUnitsTableSQL)
@@ -123,15 +125,32 @@ func SymDB() *symDB {
 	return db
 }
 
+// getFileModTime returns the Unix timestamp of the file's last modification time
+func getFileModTime(filepath string) (int64, error) {
+	fileInfo, err := os.Stat(filepath)
+	if err != nil {
+		return 0, err
+	}
+	return fileInfo.ModTime().Unix(), nil
+}
+
 func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
+	// Get the file's modification time
+	modTime, err := getFileModTime(unitpath)
+	if err != nil {
+		return 0, err
+	}
+
 	insertUnitSQL := `
-	INSERT INTO units (unitname, unitpath)
-	VALUES (?, ?)
-	ON CONFLICT(unitname, unitpath) DO NOTHING
+	INSERT INTO units (unitname, unitpath, last_modified, scanned)
+	VALUES (?, ?, ?, 0)
+	ON CONFLICT(unitname, unitpath) DO UPDATE SET
+		last_modified = ?
 	RETURNING id;`
+
 	var unitID int
-	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath)
-	err := row.Scan(&unitID)
+	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath, modTime, modTime)
+	err = row.Scan(&unitID)
 	if err == sql.ErrNoRows {
 		// Use COLLATE NOCASE for explicit case insensitive matching on unitname
 		selectUnitIDSQL := `
@@ -146,6 +165,7 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	}
 	return unitID, nil
 }
+
 func (db *symDB) insertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
 	insertSymbolSQL := `
 	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
@@ -183,16 +203,74 @@ func (db *symDB) IsUnitLoaded(unit string) bool {
 	return exists
 }
 
+func (db *symDB) DropSymbols(unitID int) error {
+	_, err := db.conn.Exec("DELETE FROM symbols WHERE unit_id = ?", unitID)
+	return err
+}
+
+func (db *symDB) FillSymbols(unitID int, unitpath string, unit string) error {
+	// Get the file's current modification time
+	modTime, err := getFileModTime(unitpath)
+	if err != nil {
+		return err
+	}
+
+	content, err := os.ReadFile(unitpath)
+	if err != nil {
+		return err
+	}
+
+	l := &publicSymbolsListener{unit_id: unitID, unitName: unit}
+	parseFromContent(string(content), l, defaultOptions())
+
+	// Mark this unit as scanned and update the last_modified timestamp
+	_, err = db.conn.Exec("UPDATE units SET scanned = 1, last_modified = ? WHERE id = ?", modTime, unitID)
+	return err
+}
+
 // SearchSymbolsWithinUnit searches for symbols within a specific unit that match the search term.
 // It returns a slice of matching symbol information.
 func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, error) {
 	var unitID int
-	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
-	err := db.conn.QueryRow(query, unit).Scan(&unitID)
+	var unitpath string
+	var lastModified int64
+	var scanned int
+
+	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ? COLLATE NOCASE"
+	err := db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	if err != nil {
 		return nil, err
 	}
 
+	// Check the current file modification time
+	currentModTime, err := getFileModTime(unitpath)
+	if err != nil {
+		return []Symbol{}, err
+	}
+
+	// Refresh symbols if file was modified or not yet scanned
+	if currentModTime > lastModified || scanned == 0 {
+		err = db.DropSymbols(unitID)
+		if err != nil {
+			return []Symbol{}, err
+		}
+		err = db.FillSymbols(unitID, unitpath, unit)
+		if err != nil {
+			return []Symbol{}, err
+		}
+	}
+
+	// First attempt to fetch symbols
+	results, err := db.fetchSymbolsFromUnit(unitID, searchTerm)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// fetchSymbolsFromUnit queries the database for symbols matching the search term in a specific unit
+func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, error) {
 	searchQuery := `
 	SELECT symbol, scope, kind, definition 
 	FROM symbols 
@@ -207,8 +285,6 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 
 	var results []Symbol
 	for rows.Next() {
-		// var symbol, scope, definition string
-		// var kind int
 		var sym Symbol
 		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
 			return nil, err
@@ -286,4 +362,9 @@ func (db *symDB) RescanUnits() {
 	for _, folder := range db.searchFolders {
 		d.Units(folder)
 	}
+}
+
+func (db *symDB) RescanPublicSymbols(unit string) {
+	d := &Discover{}
+	d.PublicSymbols(unit)
 }

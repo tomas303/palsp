@@ -141,6 +141,8 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 		return 0, err
 	}
 
+	unitname = strings.ToLower(unitname)
+
 	insertUnitSQL := `
 	INSERT INTO units (unitname, unitpath, last_modified, scanned)
 	VALUES (?, ?, ?, 0)
@@ -152,10 +154,9 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath, modTime, modTime)
 	err = row.Scan(&unitID)
 	if err == sql.ErrNoRows {
-		// Use COLLATE NOCASE for explicit case insensitive matching on unitname
 		selectUnitIDSQL := `
 		SELECT id FROM units
-		WHERE unitname = ? COLLATE NOCASE AND unitpath = ?;`
+		WHERE unitname = ? AND unitpath = ?;`
 		err = db.conn.QueryRow(selectUnitIDSQL, unitname, unitpath).Scan(&unitID)
 		if err != nil {
 			return 0, err
@@ -236,7 +237,9 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 	var lastModified int64
 	var scanned int
 
-	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ? COLLATE NOCASE"
+	unit = strings.ToLower(unit)
+
+	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ?"
 	err := db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	if err != nil {
 		return nil, err
@@ -260,7 +263,7 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 		}
 	}
 
-	// First attempt to fetch symbols
+	// fetch symbols
 	results, err := db.fetchSymbolsFromUnit(unitID, searchTerm)
 	if err != nil {
 		return nil, err
@@ -354,17 +357,9 @@ func (db *symDB) ClearPaths() error {
 
 func (db *symDB) SetSearchFolders(folders []string) {
 	db.searchFolders = folders
-	db.RescanUnits()
-}
-
-func (db *symDB) RescanUnits() {
 	d := &Discover{}
 	for _, folder := range db.searchFolders {
 		d.Units(folder)
 	}
-}
 
-func (db *symDB) RescanPublicSymbols(unit string) {
-	d := &Discover{}
-	d.PublicSymbols(unit)
 }

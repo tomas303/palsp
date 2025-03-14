@@ -7,7 +7,20 @@ import (
 )
 
 // Handle incoming JSON-RPC requests
-func handleRequest(request LSPRequest) LSPResponse {
+func handleRequest(request LSPRequest) (response LSPResponse) {
+	// Add defer recover to catch any panics and convert them to error responses
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Panic occurred while handling '%s': %v\n", request.Method, r)
+			panicMsg := fmt.Sprintf("Internal error: %v", r)
+			response = LSPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Error:   &LSPError{Code: -32603, Message: panicMsg},
+			}
+		}
+	}()
+
 	fmt.Println("Received request:", request.Method)
 
 	switch request.Method {

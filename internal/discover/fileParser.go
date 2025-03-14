@@ -29,6 +29,16 @@ func fullDebugOptions() parseOptions {
 }
 
 func parseFromContent(content string, listener antlr.ParseTreeListener, options parseOptions) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			if r == ErrListenerBreak {
+				return
+			}
+			panic(r) // Re-panic for all other errors
+		}
+	}()
+
 	input := antlr.NewInputStream(content)
 	lexer := parser1.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)

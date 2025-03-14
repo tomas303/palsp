@@ -1,6 +1,7 @@
 package discover
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"palsp/internal/parser" // Ensure this import is correct
@@ -74,6 +75,8 @@ type scopeListener struct {
 	inImplementation bool
 }
 
+var ErrListenerBreak = errors.New("listener breaks gracefully")
+
 func NewScopeListener(unit string) *scopeListener {
 	csb := commonScopeBuilder{cmsc: commonScope{name: unit}}
 	sbs := *newStack[*commonScopeBuilder]()
@@ -123,7 +126,7 @@ func (l *unitNameListener) IsUnit() bool {
 }
 
 func (s *publicSymbolsListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
-	panic(newFinishError("implementation hit, no more public symbols"))
+	panic(ErrListenerBreak)
 }
 
 func (s *publicSymbolsListener) ExitIdentifier(ctx *parser.IdentifierContext) {

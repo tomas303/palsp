@@ -2,8 +2,6 @@ package discover
 
 import (
 	"log"
-	"path/filepath"
-	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -12,23 +10,6 @@ type Discover struct{}
 
 type DiscoverError struct {
 	Message string
-}
-
-func (d *Discover) Units(rootDir string) {
-	if SymDB().PathExists(rootDir) {
-		log.Printf("Path %s already scanned", rootDir)
-		return
-	}
-	fc := fileCrawler{}
-	fc.processPasFiles(rootDir,
-		func(path string) {
-			filename := filepath.Base(path)
-			ext := filepath.Ext(path)
-			unitName := strings.TrimSuffix(filename, ext)
-			println("Unit found:", unitName)
-			SymDB().insertUnit(unitName, path)
-		})
-	SymDB().AddPath(rootDir)
 }
 
 func (d *Discover) PublicSymbols(unit string) {

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os" // added to read files
+	"path/filepath"
 	"strings"
 
 	_ "github.com/glebarez/go-sqlite" // Registers the sqlite driver under "sqlite"
@@ -240,7 +241,12 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 	unit = strings.ToLower(unit)
 
 	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ?"
-	err := db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	var err error
+	err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	if err == sql.ErrNoRows {
+		db.researchFolders()
+		err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -357,9 +363,24 @@ func (db *symDB) ClearPaths() error {
 
 func (db *symDB) SetSearchFolders(folders []string) {
 	db.searchFolders = folders
-	d := &Discover{}
-	for _, folder := range db.searchFolders {
-		d.Units(folder)
-	}
+	db.researchFolders()
+}
 
+func (db *symDB) researchFolders() {
+	for _, folder := range db.searchFolders {
+		db.SearchUnits(folder)
+	}
+}
+
+func (db *symDB) SearchUnits(folder string) {
+	fc := fileCrawler{}
+	fc.processPasFiles(folder,
+		func(path string) {
+			filename := filepath.Base(path)
+			ext := filepath.Ext(path)
+			unitName := strings.TrimSuffix(filename, ext)
+			println("Unit found:", unitName)
+			SymDB().insertUnit(unitName, path)
+		})
+	db.AddPath(folder)
 }

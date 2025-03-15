@@ -129,10 +129,6 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ?"
 	var err error
 	err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
-	if err == sql.ErrNoRows {
-		db.researchUnits()
-		err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
-	}
 	if err != nil {
 		return nil, err
 	}
@@ -228,12 +224,6 @@ func (db *symDB) AddSearchPath(path string) {
 	}
 	db.searchPaths = append(db.searchPaths, path)
 	db.searchUnits(path)
-}
-
-func (db *symDB) researchUnits() {
-	for _, folder := range db.searchPaths {
-		db.searchUnits(folder)
-	}
 }
 
 func (db *symDB) searchUnits(folder string) {

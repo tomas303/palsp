@@ -301,6 +301,9 @@ func (s *publicSymbolsListener) canPublish() bool {
 }
 
 func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
+	if ctx == nil {
+		return ""
+	}
 	if ctx.SimpleType() != nil {
 		return buildSimpleTypeDef(ctx.SimpleType())
 	}
@@ -604,22 +607,24 @@ func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHead
 }
 
 func buildIdentifier(ctx parser.IIdentifierContext) string {
-	nodes := ctx.AllIDENT()
-	if len(nodes) > 0 {
-		var texts []string
-		for _, node := range nodes {
-			texts = append(texts, node.GetText())
+	if ctx != nil {
+		nodes := ctx.AllIDENT()
+		if len(nodes) > 0 {
+			var texts []string
+			for _, node := range nodes {
+				texts = append(texts, node.GetText())
+			}
+			return strings.Join(texts, ".")
 		}
-		return strings.Join(texts, ".")
-	}
-	if ctx.INDEX() != nil {
-		return ctx.INDEX().GetText()
-	}
-	if ctx.READ() != nil {
-		return ctx.READ().GetText()
-	}
-	if ctx.WRITE() != nil {
-		return ctx.WRITE().GetText()
+		if ctx.INDEX() != nil {
+			return ctx.INDEX().GetText()
+		}
+		if ctx.READ() != nil {
+			return ctx.READ().GetText()
+		}
+		if ctx.WRITE() != nil {
+			return ctx.WRITE().GetText()
+		}
 	}
 	return ""
 }

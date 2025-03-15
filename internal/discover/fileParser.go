@@ -2,9 +2,7 @@ package discover
 
 import (
 	"io"
-	parser1 "palsp/internal/parser"
-
-	parser2 "palsp/internal/scopeparser/parser"
+	"palsp/internal/parser"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -40,24 +38,9 @@ func parseFromContent(content string, listener antlr.ParseTreeListener, options 
 	}()
 
 	input := antlr.NewInputStream(content)
-	lexer := parser1.NewpascalLexer(input)
+	lexer := parser.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser1.NewpascalParser(stream)
-	if options.Trace {
-		p.SetTrace(new(antlr.TraceListener))
-	}
-	if options.HandleError {
-		p.AddErrorListener(antlr.NewDiagnosticErrorListener(false))
-	}
-	p.AddParseListener(listener)
-	p.Source()
-}
-
-func scopeparseFromContent(content string, listener antlr.ParseTreeListener, options parseOptions) {
-	input := antlr.NewInputStream(content)
-	lexer := parser2.NewscopepascalLexer(input)
-	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser2.NewscopepascalParser(stream)
+	p := parser.NewpascalParser(stream)
 	if options.Trace {
 		p.SetTrace(new(antlr.TraceListener))
 	}
@@ -70,9 +53,9 @@ func scopeparseFromContent(content string, listener antlr.ParseTreeListener, opt
 
 func parseFromReader(reader io.Reader, listener antlr.ParseTreeListener, options parseOptions) {
 	input := antlr.NewIoStream(reader)
-	lexer := parser1.NewpascalLexer(input)
+	lexer := parser.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser1.NewpascalParser(stream)
+	p := parser.NewpascalParser(stream)
 	if options.Trace {
 		p.SetTrace(new(antlr.TraceListener))
 	}
@@ -85,9 +68,9 @@ func parseFromReader(reader io.Reader, listener antlr.ParseTreeListener, options
 
 func ParseCST(content string) antlr.Tree {
 	input := antlr.NewInputStream(content)
-	lexer := parser1.NewpascalLexer(input)
+	lexer := parser.NewpascalLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-	p := parser1.NewpascalParser(stream)
+	p := parser.NewpascalParser(stream)
 	// Return the AST by invoking the Source rule
 	return p.Source()
 }

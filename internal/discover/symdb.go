@@ -13,8 +13,16 @@ import (
 var db *symDB
 
 type symDB struct {
-	conn          *sql.DB
-	searchFolders []string
+	conn        *sql.DB
+	searchPaths []string
+}
+
+// Define an interface for symDB operations
+type SymbolDatabase interface {
+	AddSearchPath(path string)
+	GetUnitContent(unit string) (int, string, error)
+	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
+	SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, error)
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -109,20 +117,11 @@ func createTables(db *symDB) error {
 		return err
 	}
 
-	createPathsTableSQL := `
-	CREATE TABLE IF NOT EXISTS paths (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		path TEXT UNIQUE
-	);`
-	_, err = db.conn.Exec(createPathsTableSQL)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func SymDB() *symDB {
+// Return the interface type instead of concrete implementation
+func SymDB() SymbolDatabase {
 	return db
 }
 
@@ -168,7 +167,7 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	return unitID, nil
 }
 
-func (db *symDB) insertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
+func (db *symDB) InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
 	insertSymbolSQL := `
 	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
 	VALUES (?, ?, ?, ?, ?);`
@@ -192,17 +191,6 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 		return 0, "", err
 	}
 	return unitID, string(data), nil
-}
-
-// IsUnitLoaded checks if a unit with the given name exists in the database.
-func (db *symDB) IsUnitLoaded(unit string) bool {
-	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM units WHERE unitname = ? COLLATE NOCASE)"
-	err := db.conn.QueryRow(query, unit).Scan(&exists)
-	if err != nil {
-		return false
-	}
-	return exists
 }
 
 func (db *symDB) DropSymbols(unitID int) error {
@@ -244,7 +232,7 @@ func (db *symDB) SearchSymbolsWithinUnit(unit, searchTerm string) ([]Symbol, err
 	var err error
 	err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	if err == sql.ErrNoRows {
-		db.researchFolders()
+		db.ResearchUnits()
 		err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	}
 	if err != nil {
@@ -309,65 +297,18 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	return results, nil
 }
 
-// PathExists checks if a path already exists in the paths table
-func (db *symDB) PathExists(path string) bool {
-	var exists bool
-	query := "SELECT EXISTS(SELECT 1 FROM paths WHERE path = ?)"
-	err := db.conn.QueryRow(query, path).Scan(&exists)
-	if err != nil {
-		return false
-	}
-	return exists
-}
-
-// AddPath inserts a path into the paths table if it doesn't already exist
-func (db *symDB) AddPath(path string) error {
-	insertPathSQL := `
-	INSERT INTO paths (path)
-	VALUES (?)
-	ON CONFLICT(path) DO NOTHING;`
-	_, err := db.conn.Exec(insertPathSQL, path)
-	return err
-}
-
-// GetAllPaths returns all paths stored in the database
-func (db *symDB) GetAllPaths() ([]string, error) {
-	query := "SELECT path FROM paths"
-	rows, err := db.conn.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var paths []string
-	for rows.Next() {
-		var path string
-		if err := rows.Scan(&path); err != nil {
-			return nil, err
+func (db *symDB) AddSearchPath(path string) {
+	for _, existingPath := range db.searchPaths {
+		if existingPath == path {
+			return
 		}
-		paths = append(paths, path)
 	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return paths, nil
+	db.searchPaths = append(db.searchPaths, path)
+	db.SearchUnits(path)
 }
 
-// ClearPaths removes all paths from the paths table
-func (db *symDB) ClearPaths() error {
-	_, err := db.conn.Exec("DELETE FROM paths")
-	return err
-}
-
-func (db *symDB) SetSearchFolders(folders []string) {
-	db.searchFolders = folders
-	db.researchFolders()
-}
-
-func (db *symDB) researchFolders() {
-	for _, folder := range db.searchFolders {
+func (db *symDB) ResearchUnits() {
+	for _, folder := range db.searchPaths {
 		db.SearchUnits(folder)
 	}
 }
@@ -380,7 +321,6 @@ func (db *symDB) SearchUnits(folder string) {
 			ext := filepath.Ext(path)
 			unitName := strings.TrimSuffix(filename, ext)
 			println("Unit found:", unitName)
-			SymDB().insertUnit(unitName, path)
+			db.insertUnit(unitName, path)
 		})
-	db.AddPath(folder)
 }

@@ -53,7 +53,9 @@ func getUnitName(uri string) (name string, err error) {
 }
 
 func (mgr *Manager) Init(searchFolders []string) OpResult {
-	dsc.SymDB().SetSearchFolders(searchFolders)
+	for _, folder := range searchFolders {
+		dsc.SymDB().AddSearchPath(folder)
+	}
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
 			"textDocumentSync": 1, // Full document sync
@@ -65,7 +67,7 @@ func (mgr *Manager) Init(searchFolders []string) OpResult {
 
 func (mgr *Manager) DidOpen(uri string, text string, version int) OpResult {
 	mgr.locateFile(uri, text, version)
-	mgr.searchUnits(uri)
+	mgr.addPath(uri)
 	return OpSuccess()
 }
 
@@ -186,10 +188,10 @@ func (mgr *Manager) getDir(uri string) (string, error) {
 	return filepath.Dir(parsed.Path), nil
 }
 
-func (mgr *Manager) searchUnits(uri string) {
+func (mgr *Manager) addPath(uri string) {
 	dir, err := mgr.getDir(uri)
 	if err == nil {
-		dsc.SymDB().SearchUnits(dir)
+		dsc.SymDB().AddSearchPath(dir)
 	}
 }
 

@@ -17,7 +17,7 @@ type scopeSymbolsListener struct {
 }
 
 func (s *scopeSymbolsListener) insertSymbol(symbol string, kind int, definition string) {
-	err := SymDB().insertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
+	err := SymDB().InsertSymbol(s.unit_id, symbol, s.scope(), kind, definition)
 	if err != nil {
 		log.Printf("Non-fatal error encountered: %v", err)
 	}

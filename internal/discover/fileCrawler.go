@@ -63,24 +63,17 @@ func (c *fileCrawler) walk(rootDir string, factory listenerFactory, dataChan cha
 				listener := factory()
 				defer func() {
 					if r := recover(); r != nil {
-						// Capture caller file and line number
-						// _, fileName, line, ok := runtime.Caller(1)
-						// if ok {
-						// 	log.Printf("Recovered panic at %s:%d: %v\nCallStack:\n%s", fileName, line, r, debug.Stack())
-						// } else {
-						// 	log.Printf("Recovered panic: %v\nCallStack:\n%s", r, debug.Stack())
-						// }
-						if finishErr, ok := r.(*finishError); ok {
-							log.Printf("Listener finished extraction: %v", finishErr)
+						if r == ErrListenerBreak {
 							wg.Add(1)
 							dataChan <- listenerData{Listener: listener, Path: path}
-						} else {
-							log.Printf("Error parsing file %s: %v", path, r)
+							return
 						}
+						panic(r)
+
 					} else {
-						log.Printf("Listener finished extraction")
 						wg.Add(1)
 						dataChan <- listenerData{Listener: listener, Path: path}
+						return
 					}
 				}()
 				parseFromContent(content, listener, defaultOptions())

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"palsp/internal/parser" // Ensure this import is correct
-	"strings"               // added
 
+	// added
 	"github.com/antlr4-go/antlr/v4"
 )
 
@@ -24,21 +24,6 @@ func newPosition(ctx positionable) Position {
 		Line:      ctx.GetStart().GetLine(),
 		Character: ctx.GetStart().GetColumn(),
 	}
-}
-
-// type finishError struct {
-// 	Message string
-// }
-
-type listenerFactory func() antlr.ParseTreeListener
-
-type listenerHandler func(listener antlr.ParseTreeListener, path string)
-
-type unitNameListener struct {
-	parser.BasepascalListener
-
-	unitName string
-	isUnit   bool
 }
 
 type AccessSpec int
@@ -90,31 +75,6 @@ func NewScopeListener(unit string) *scopeListener {
 		usb: usb,
 		sbs: sbs,
 	}
-}
-
-func (l *unitNameListener) ExitUnit(ctx *parser.UnitContext) {
-	identifiers := ctx.AllIdentifier() // get all identifiers
-	if len(identifiers) > 0 {          // if there is at least one identifier
-		var parts []string
-		for i := 0; i < len(identifiers); i++ {
-			parts = append(parts, identifiers[i].GetText())
-		}
-		unitName := strings.Join(parts, ".") // join with dot delimiter
-		fmt.Println("Unit identified:", unitName)
-		l.unitName = unitName
-		l.isUnit = true
-		panic(ErrListenerBreak)
-	}
-}
-
-// GetUnitName returns the unit name identified by the listener
-func (l *unitNameListener) UnitName() string {
-	return l.unitName
-}
-
-// IsUnit returns whether the listener has identified a unit
-func (l *unitNameListener) IsUnit() bool {
-	return l.isUnit
 }
 
 func (s *publicSymbolsListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {

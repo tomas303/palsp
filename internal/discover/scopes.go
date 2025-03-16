@@ -256,7 +256,13 @@ func (s *UnitScope) ImplementationUses() []string {
 
 // addSymbol adds a symbol to the scope being built
 func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position) *commonScopeBuilder {
-	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position}
+	sscope := ""
+	for _, x := range b.cmsc.scopeStack.all() {
+		sscope += x.getName() + "."
+	}
+	sscope += b.cmsc.name
+
+	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position, Scope: sscope}
 	b.cmsc.symbolStack.push(smb)
 	return b
 }

@@ -281,7 +281,7 @@ func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 func (s *scopeListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
 	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-		s.ab().addSymbol(buildIdentifier(identifier), typedef, int(VariableSymbol), newPosition(identifier))
+		s.addSymbol(buildIdentifier(identifier), typedef, int(VariableSymbol), newPosition(identifier))
 	}
 }
 
@@ -299,7 +299,7 @@ func (s *scopeListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCon
 			fieldtype = "integer"
 		}
 	}
-	s.ab().addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol), newPosition(ctx.Identifier()))
+	s.addSymbol(buildIdentifier(ctx.Identifier()), fieldtype, int(ConstantSymbol), newPosition(ctx.Identifier()))
 }
 
 func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
@@ -312,7 +312,7 @@ func (s *scopeListener) ExitFormalParameterList(ctx *parser.FormalParameterListC
 		// 	result += " = " + ctx.DefaultValue().GetText()
 		// }
 		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.ab().addSymbol(buildIdentifier(id), parType, int(ParameterSymbol), newPosition(id))
+			s.addSymbol(buildIdentifier(id), parType, int(ParameterSymbol), newPosition(id))
 		}
 		//
 	}
@@ -322,7 +322,7 @@ func (s *scopeListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPar
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-			s.ab().addSymbol(buildIdentifier(id), typedef, int(ClassVariable), newPosition(id))
+			s.addSymbol(buildIdentifier(id), typedef, int(ClassVariable), newPosition(id))
 		}
 	}
 }
@@ -366,7 +366,7 @@ func (s *scopeListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.ab().getName() != "function" {
 		funcName := buildIdentifier(ctx.Identifier())
 		if ctx.ResultType() != nil {
-			s.ab().addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.Identifier()))
+			s.addSymbol(funcName, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.Identifier()))
 		}
 		sb := s.sbs.pop()
 		sb.setName(funcName)
@@ -383,7 +383,7 @@ func (s *scopeListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclaration
 func (s *scopeListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	funcName := buildIdentifier(ctx.FunctionHeader().Identifier())
 	if ctx.FunctionHeader().ResultType() != nil {
-		s.ab().addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.FunctionHeader().Identifier()))
+		s.addSymbol(funcName, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), int(FunctionResult), newPosition(ctx.FunctionHeader().Identifier()))
 	}
 	sb := s.sbs.pop()
 	sb.setName(funcName)
@@ -399,6 +399,15 @@ func (s *scopeListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
 func (s *scopeListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	sb := s.sbs.pop()
 	sb.setName(buildIdentifier(ctx.Identifier()))
+	s.addSymbol(buildIdentifier(ctx.Identifier()), buildTypeDef(ctx), int(TypeSymbol), newPosition(ctx.Identifier()))
 	sb.parentSWM(s.ab().symbolStackLast())
 	s.ab().addScope(sb.finish())
+}
+
+func (s *scopeListener) addSymbol(name string, definition string, kind int, position Position) {
+	sscope := ""
+	for _, x := range s.sbs.all() {
+		sscope += x.getName() + "."
+	}
+	s.ab().addSymbol(name, definition, kind, position, sscope)
 }

@@ -53,6 +53,32 @@ func init() {
 	}
 }
 
+// SymbolKindToString converts a SymbolKind constant to its string representation
+func SymbolKindToString(kind SymbolKind) string {
+	switch kind {
+	case ProcedureSymbol:
+		return "procedure"
+	case FunctionSymbol:
+		return "function"
+	case ConstantSymbol:
+		return "constant"
+	case VariableSymbol:
+		return "variable"
+	case ClassSymbol:
+		return "class"
+	case TypeSymbol:
+		return "type"
+	case ParameterSymbol:
+		return "parameter"
+	case FunctionResult:
+		return "result"
+	case ClassVariable:
+		return "field"
+	default:
+		return "unknown"
+	}
+}
+
 func SymDB() SymbolDatabase {
 	return db
 }

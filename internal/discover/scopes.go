@@ -255,14 +255,8 @@ func (s *UnitScope) ImplementationUses() []string {
 }
 
 // addSymbol adds a symbol to the scope being built
-func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position) *commonScopeBuilder {
-	sscope := ""
-	for _, x := range b.cmsc.scopeStack.all() {
-		sscope += x.getName() + "."
-	}
-	sscope += b.cmsc.name
-
-	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position, Scope: sscope}
+func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position, scope string) *commonScopeBuilder {
+	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position, Scope: scope}
 	b.cmsc.symbolStack.push(smb)
 	return b
 }
@@ -333,6 +327,9 @@ func (smb *Symbol) String() string {
 func (smb *Symbol) HoverInfo() string {
 	var result strings.Builder
 
+	result.WriteString("kind: ")
+	result.WriteString(SymbolKindToString(SymbolKind(smb.Kind)))
+	result.WriteString("\n")
 	result.WriteString("scope: ")
 	result.WriteString(smb.Scope)
 	result.WriteString("\n")

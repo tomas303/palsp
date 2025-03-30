@@ -38,6 +38,7 @@ const (
 	ParameterSymbol                   // 6
 	FunctionResult                    // 7
 	ClassVariable                     // 8
+	UnitReference                     // 9
 )
 
 func init() {
@@ -74,6 +75,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "result"
 	case ClassVariable:
 		return "field"
+	case UnitReference:
+		return "unit"
 	default:
 		return "unknown"
 	}

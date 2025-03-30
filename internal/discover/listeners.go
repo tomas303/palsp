@@ -275,6 +275,7 @@ func (s *scopeListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 		} else {
 			s.usb.addInterfaceUses(buildIdentifier(identifier))
 		}
+		s.addSymbol(buildIdentifier(identifier), identifier.GetText(), int(UnitReference), newPosition(identifier))
 	}
 }
 

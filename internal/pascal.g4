@@ -52,7 +52,7 @@ program
     ;
 
 unit
-    : UNIT identifier (DOT identifier)* SEMI 
+    : UNIT identifier SEMI 
       interfaceSection
       implementationSection?
       initializationSection?

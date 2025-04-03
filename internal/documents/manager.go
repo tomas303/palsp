@@ -248,7 +248,8 @@ func (f *file) findText(line int, character int) string {
 }
 
 func newScope(cst antlr.Tree) dsc.TopScope {
-	sl := dsc.NewScopeListener("")
+	collector := dsc.NewMemorySymbolCollector()
+	sl := dsc.NewUnifiedListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
-	return sl.GetScope()
+	return collector.GetScope()
 }

@@ -29,7 +29,7 @@
             "buildFlags": "",
             "logOutput": "dap",
             "showLog": true,
-            "trace": "verbose"
+            "trace": "warn"
         }
     ]
 }

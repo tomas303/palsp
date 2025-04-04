@@ -309,6 +309,24 @@ func (s *BasepascalListener) EnterMethodIdentifier(ctx *MethodIdentifierContext)
 // ExitMethodIdentifier is called when production methodIdentifier is exited.
 func (s *BasepascalListener) ExitMethodIdentifier(ctx *MethodIdentifierContext) {}
 
+// EnterGenericTemplate is called when production genericTemplate is entered.
+func (s *BasepascalListener) EnterGenericTemplate(ctx *GenericTemplateContext) {}
+
+// ExitGenericTemplate is called when production genericTemplate is exited.
+func (s *BasepascalListener) ExitGenericTemplate(ctx *GenericTemplateContext) {}
+
+// EnterGenericTemplateList is called when production genericTemplateList is entered.
+func (s *BasepascalListener) EnterGenericTemplateList(ctx *GenericTemplateListContext) {}
+
+// ExitGenericTemplateList is called when production genericTemplateList is exited.
+func (s *BasepascalListener) ExitGenericTemplateList(ctx *GenericTemplateListContext) {}
+
+// EnterGenericTemplateItem is called when production genericTemplateItem is entered.
+func (s *BasepascalListener) EnterGenericTemplateItem(ctx *GenericTemplateItemContext) {}
+
+// ExitGenericTemplateItem is called when production genericTemplateItem is exited.
+func (s *BasepascalListener) ExitGenericTemplateItem(ctx *GenericTemplateItemContext) {}
+
 // EnterType_ is called when production type_ is entered.
 func (s *BasepascalListener) EnterType_(ctx *Type_Context) {}
 

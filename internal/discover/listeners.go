@@ -425,44 +425,44 @@ type SymbolCollector interface {
 
 // DBSymbolCollector implements SymbolCollector for database storage
 type DBSymbolCollector struct {
-	unitID           int
-	unitName         string
-	db               *symDB
-	currentScope     string
-	isImplementation bool
+	unitID       int
+	db           *symDB
+	currentScope stack[string]
 }
 
 // NewDBSymbolCollector creates a new collector for database storage
-func NewDBSymbolCollector(unitID int, unitName string, db *symDB) *DBSymbolCollector {
+func NewDBSymbolCollector(unitID int, db *symDB) *DBSymbolCollector {
 	return &DBSymbolCollector{
-		unitID:   unitID,
-		unitName: unitName,
-		db:       db,
+		unitID:       unitID,
+		db:           db,
+		currentScope: *newStack[string](),
 	}
 }
 
 func (dc *DBSymbolCollector) BeginScope(name string, position Position) {
-	dc.currentScope = name
+	println("BEGIN SCOPE   ", name)
+	if dc.currentScope.length() == 0 {
+		dc.currentScope.push(strings.ToLower(name))
+	} else {
+		dc.currentScope.push(dc.currentScope.peek() + "." + strings.ToLower(name))
+	}
 }
 
 func (dc *DBSymbolCollector) EndScope(name string) {
-	// Nothing to do for DB collector
+	dc.currentScope.pop()
+	println("END SCOPE     ", name)
 }
 
 func (dc *DBSymbolCollector) EnterImplementation(position Position) {
-	dc.isImplementation = true
+	panic(ErrListenerBreak)
 }
 
 func (dc *DBSymbolCollector) AddUseUnit(unit string) {
-	// For database collector, we might want to track unit dependencies
-	// This would need additional database schema support
 }
 
 func (dc *DBSymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
-	// Only collect symbols from interface section (not implementation)
-	if !dc.isImplementation {
-		dc.db.InsertSymbol(dc.unitID, name, dc.currentScope, int(kind), definition)
-	}
+	println("Inserted symbol", name, "on position ", position.Line, ":", position.Character)
+	dc.db.InsertSymbol(dc.unitID, name, dc.currentScope.peek(), int(kind), definition)
 }
 
 // MemorySymbolCollector implements SymbolCollector for in-memory model
@@ -643,6 +643,9 @@ func (s *UnifiedListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionC
 func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
 	for _, parSecCtx := range ctx.AllFormalParameterSection() {
 		parType := ""
+		if parSecCtx.ParameterGroup() == nil {
+			continue
+		}
 		if parSecCtx.ParameterGroup().TypeIdentifier() != nil {
 			parType = parSecCtx.ParameterGroup().TypeIdentifier().GetText()
 		}
@@ -718,4 +721,5 @@ func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext)
 
 func (s *UnifiedListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), TypeSymbol, buildTypeDef(ctx), newPosition(ctx.Identifier()))
 }

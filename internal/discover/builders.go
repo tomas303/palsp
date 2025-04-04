@@ -348,12 +348,37 @@ func buildSimpleExpression(ctx parser.ISimpleExpressionContext) string {
 	return ctx.GetText()
 }
 
-func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
-	if ctx.LT() != nil && ctx.GT() != nil {
-		return buildIdentifier(ctx.Identifier()) + "<" + buildTypeIdentifier(ctx.TypeIdentifier()) + ">"
+func buildGenericTemplate(ctx parser.IGenericTemplateContext) string {
+	if ctx == nil {
+		return ""
 	}
+	result := "<"
+	templateItems := ctx.GenericTemplateList().AllGenericTemplateItem()
+	for i, templateItem := range templateItems {
+		if templateItem.Identifier() != nil {
+			result += buildIdentifier(templateItem.Identifier())
+		} else if templateItem.GenericTemplate() != nil {
+			result += buildGenericTemplate(templateItem.GenericTemplate())
+		}
+		if i < len(templateItems)-1 {
+			result += ","
+		}
+	}
+	result += ">"
+	return result
+}
+
+func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
+	// if ctx.LT() != nil && ctx.GT() != nil {
+	// 	return buildIdentifier(ctx.Identifier()) + "<" + buildTypeIdentifier(ctx.TypeIdentifier()) + ">"
+	// }
+
 	if ctx.Identifier() != nil {
-		return buildIdentifier(ctx.Identifier())
+		result := buildIdentifier(ctx.Identifier())
+		if ctx.GenericTemplate() != nil {
+			result += buildGenericTemplate(ctx.GenericTemplate())
+		}
+		return result
 	}
 	if ctx.CHAR() != nil {
 		return "char"

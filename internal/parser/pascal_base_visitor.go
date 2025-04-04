@@ -196,6 +196,18 @@ func (v *BasepascalVisitor) VisitMethodIdentifier(ctx *MethodIdentifierContext) 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitGenericTemplate(ctx *GenericTemplateContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitGenericTemplateList(ctx *GenericTemplateListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitGenericTemplateItem(ctx *GenericTemplateItemContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitType_(ctx *Type_Context) interface{} {
 	return v.VisitChildren(ctx)
 }

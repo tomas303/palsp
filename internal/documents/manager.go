@@ -3,6 +3,7 @@ package edit
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"palsp/internal/discover"
 	dsc "palsp/internal/discover"
 	"path/filepath"
@@ -155,6 +156,16 @@ func searchSymbolInUnits(symbolName string, units []string) string {
 }
 
 func (mgr *Manager) locateFile(uri string, text string, version int) *file {
+	if text == "" {
+		// Read file content from URI when text is not provided
+		parsed, err := url.Parse(uri)
+		if err == nil {
+			content, err := os.ReadFile(parsed.Path)
+			if err == nil {
+				text = string(content) // Assuming UTF-8 encoding
+			}
+		}
+	}
 	f, ok := mgr.fls.fileDict[uri]
 	if !ok {
 		cst := discover.ParseCST(text)

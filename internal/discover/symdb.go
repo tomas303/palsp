@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/antlr4-go/antlr/v4"
 	_ "github.com/glebarez/go-sqlite" // Registers the sqlite driver under "sqlite"
 )
 
@@ -39,6 +40,7 @@ const (
 	FunctionResult                    // 7
 	ClassVariable                     // 8
 	UnitReference                     // 9
+	TypeIdentifier                    // 10
 )
 
 func init() {
@@ -77,6 +79,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "field"
 	case UnitReference:
 		return "unit"
+	case TypeIdentifier:
+		return "type ident"
 	default:
 		return "unknown"
 	}
@@ -197,7 +201,9 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	WHERE unit_id = ? AND symbol LIKE ? COLLATE NOCASE
 	ORDER BY symbol COLLATE NOCASE`
 
-	rows, err := db.conn.Query(searchQuery, unitID, "%"+searchTerm+"%")
+	// rows, err := db.conn.Query(searchQuery, unitID, "%"+searchTerm+"%")
+	// rows, err := db.conn.Query(searchQuery, unitID, "%%")
+	rows, err := db.conn.Query(searchQuery, unitID, searchTerm)
 	if err != nil {
 		return nil, err
 	}
@@ -237,12 +243,26 @@ func (db *symDB) fillSymbols(unitID int, unitpath string, unit string) error {
 		return err
 	}
 
-	l := &publicSymbolsListener{unit_id: unitID, unitName: unit}
-	parseFromContent(string(content), l, defaultOptions())
+	db.collectSymbols(unitID, string(content))
 
 	// Mark this unit as scanned and update the last_modified timestamp
 	_, err = db.conn.Exec("UPDATE units SET scanned = 1, last_modified = ? WHERE id = ?", modTime, unitID)
 	return err
+}
+
+func (db *symDB) collectSymbols(unitID int, content string) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r == ErrListenerBreak {
+				return
+			}
+			panic(r) // Re-panic for all other errors
+		}
+	}()
+	collector := NewDBSymbolCollector(unitID, db)
+	sl := NewUnifiedListener(collector)
+	cst := ParseCST(content)
+	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 }
 
 func (db *symDB) AddSearchPath(path string) {

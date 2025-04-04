@@ -281,6 +281,19 @@ methodIdentifier
     : (typeIdentifier DOT)+ identifier
     ;
 
+genericTemplate
+    : '<' genericTemplateList '>'
+    ;
+
+genericTemplateList
+    : genericTemplateItem (COMMA genericTemplateItem)*
+    ;
+
+genericTemplateItem
+    : identifier
+    | genericTemplate
+    ;
+
 type_
     : simpleType
     | structuredType
@@ -303,9 +316,8 @@ subrangeType
     ;
 
 typeIdentifier
-    : identifier
+    : identifier genericTemplate?
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
-    | identifier LT typeIdentifier GT
     | arrayType
     ;
 
@@ -316,7 +328,8 @@ structuredType
     ;
 
 unpackedStructuredType
-    : recordType
+    : arrayType
+    | recordType
     | setType
     | fileType
     ;

@@ -452,3 +452,46 @@ func buildConstList(ctx parser.IConstListContext) string {
 	}
 	return strings.Join(consts, ",")
 }
+
+func buildProcedureHeader(ctx *parser.ProcedureHeaderContext) string {
+	definition := ""
+	name := ""
+	if ctx.CLASS() != nil {
+		definition = "class "
+	}
+	if ctx.PROCEDURE() != nil {
+		definition += "procedure "
+	} else if ctx.CONSTRUCTOR() != nil {
+		definition += "constructor "
+	} else if ctx.DESTRUCTOR() != nil {
+		definition += "destructor "
+	}
+	if ctx.MethodIdentifier() != nil {
+		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
+	} else if ctx.Identifier() != nil {
+		name = buildIdentifier(ctx.Identifier())
+	}
+	definition += name
+	definition += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	return definition
+}
+
+func buildFunctionHeader(ctx *parser.FunctionHeaderContext) string {
+	definition := ""
+	name := ""
+	if ctx.CLASS() != nil {
+		definition = "class "
+	}
+	definition += "function "
+	if ctx.MethodIdentifier() != nil {
+		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
+	} else if ctx.Identifier() != nil {
+		name = buildIdentifier(ctx.Identifier())
+	}
+	definition += name
+	definition += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
+	definition += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
+	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	return definition
+}

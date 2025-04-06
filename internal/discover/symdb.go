@@ -178,7 +178,7 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 		if err != nil {
 			return []Symbol{}, err
 		}
-		err = db.fillSymbols(unitID, unitpath, unit)
+		err = db.fillSymbols(unitID, unitpath)
 		if err != nil {
 			return []Symbol{}, err
 		}
@@ -231,7 +231,7 @@ func (db *symDB) dropSymbols(unitID int) error {
 	return err
 }
 
-func (db *symDB) fillSymbols(unitID int, unitpath string, unit string) error {
+func (db *symDB) fillSymbols(unitID int, unitpath string) error {
 	// Get the file's current modification time
 	modTime, err := getFileModTime(unitpath)
 	if err != nil {

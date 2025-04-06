@@ -283,6 +283,9 @@ func buildParameterList(ctx parser.IFormalParameterListContext) string {
 
 func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHeaderModifiersContext) string {
 	result := ""
+	if ctx == nil {
+		return result
+	}
 	if len(ctx.AllABSTRACT()) > 0 {
 		result += "abstract;"
 	}
@@ -491,7 +494,11 @@ func buildFunctionHeader(ctx *parser.FunctionHeaderContext) string {
 	}
 	definition += name
 	definition += "(" + buildParameterList(ctx.FormalParameterList()) + ")"
-	definition += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
+	if ctx.ResultType() == nil || ctx.ResultType().TypeIdentifier() == nil {
+		definition += ": unknown"
+	} else {
+		definition += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
+	}
 	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 	return definition
 }

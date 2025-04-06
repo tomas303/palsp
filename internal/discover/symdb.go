@@ -282,7 +282,6 @@ func (db *symDB) searchUnits(folder string) {
 			filename := filepath.Base(path)
 			ext := filepath.Ext(path)
 			unitName := strings.TrimSuffix(filename, ext)
-			println("Unit found:", unitName)
 			db.insertUnit(unitName, path)
 		})
 }
@@ -299,6 +298,7 @@ func newSymDB() (*symDB, error) {
 	db := &symDB{}
 	var err error
 	db.conn, err = sql.Open("sqlite", "file::memory:?cache=shared")
+	db.conn.SetMaxOpenConns(1)
 	return db, err
 }
 

@@ -1,13 +1,16 @@
 package edit
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
 	"palsp/internal/discover"
 	dsc "palsp/internal/discover"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -141,17 +144,83 @@ func (mgr *Manager) Completion(uri string, line int, character int) OpResult {
 // searchSymbolInUnits looks for a symbol by name in the given list of units
 // and returns formatted information if found
 func searchSymbolInUnits(symbolName string, units []string) string {
+	if len(units) == 0 {
+		return ""
+	}
+
+	// Use a semaphore to limit concurrency to number of CPU cores
+	maxWorkers := runtime.NumCPU()
+	sem := make(chan struct{}, maxWorkers)
+
+	type searchResult struct {
+		unit    string
+		symbols []dsc.Symbol
+		err     error
+	}
+
+	// Context for cancellation
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Create channel for results with buffer to prevent goroutine leaks
+	resultCh := make(chan searchResult, len(units))
+
+	// Launch workers
+	var wg sync.WaitGroup
 	for _, unit := range units {
-		symbols, err := dsc.SymDB().SearchSymbol(unit, symbolName)
-		if err != nil {
-			continue
-		}
-		for _, sym := range symbols {
-			if sym.Name == symbolName {
-				return sym.HoverInfo()
+		wg.Add(1)
+		go func(unitName string) {
+			defer wg.Done()
+
+			// Acquire semaphore slot
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			select {
+			case <-ctx.Done():
+				// Another search already found a result
+				return
+			default:
+				symbols, err := dsc.SymDB().SearchSymbol(unitName, symbolName)
+
+				select {
+				case resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}:
+					if err == nil && len(symbols) > 0 {
+						// Found symbols, cancel other searches
+						cancel()
+					}
+				case <-ctx.Done():
+				}
 			}
+		}(unit)
+	}
+
+	// Close result channel when all searches are done
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	// Process results in original unit order
+	results := make(map[string][]dsc.Symbol, len(units))
+	errors := make(map[string]error, len(units))
+
+	for result := range resultCh {
+		if result.err == nil {
+			results[result.unit] = result.symbols
+		} else {
+			errors[result.unit] = result.err
 		}
 	}
+
+	// Check units in original order
+	for _, unit := range units {
+		if symbols, ok := results[unit]; ok && len(symbols) > 0 {
+			// Return info for the first symbol found
+			return symbols[0].HoverInfo()
+		}
+	}
+
 	return ""
 }
 

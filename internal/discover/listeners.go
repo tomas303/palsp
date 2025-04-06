@@ -67,7 +67,7 @@ func NewDBSymbolCollector(unitID int, db *symDB) *DBSymbolCollector {
 }
 
 func (dc *DBSymbolCollector) BeginScope(name string, position Position) {
-	println("BEGIN SCOPE   ", name)
+	// println("BEGIN SCOPE   ", name)
 	if dc.currentScope.length() == 0 {
 		dc.currentScope.push(strings.ToLower(name))
 	} else {
@@ -77,7 +77,7 @@ func (dc *DBSymbolCollector) BeginScope(name string, position Position) {
 
 func (dc *DBSymbolCollector) EndScope(name string) {
 	dc.currentScope.pop()
-	println("END SCOPE     ", name)
+	// println("END SCOPE     ", name)
 }
 
 func (dc *DBSymbolCollector) EnterImplementation(position Position) {
@@ -88,7 +88,7 @@ func (dc *DBSymbolCollector) AddUseUnit(unit string) {
 }
 
 func (dc *DBSymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
-	println("Inserted symbol", name, "on position ", position.Line, ":", position.Character)
+	// println("Inserted symbol", name, "on position ", position.Line, ":", position.Character)
 	dc.db.InsertSymbol(dc.unitID, name, dc.currentScope.peek(), int(kind), definition)
 }
 

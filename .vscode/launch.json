@@ -28,8 +28,8 @@
             "env": {},
             "buildFlags": "",
             "logOutput": "dap",
-            "showLog": true,
-            "trace": "warn"
+            "showLog": false,
+            "trace": "error"
         }
     ]
 }

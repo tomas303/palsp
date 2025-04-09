@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"palsp/internal/discover"
-	dsc "palsp/internal/discover"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -30,7 +29,7 @@ type file struct {
 	uri     string
 	version int
 	text    string
-	scope   dsc.TopScope
+	scope   discover.TopScope
 	cst     antlr.Tree
 }
 
@@ -43,22 +42,9 @@ type Manager struct {
 	fls *files
 }
 
-// splitURI splits a URI into its path, name (without extension), and extension.
-func getUnitName(uri string) (name string, err error) {
-	parsed, err := url.Parse(uri)
-	if err != nil {
-		return "", err
-	}
-	dir := parsed.Path
-	base := filepath.Base(dir)
-	ext := filepath.Ext(base)
-	name = base[:len(base)-len(ext)]
-	return name, nil
-}
-
 func (mgr *Manager) Init(searchFolders []string) OpResult {
 	for _, folder := range searchFolders {
-		dsc.SymDB().AddSearchPath(folder)
+		discover.SymDB().AddSearchPath(folder)
 	}
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
@@ -97,7 +83,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), nil)
 	}
 
-	pos := dsc.NewPosition(line, character)
+	pos := discover.NewPosition(line, character)
 	var info string
 
 	symbol := f.scope.LocateSymbol(hoverText, pos)
@@ -148,13 +134,12 @@ func searchSymbolInUnits(symbolName string, units []string) string {
 		return ""
 	}
 
-	// Use a semaphore to limit concurrency to number of CPU cores
+	// Limit concurrency to number of CPU cores
 	maxWorkers := runtime.NumCPU()
-	sem := make(chan struct{}, maxWorkers)
 
 	type searchResult struct {
 		unit    string
-		symbols []dsc.Symbol
+		symbols []discover.Symbol
 		err     error
 	}
 
@@ -162,47 +147,56 @@ func searchSymbolInUnits(symbolName string, units []string) string {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Create channel for results with buffer to prevent goroutine leaks
-	resultCh := make(chan searchResult, len(units))
+	// Create channel for results with buffer
+	resultCh := make(chan searchResult, maxWorkers) // Buffer only needs to be as large as max concurrent workers
 
-	// Launch workers
-	var wg sync.WaitGroup
+	// Process units channel for worker scheduling
+	unitsCh := make(chan string, len(units))
 	for _, unit := range units {
+		unitsCh <- unit
+	}
+	close(unitsCh)
+
+	// Launch only maxWorkers goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < maxWorkers; i++ {
 		wg.Add(1)
-		go func(unitName string) {
+		go func() {
 			defer wg.Done()
 
-			// Acquire semaphore slot
-			sem <- struct{}{}
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				// Another search already found a result
-				return
-			default:
-				symbols, err := dsc.SymDB().SearchSymbol(unitName, symbolName)
-
+			var unitName string
+			var ok bool
+			for {
+				// Get next unit to process
 				select {
-				case resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}:
-					if err == nil && len(symbols) > 0 {
-						// Found symbols, cancel other searches
-						cancel()
+				case unitName, ok = <-unitsCh:
+					if !ok {
+						// No more units to process
+						return
 					}
 				case <-ctx.Done():
+					// Work cancelled
+					return
+				}
+				// Process the unit
+				symbols, err := discover.SymDB().SearchSymbol(unitName, symbolName)
+				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
+				if err == nil && len(symbols) > 0 {
+					// Found symbols, cancel other searches
+					cancel()
 				}
 			}
-		}(unit)
+		}()
 	}
 
-	// Close result channel when all searches are done
+	// Close result channel when all workers are done
 	go func() {
 		wg.Wait()
 		close(resultCh)
 	}()
 
-	// Process results in original unit order
-	results := make(map[string][]dsc.Symbol, len(units))
+	// Process results in original unit order (unchanged)
+	results := make(map[string][]discover.Symbol, len(units))
 	errors := make(map[string]error, len(units))
 
 	for result := range resultCh {
@@ -213,10 +207,9 @@ func searchSymbolInUnits(symbolName string, units []string) string {
 		}
 	}
 
-	// Check units in original order
+	// Check units in original order (unchanged)
 	for _, unit := range units {
 		if symbols, ok := results[unit]; ok && len(symbols) > 0 {
-			// Return info for the first symbol found
 			return symbols[0].HoverInfo()
 		}
 	}
@@ -271,7 +264,7 @@ func (mgr *Manager) getDir(uri string) (string, error) {
 func (mgr *Manager) addPath(uri string) {
 	dir, err := mgr.getDir(uri)
 	if err == nil {
-		dsc.SymDB().AddSearchPath(dir)
+		discover.SymDB().AddSearchPath(dir)
 	}
 }
 
@@ -327,9 +320,9 @@ func (f *file) findText(line int, character int) string {
 	return strings.ToLower(node.GetText())
 }
 
-func newScope(cst antlr.Tree) dsc.TopScope {
-	collector := dsc.NewMemorySymbolCollector()
-	sl := dsc.NewUnifiedListener(collector)
+func newScope(cst antlr.Tree) discover.TopScope {
+	collector := discover.NewMemorySymbolCollector()
+	sl := discover.NewUnifiedListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	return collector.GetScope()
 }

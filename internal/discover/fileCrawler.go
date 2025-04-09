@@ -2,9 +2,9 @@ package discover
 
 import (
 	"io"
-	"log"
 	"net/url"
 	"os"
+	"palsp/internal/log"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -60,7 +60,7 @@ func scanDirTree(root string, pathChan chan<- string) {
 	// Process the current directory
 	dir, err := os.Open(root)
 	if err != nil {
-		log.Printf("Error opening directory %s: %v", root, err)
+		log.Logger.Error().Str("path", root).Msg("Error opening directory")
 		return
 	}
 	defer dir.Close()
@@ -69,7 +69,7 @@ func scanDirTree(root string, pathChan chan<- string) {
 		// Read directory entries in chunks without loading all at once
 		entries, err := dir.ReadDir(100)
 		if err != nil && err != io.EOF {
-			log.Printf("Error reading directory %s: %v", root, err)
+			log.Logger.Error().Str("path", root).Msg("Error reading directory")
 			return
 		}
 		if len(entries) == 0 {

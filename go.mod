@@ -5,11 +5,13 @@ go 1.23.4
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.1
 	github.com/glebarez/go-sqlite v1.22.0
+	github.com/rs/zerolog v1.34.0
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.5.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect

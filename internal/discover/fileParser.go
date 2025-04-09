@@ -53,9 +53,11 @@ func parseFromContent(content string, listener antlr.ParseTreeListener, options 
 func ParseCST(content string) antlr.Tree {
 	input := antlr.NewInputStream(content)
 	lexer := parser.NewpascalLexer(input)
+	lexer.RemoveErrorListeners()
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
 	p := parser.NewpascalParser(stream)
 	// p.SetTrace(new(antlr.TraceListener))
 	// Return the AST by invoking the Source rule
+	p.RemoveErrorListeners()
 	return p.Source()
 }

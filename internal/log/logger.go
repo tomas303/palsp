@@ -3,6 +3,7 @@ package log
 import (
 	"io"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 )
@@ -48,10 +49,32 @@ func Initialize(level LogLevel, output io.Writer) {
 	}
 
 	// Create console writer for pretty output
-	output = zerolog.ConsoleWriter{Out: output, TimeFormat: "15:04:05"}
+	consoleWriter := zerolog.ConsoleWriter{Out: output, TimeFormat: time.RFC3339, NoColor: false}
+
+	// Custom colors for different log levels (only if colors are enabled)
+	consoleWriter.FormatLevel = func(i interface{}) string {
+		level := i.(string)
+		switch level {
+		case "debug":
+			return "\x1b[36m" + level + "\x1b[0m" // Cyan
+		case "info":
+			return "\x1b[32m" + level + "\x1b[0m" // Green
+		case "warn":
+			return "\x1b[33m" + level + "\x1b[0m" // Yellow
+		case "error":
+			return "\x1b[31m" + level + "\x1b[0m" // Red
+		default:
+			return level
+		}
+	}
+
+	// Optional: Customize field name colors
+	consoleWriter.FormatFieldName = func(i interface{}) string {
+		return "\x1b[34m" + i.(string) + "\x1b[0m:" // Blu field names
+	}
 
 	// Initialize the global logger
-	Logger = zerolog.New(output).
+	Logger = zerolog.New(consoleWriter).
 		Level(logLevel).
 		With().
 		Timestamp().

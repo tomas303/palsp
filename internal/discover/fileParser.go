@@ -18,11 +18,14 @@ type ZerologErrorListener struct {
 func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
 	line, column int, msg string, e antlr.RecognitionException) {
 
-	log.Logger.Error().
-		Int("line", line).
-		Int("column", column).
-		Str("message", msg).
-		Msg("ANTLR syntax error")
+	// log.Logger.Error().
+	// 	Int("line", line).
+	// 	Int("column", column).
+	// 	Str("err", msg).
+	// 	Msg("ANTLR syntax error")
+
+	errorMsg := fmt.Sprintf("ANTLR syntax error at line %d, column %d: %s", line, column, msg)
+	log.Logger.Error().Msg(errorMsg)
 }
 
 // trace listener that logs enter/exit events(based on original ANTLR TraceListener)

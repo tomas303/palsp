@@ -1,8 +1,10 @@
 package log
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -49,28 +51,81 @@ func Initialize(level LogLevel, output io.Writer) {
 	}
 
 	// Create console writer for pretty output
-	consoleWriter := zerolog.ConsoleWriter{Out: output, TimeFormat: time.RFC3339, NoColor: false}
+	consoleWriter := zerolog.ConsoleWriter{
+		Out:        output,
+		TimeFormat: time.RFC3339,
+		NoColor:    false,
+	}
 
-	// Custom colors for different log levels (only if colors are enabled)
+	// Color codes for different parts of the log
+	var (
+		colorReset  = "\x1b[0m"
+		colorDebug  = "\x1b[36m" // Cyan
+		colorInfo   = "\x1b[32m" // Green
+		colorWarn   = "\x1b[33m" // Yellow
+		colorError  = "\x1b[31m" // Red
+		colorFields = "\x1b[34m" // Blue for field names
+	)
+
+	// Format level with color
 	consoleWriter.FormatLevel = func(i interface{}) string {
 		level := i.(string)
+		var levelColor string
+
 		switch level {
 		case "debug":
-			return "\x1b[36m" + level + "\x1b[0m" // Cyan
+			levelColor = colorDebug
 		case "info":
-			return "\x1b[32m" + level + "\x1b[0m" // Green
+			levelColor = colorInfo
 		case "warn":
-			return "\x1b[33m" + level + "\x1b[0m" // Yellow
+			levelColor = colorWarn
 		case "error":
-			return "\x1b[31m" + level + "\x1b[0m" // Red
+			levelColor = colorError
 		default:
 			return level
 		}
+
+		return levelColor + level + colorReset
 	}
 
-	// Optional: Customize field name colors
+	// Format field names with color
 	consoleWriter.FormatFieldName = func(i interface{}) string {
-		return "\x1b[34m" + i.(string) + "\x1b[0m:" // Blu field names
+		return colorFields + i.(string) + colorReset + ":"
+	}
+
+	// Format message with same color as level
+	consoleWriter.FormatMessage = func(i interface{}) string {
+		if i == nil {
+			return ""
+		}
+
+		msg := fmt.Sprintf("%s", i)
+		if msg == "" {
+			return ""
+		}
+
+		// Get current log level from context (this is tricky in zerolog)
+		// We'll use a simpler approach by setting colors based on a prefix check
+
+		// For demonstration, let's color based on message content
+		var msgColor string
+
+		if strings.HasPrefix(msg, "ANTLR syntax error") {
+			msgColor = colorError // Use error color for ANTLR syntax errors
+		} else if strings.Contains(msg, "warning") || strings.Contains(msg, "warn") {
+			msgColor = colorWarn
+		} else if strings.Contains(msg, "debug") {
+			msgColor = colorDebug
+		} else {
+			msgColor = colorInfo // Default to info color
+		}
+
+		return msgColor + msg + colorReset
+	}
+
+	// Format timestamp
+	consoleWriter.FormatTimestamp = func(i interface{}) string {
+		return i.(string)
 	}
 
 	// Initialize the global logger

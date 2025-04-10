@@ -1,10 +1,12 @@
 package discover
 
 import (
+	"fmt"
 	"palsp/internal/parser"
 
 	"github.com/antlr4-go/antlr/v4"
-	"github.com/rs/zerolog/log" // Import your configured logger
+	// "github.com/rs/zerolog/log" // Import your configured logger
+	"palsp/internal/log"
 )
 
 // Custom error listener that sends errors to zerolog
@@ -16,11 +18,37 @@ type ZerologErrorListener struct {
 func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
 	line, column int, msg string, e antlr.RecognitionException) {
 
-	log.Error().
+	log.Logger.Error().
 		Int("line", line).
 		Int("column", column).
 		Str("message", msg).
 		Msg("ANTLR syntax error")
+}
+
+// trace listener that logs enter/exit events(based on original ANTLR TraceListener)
+type ZerologTraceListener struct {
+	parser antlr.Parser
+}
+
+func NewZerologTraceListener(parser antlr.Parser) *ZerologTraceListener {
+	tl := new(ZerologTraceListener)
+	tl.parser = parser
+	return tl
+}
+
+func (t *ZerologTraceListener) VisitErrorNode(_ antlr.ErrorNode) {
+}
+
+func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
+	log.Logger.Debug().Str("enter   ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)", t.parser.GetTokenStream().LT(1).GetText()).Msg("ANTLR enter rule")
+}
+
+func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
+	log.Logger.Debug().Str("consume ", fmt.Sprint(node.GetSymbol())).Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).Msg("ANTLR consume token")
+}
+
+func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
+	log.Logger.Debug().Str("exit    ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)=", t.parser.GetTokenStream().LT(1).GetText()).Msg("ANTLR exit rule")
 }
 
 type parseOptions struct {
@@ -76,11 +104,9 @@ func ParseCST(content string) antlr.Tree {
 	p.RemoveErrorListeners()
 	p.AddErrorListener(&ZerologErrorListener{})
 
-	// Conditionally add trace listener based on configuration
-	// This could be controlled by a debug flag
-	// if isTraceEnabled() { // Implement this function based on your config
-	// p.SetTrace(new(antlr.TraceListener))
-	// }
+	if log.IsDebugEnabled() {
+		p.AddParseListener(NewZerologTraceListener(p))
+	}
 
 	// Return the AST by invoking the Source rule
 	return p.Source()

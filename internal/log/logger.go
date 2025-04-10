@@ -55,6 +55,10 @@ func Initialize(level LogLevel, output io.Writer) {
 		Level(logLevel).
 		With().
 		Timestamp().
-		Caller().
+		// Caller().
 		Logger()
+}
+
+func IsDebugEnabled() bool {
+	return Logger.GetLevel() == zerolog.DebugLevel
 }

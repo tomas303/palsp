@@ -54,6 +54,45 @@ func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 	log.Logger.Debug().Str("exit    ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)=", t.parser.GetTokenStream().LT(1).GetText()).Msg("ANTLR exit rule")
 }
 
+type ResilientErrorStrategy struct {
+	*antlr.DefaultErrorStrategy
+	endTokenType int
+}
+
+// Override Recover to skip tokens until 'end' or EOF
+func (es *ResilientErrorStrategy) Recover(recognizer antlr.Parser, e antlr.RecognitionException) {
+	es.ReportError(recognizer, e)
+
+	for {
+		t := recognizer.GetTokenStream().LA(1)
+		if t == antlr.TokenEOF || t == es.endTokenType {
+			break
+		}
+		recognizer.Consume()
+	}
+}
+
+// Optionally override RecoverInline for single-token errors
+func (es *ResilientErrorStrategy) RecoverInline(recognizer antlr.Parser) antlr.Token {
+	es.ReportMatch(recognizer)
+	return recognizer.GetCurrentToken()
+}
+
+func NewResilientErrorStrategy() *ResilientErrorStrategy {
+	var endTokenType int
+	for i, n := range parser.PascalLexerLexerStaticData.SymbolicNames {
+		if n == "END" {
+			endTokenType = i
+			break
+		}
+	}
+
+	return &ResilientErrorStrategy{
+		DefaultErrorStrategy: antlr.NewDefaultErrorStrategy(),
+		endTokenType:         endTokenType,
+	}
+}
+
 type parseOptions struct {
 	Trace       bool
 	HandleError bool
@@ -106,6 +145,8 @@ func ParseCST(content string) antlr.Tree {
 	// Remove default error listeners and add custom one
 	p.RemoveErrorListeners()
 	p.AddErrorListener(&ZerologErrorListener{})
+
+	p.SetErrorHandler(NewResilientErrorStrategy())
 
 	if log.IsDebugEnabled() {
 		p.AddParseListener(NewZerologTraceListener(p))

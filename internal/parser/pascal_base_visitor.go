@@ -364,6 +364,10 @@ func (v *BasepascalVisitor) VisitStatement(ctx *StatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitErrorStatement(ctx *ErrorStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitUnlabelledStatement(ctx *UnlabelledStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }

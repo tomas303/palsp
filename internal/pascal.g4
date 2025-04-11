@@ -475,6 +475,11 @@ typedIdentifierList
 statement
     : label COLON unlabelledStatement
     | unlabelledStatement
+    | errorStatement
+    ;
+
+errorStatement
+    : ~('END' | ';')+ // Consume tokens until a likely statement boundary
     ;
 
 unlabelledStatement

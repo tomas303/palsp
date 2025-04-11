@@ -275,6 +275,9 @@ type pascalListener interface {
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
 
+	// EnterErrorStatement is called when entering the errorStatement production.
+	EnterErrorStatement(c *ErrorStatementContext)
+
 	// EnterUnlabelledStatement is called when entering the unlabelledStatement production.
 	EnterUnlabelledStatement(c *UnlabelledStatementContext)
 
@@ -679,6 +682,9 @@ type pascalListener interface {
 
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)
+
+	// ExitErrorStatement is called when exiting the errorStatement production.
+	ExitErrorStatement(c *ErrorStatementContext)
 
 	// ExitUnlabelledStatement is called when exiting the unlabelledStatement production.
 	ExitUnlabelledStatement(c *UnlabelledStatementContext)

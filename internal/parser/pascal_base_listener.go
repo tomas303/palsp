@@ -565,6 +565,12 @@ func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}
 // ExitStatement is called when production statement is exited.
 func (s *BasepascalListener) ExitStatement(ctx *StatementContext) {}
 
+// EnterErrorStatement is called when production errorStatement is entered.
+func (s *BasepascalListener) EnterErrorStatement(ctx *ErrorStatementContext) {}
+
+// ExitErrorStatement is called when production errorStatement is exited.
+func (s *BasepascalListener) ExitErrorStatement(ctx *ErrorStatementContext) {}
+
 // EnterUnlabelledStatement is called when production unlabelledStatement is entered.
 func (s *BasepascalListener) EnterUnlabelledStatement(ctx *UnlabelledStatementContext) {}
 

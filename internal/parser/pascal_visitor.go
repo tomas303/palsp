@@ -275,6 +275,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#statement.
 	VisitStatement(ctx *StatementContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#errorStatement.
+	VisitErrorStatement(ctx *ErrorStatementContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#unlabelledStatement.
 	VisitUnlabelledStatement(ctx *UnlabelledStatementContext) interface{}
 

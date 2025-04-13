@@ -24,7 +24,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd",
-            "args": ["-port", "8080"],
+            "args": ["--port", "8080", "--log-level", "error"],
             "env": {},
             "buildFlags": "",
             "logOutput": "dap",

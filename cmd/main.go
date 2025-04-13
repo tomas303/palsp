@@ -10,7 +10,7 @@ import (
 
 func main() {
 	port := flag.String("port", "", "Port to run the LSP server on (leave empty for stdio)")
-	logLevel := flag.String("log-level", "debug", "Log level (debug, info, warn, error, none)")
+	logLevel := flag.String("log-level", "none", "Log level (debug, info, warn, error, none)")
 	logFile := flag.String("log-file", "", "Log file path (defaults to stderr)")
 	flag.Parse()
 

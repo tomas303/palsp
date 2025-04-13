@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"palsp/internal/parser"
 
-	"github.com/antlr4-go/antlr/v4"
-	// "github.com/rs/zerolog/log" // Import your configured logger
 	"palsp/internal/log"
+
+	"github.com/antlr4-go/antlr/v4"
 )
 
 // Custom error listener that sends errors to zerolog
@@ -45,15 +45,15 @@ func (t *ZerologTraceListener) VisitErrorNode(_ antlr.ErrorNode) {
 }
 
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	log.Logger.Debug().Str("enter   ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)", t.parser.GetTokenStream().LT(1).GetText()).Msg("ANTLR enter rule")
+	log.Logger.Debug().Str("enter   ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)", t.parser.GetTokenStream().LT(1).GetText()).Msg(fmt.Sprintf("%s ->", t.degubInfo))
 }
 
 func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
-	log.Logger.Debug().Str("consume ", fmt.Sprint(node.GetSymbol())).Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).Msg("ANTLR consume token")
+	log.Logger.Debug().Str("consume ", fmt.Sprint(node.GetSymbol())).Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).Msg(fmt.Sprintf("%s  x", t.degubInfo))
 }
 
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	log.Logger.Debug().Str("exit    ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)=", t.parser.GetTokenStream().LT(1).GetText()).Msg("ANTLR exit rule")
+	log.Logger.Debug().Str("exit    ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)=", t.parser.GetTokenStream().LT(1).GetText()).Msg(fmt.Sprintf("%s <-", t.degubInfo))
 }
 
 type ResilientErrorStrategy struct {

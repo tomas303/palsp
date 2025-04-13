@@ -243,14 +243,14 @@ func (db *symDB) fillSymbols(unitID int, unitpath string) error {
 		return err
 	}
 
-	db.collectSymbols(unitID, string(content))
+	db.collectSymbols(unitID, string(content), unitpath)
 
 	// Mark this unit as scanned and update the last_modified timestamp
 	_, err = db.conn.Exec("UPDATE units SET scanned = 1, last_modified = ? WHERE id = ?", modTime, unitID)
 	return err
 }
 
-func (db *symDB) collectSymbols(unitID int, content string) {
+func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 	defer func() {
 		if r := recover(); r != nil {
 			if r == ErrListenerBreak {
@@ -261,7 +261,7 @@ func (db *symDB) collectSymbols(unitID int, content string) {
 	}()
 	collector := NewDBSymbolCollector(unitID, db)
 	sl := NewUnifiedListener(collector)
-	cst := ParseCST(content)
+	cst := ParseCST(content, fileName)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 }
 

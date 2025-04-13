@@ -230,7 +230,7 @@ func (mgr *Manager) locateFile(uri string, text string, version int) *file {
 	}
 	f, ok := mgr.fls.fileDict[uri]
 	if !ok {
-		cst := discover.ParseCST(text)
+		cst := discover.ParseCST(text, uri)
 		scope := newScope(cst)
 		f = file{
 			uri:     uri,
@@ -243,7 +243,7 @@ func (mgr *Manager) locateFile(uri string, text string, version int) *file {
 	} else if f.version < version {
 		f.text = text
 		f.version = version
-		f.cst = discover.ParseCST(text)
+		f.cst = discover.ParseCST(text, uri)
 		f.scope = newScope(f.cst)
 	}
 	return &f

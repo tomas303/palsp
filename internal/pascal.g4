@@ -1204,7 +1204,7 @@ STRING_LITERAL
     ;
 
 STRING_CROSSHATCH_LITERAL
-    : '#' [0-9]+
+    : '#' ([0-9]+ | HEX_LITERAL)
     ;
 
 NUM_INT

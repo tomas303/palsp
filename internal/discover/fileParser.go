@@ -24,8 +24,12 @@ func NewZerologErrorListener(debugInfo string) *ZerologErrorListener {
 // SyntaxError is called by ANTLR when a syntax error occurs
 func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
 	line, column int, msg string, e antlr.RecognitionException) {
-	errorMsg := fmt.Sprintf("ANTLR syntax error at line %d, column %d: %s, (%s)", line, column, msg, l.debugInfo)
-	log.Logger.Error().Msg(errorMsg)
+	log.AntlrErrorLogger.Error().
+		Int("line", line).
+		Int("column", column).
+		Str("msg", msg).
+		Str("di", l.debugInfo).
+		Send()
 }
 
 // trace listener that logs enter/exit events(based on original ANTLR TraceListener)
@@ -45,15 +49,27 @@ func (t *ZerologTraceListener) VisitErrorNode(_ antlr.ErrorNode) {
 }
 
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	log.Logger.Debug().Str("enter   ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)", t.parser.GetTokenStream().LT(1).GetText()).Msg(fmt.Sprintf("%s ->", t.degubInfo))
+	log.AntlrTraceLogger.Debug().
+		Str("di", t.degubInfo).
+		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
+		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Send()
 }
 
 func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
-	log.Logger.Debug().Str("consume ", fmt.Sprint(node.GetSymbol())).Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).Msg(fmt.Sprintf("%s  x", t.degubInfo))
+	log.AntlrTraceLogger.Debug().
+		Str("di", t.degubInfo).
+		Str("consume", fmt.Sprint(node.GetSymbol())).
+		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
+		Send()
 }
 
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	log.Logger.Debug().Str("exit    ", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).Str("LT(1)=", t.parser.GetTokenStream().LT(1).GetText()).Msg(fmt.Sprintf("%s <-", t.degubInfo))
+	log.AntlrTraceLogger.Debug().
+		Str("di", t.degubInfo).
+		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
+		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Send()
 }
 
 type ResilientErrorStrategy struct {

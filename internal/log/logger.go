@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -12,7 +11,9 @@ import (
 
 var (
 	// Global logger instance
-	Logger zerolog.Logger
+	Logger           zerolog.Logger
+	AntlrErrorLogger zerolog.Logger
+	AntlrTraceLogger zerolog.Logger
 )
 
 // LogLevel represents log severity levels
@@ -24,6 +25,25 @@ const (
 	WarnLevel  LogLevel = "warn"
 	ErrorLevel LogLevel = "error"
 	NoneLevel  LogLevel = "none"
+)
+
+const (
+	// Color codes for different parts of the log
+	colorReset       = "\x1b[0m"
+	colorDebug       = "\x1b[36m"       // Cyan
+	colorInfo        = "\x1b[32m"       // Green
+	colorWarn        = "\x1b[33m"       // Yellow
+	colorError       = "\x1b[31m"       // Red
+	colorFields      = "\x1b[34m"       // Blue for field names
+	colorCyan        = "\x1b[36m"       // Cyan
+	colorWhite       = "\x1b[37m"       // White
+	colorBrightBlue  = "\x1b[94m"       // Bright blue
+	colorBlue        = "\x1b[34m"       // Blue
+	colorGreen       = "\x1b[32m"       // Green
+	colorMagenta     = "\x1b[35m"       // Magenta
+	colorYellow      = "\x1b[33m"       // Yellow
+	colorLightOrange = "\x1b[38;5;214m" // Light orange
+
 )
 
 // Initialize sets up the global logger with specified level and output
@@ -57,16 +77,6 @@ func Initialize(level LogLevel, output io.Writer) {
 		NoColor:    false,
 	}
 
-	// Color codes for different parts of the log
-	var (
-		colorReset  = "\x1b[0m"
-		colorDebug  = "\x1b[36m" // Cyan
-		colorInfo   = "\x1b[32m" // Green
-		colorWarn   = "\x1b[33m" // Yellow
-		colorError  = "\x1b[31m" // Red
-		colorFields = "\x1b[34m" // Blue for field names
-	)
-
 	// Format level with color
 	consoleWriter.FormatLevel = func(i interface{}) string {
 		level := i.(string)
@@ -93,36 +103,6 @@ func Initialize(level LogLevel, output io.Writer) {
 		return colorFields + i.(string) + colorReset + ":"
 	}
 
-	// Format message with same color as level
-	consoleWriter.FormatMessage = func(i interface{}) string {
-		if i == nil {
-			return ""
-		}
-
-		msg := fmt.Sprintf("%s", i)
-		if msg == "" {
-			return ""
-		}
-
-		// Get current log level from context (this is tricky in zerolog)
-		// We'll use a simpler approach by setting colors based on a prefix check
-
-		// For demonstration, let's color based on message content
-		var msgColor string
-
-		if strings.HasPrefix(msg, "ANTLR syntax error") {
-			msgColor = colorError // Use error color for ANTLR syntax errors
-		} else if strings.Contains(msg, "warning") || strings.Contains(msg, "warn") {
-			msgColor = colorWarn
-		} else if strings.Contains(msg, "debug") {
-			msgColor = colorDebug
-		} else {
-			msgColor = colorInfo // Default to info color
-		}
-
-		return msgColor + msg + colorReset
-	}
-
 	// Format timestamp
 	consoleWriter.FormatTimestamp = func(i interface{}) string {
 		return i.(string)
@@ -135,8 +115,64 @@ func Initialize(level LogLevel, output io.Writer) {
 		Timestamp().
 		// Caller().
 		Logger()
+
+	AntlrErrorConsoleWriter := consoleWriter
+	AntlrErrorConsoleWriter.FieldsOrder = []string{"di", "line", "column", "msg"}
+	AntlrErrorConsoleWriter.FormatFieldName = func(i interface{}) string {
+		// return colorError + i.(string) + ":" + colorReset
+		fieldName := toString(i)
+		switch fieldName {
+		case "di":
+			return colorError + fieldName + ": " + colorCyan
+		case "line":
+			return colorError + fieldName + ": " + colorYellow
+		case "column":
+			return colorError + fieldName + ": " + colorYellow
+		case "msg":
+			return colorError + fieldName + ": " + colorLightOrange
+		default:
+			return colorError + fieldName + ": " + colorWhite
+		}
+	}
+	AntlrErrorConsoleWriter.FormatFieldValue = func(i interface{}) string {
+		return toString(i) + colorReset
+	}
+	AntlrErrorLogger = Logger.Output(AntlrErrorConsoleWriter)
+
+	AntlrTraceConsoleWriter := consoleWriter
+	AntlrTraceConsoleWriter.FieldsOrder = []string{"di", "enter", "exit", "token", "rule", "consume"}
+	AntlrTraceConsoleWriter.FormatFieldName = func(i interface{}) string {
+		fieldName := toString(i)
+		switch fieldName {
+		case "di":
+			return colorDebug + fieldName + ": " + colorCyan
+		case "enter", "exit":
+			return colorDebug + fieldName + ": " + colorGreen
+		case "token":
+			return colorDebug + fieldName + ": " + colorYellow
+		case "rule":
+			return colorDebug + fieldName + ": " + colorGreen
+		case "consume":
+			return colorDebug + fieldName + ": " + colorMagenta
+		default:
+			return colorDebug + fieldName + ": " + colorWhite
+		}
+	}
+	AntlrTraceConsoleWriter.FormatFieldValue = func(i interface{}) string {
+		return toString(i) + colorReset
+	}
+
+	AntlrTraceLogger = Logger.Output(AntlrTraceConsoleWriter)
+
 }
 
 func IsDebugEnabled() bool {
 	return Logger.GetLevel() == zerolog.DebugLevel
+}
+
+func toString(i interface{}) string {
+	if i == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", i)
 }

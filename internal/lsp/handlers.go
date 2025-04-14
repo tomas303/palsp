@@ -143,7 +143,7 @@ func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams, id int) LSPResponse {
 	fmt.Println("Completion requested for:", params.TextDocument.URI)
-	opRes := edit.Mgr.Completion(params.TextDocument.URI, params.Position.Line, params.Position.Character)
+	opRes := edit.Mgr.Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)
 }
 

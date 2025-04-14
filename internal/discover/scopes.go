@@ -11,6 +11,7 @@ type Scope interface {
 	getPosition() Position
 	getParentSWM() int
 	locateSymbol(name string, position Position) *Symbol
+	locateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	print()
 	findSymbol(position Position) *Symbol
 }
@@ -21,9 +22,14 @@ type TopScope interface {
 	Print()
 	FindSymbol(position Position) *Symbol
 	LocateSymbol(name string, position Position) *Symbol
+	LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	IsInImplementation(position Position) bool
 	InteraceUsese() []string
 	ImplementationUses() []string
+}
+
+type SymbolWriter interface {
+	WriteSymbol(sym *Symbol) error
 }
 
 // Position represents a position in source code
@@ -215,6 +221,46 @@ func (s *commonScope) locateSymbol(name string, position Position) *Symbol {
 	return nil
 }
 
+func (s *commonScope) locateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
+
+	var hitScope Scope
+	// Search from most recently added (most specific) to first added (most general)
+	for i := s.scopeStack.length() - 1; i >= 0; i-- {
+		scope := s.scopeStack.get(i)
+		// We need to determine if this scope is relevant for the position
+		// This is a simplified check - in a real implementation you'd need better logic
+		// to determine scope boundaries
+		if scope.getPosition().Line <= position.Line {
+			hitScope = scope
+			break
+		}
+	}
+
+	var watermark int
+	// If we found a more specific scope, search there first
+	if hitScope != nil {
+		if err := hitScope.locateSimilarSymbols(name, position, writer); err != nil {
+			return err
+		}
+		watermark = hitScope.getParentSWM()
+
+	} else {
+		watermark = s.symbolStack.length() - 1
+	}
+
+	// continue search in the current scope
+	// BUT only from watermark up (which is the symbol index when the nested scope was created,
+	// so only this symbols are accessible for this scope)
+	for i := watermark; i >= 0; i-- {
+		sym := s.symbolStack.get(i)
+		if strings.Contains(sym.Name, name) {
+			writer.WriteSymbol(&sym)
+		}
+	}
+
+	return nil
+}
+
 // FindSymbol implements TopScope interface to locate a symbol at the given position within the unit scope
 func (s *UnitScope) FindSymbol(position Position) *Symbol {
 	return s.Scope.findSymbol(position)
@@ -223,6 +269,10 @@ func (s *UnitScope) FindSymbol(position Position) *Symbol {
 // LocateSymbol implements TopScope interface to find a symbol by name and position by recursively traversing scopes
 func (s *UnitScope) LocateSymbol(name string, position Position) *Symbol {
 	return s.Scope.locateSymbol(name, position)
+}
+
+func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
+	return s.Scope.locateSimilarSymbols(name, position, writer)
 }
 
 // Print outputs the unit scope to standard output, implementing TopScope interface

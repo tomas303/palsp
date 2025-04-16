@@ -2,6 +2,8 @@
 package discover
 
 import (
+	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -10,7 +12,6 @@ type Scope interface {
 	getName() string
 	getPosition() Position
 	getParentSWM() int
-	locateSymbol(name string, position Position) *Symbol
 	locateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	print()
 	findSymbol(position Position) *Symbol
@@ -21,7 +22,6 @@ type TopScope interface {
 	Scope
 	Print()
 	FindSymbol(position Position) *Symbol
-	LocateSymbol(name string, position Position) *Symbol
 	LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	IsInImplementation(position Position) bool
 	InteraceUsese() []string
@@ -179,61 +179,21 @@ func (s *commonScope) findSymbol(position Position) *Symbol {
 	return nil
 }
 
-// locateSymbol finds a symbol by name and position by recursively traversing scopes
-func (s *commonScope) locateSymbol(name string, position Position) *Symbol {
-
-	var hitScope Scope
-	// Search from most recently added (most specific) to first added (most general)
-	for i := s.scopeStack.length() - 1; i >= 0; i-- {
-		scope := s.scopeStack.get(i)
-		// We need to determine if this scope is relevant for the position
-		// This is a simplified check - in a real implementation you'd need better logic
-		// to determine scope boundaries
-		if scope.getPosition().Line <= position.Line {
-			hitScope = scope
-			break
-		}
-	}
-
-	var watermark int
-	// If we found a more specific scope, search there first
-	if hitScope != nil {
-		// Recursively search in the more specific scope
-		if symbol := hitScope.locateSymbol(name, position); symbol != nil {
-			return symbol
-		}
-		watermark = hitScope.getParentSWM()
-
-	} else {
-		watermark = s.symbolStack.length() - 1
-	}
-
-	// If symbol not found in nested scope, we search in the current scope
-	// BUT only up to watermark (which is the symbol index when the nested scope was created)
-	for i := watermark; i >= 0; i-- {
-		sym := s.symbolStack.get(i)
-		if sym.Name == name {
-			return &sym
-		}
-	}
-
-	// Symbol not found in this scope hierarchy
-	return nil
-}
-
 func (s *commonScope) locateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
-
+	// Find the most specific scope for the position
 	var hitScope Scope
-	// Search from most recently added (most specific) to first added (most general)
 	for i := s.scopeStack.length() - 1; i >= 0; i-- {
 		scope := s.scopeStack.get(i)
-		// We need to determine if this scope is relevant for the position
-		// This is a simplified check - in a real implementation you'd need better logic
-		// to determine scope boundaries
 		if scope.getPosition().Line <= position.Line {
 			hitScope = scope
 			break
 		}
+	}
+
+	pattern := "(?i)^" + name + "$"
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return fmt.Errorf("invalid search pattern: %w", err)
 	}
 
 	var watermark int
@@ -243,18 +203,17 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 			return err
 		}
 		watermark = hitScope.getParentSWM()
-
 	} else {
 		watermark = s.symbolStack.length() - 1
 	}
 
-	// continue search in the current scope
-	// BUT only from watermark up (which is the symbol index when the nested scope was created,
-	// so only this symbols are accessible for this scope)
+	// Search in the current scope from watermark up
 	for i := watermark; i >= 0; i-- {
 		sym := s.symbolStack.get(i)
-		if strings.Contains(sym.Name, name) {
-			writer.WriteSymbol(&sym)
+		if re.MatchString(sym.Name) {
+			if err := writer.WriteSymbol(&sym); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -266,11 +225,8 @@ func (s *UnitScope) FindSymbol(position Position) *Symbol {
 	return s.Scope.findSymbol(position)
 }
 
-// LocateSymbol implements TopScope interface to find a symbol by name and position by recursively traversing scopes
-func (s *UnitScope) LocateSymbol(name string, position Position) *Symbol {
-	return s.Scope.locateSymbol(name, position)
-}
-
+// LocateSimilarSymbols search for symbol based on regex pattern given by name parameter (search is case
+// insensitive and over all subject).
 func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
 	return s.Scope.locateSimilarSymbols(name, position, writer)
 }

@@ -158,10 +158,16 @@ func handleHover(params HoverParams, id int) LSPResponse {
 // Helper: convert edit.OpResult to LSPResponse.
 func opResultToLSPResponse(id int, opResult edit.OpResult) LSPResponse {
 	if !opResult.Success {
+		var msg string
+		if opResult.Error != nil {
+			msg = fmt.Sprintf("%s (%v)", opResult.Message, opResult.Error)
+		} else {
+			msg = opResult.Message
+		}
 		return LSPResponse{
 			JsonRPC: "2.0",
 			ID:      id,
-			Error:   &LSPError{Code: -32000, Message: opResult.Message},
+			Error:   &LSPError{Code: -32000, Message: msg},
 		}
 	}
 	return LSPResponse{

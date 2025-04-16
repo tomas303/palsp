@@ -2,8 +2,8 @@ package discover
 
 import (
 	"database/sql"
-	"log"
 	"os" // added to read files
+	"palsp/internal/log"
 	"path/filepath"
 	"strings"
 
@@ -47,12 +47,12 @@ func init() {
 	var err error
 	db, err = newSymDB()
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		log.Logger.Fatal().Err(err).Msg("Failed to initialize database")
 	}
 
 	err = createTables(db)
 	if err != nil {
-		log.Fatalf("Failed to create tables: %v", err)
+		log.Logger.Fatal().Err(err).Msg("Failed to create tables")
 	}
 }
 
@@ -163,24 +163,28 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 	var err error
 	err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	if err != nil {
-		return nil, err
+		log.Logger.Warn().Err(err).Msgf("SearchSymbol error unit %s not found", unit)
+		return []Symbol{}, nil
 	}
 
 	// Check the current file modification time
 	currentModTime, err := getFileModTime(unitpath)
 	if err != nil {
-		return []Symbol{}, err
+		log.Logger.Warn().Err(err).Msgf("SearchSymbol error path %s errored obtaining file time", unitpath)
+		return []Symbol{}, nil
 	}
 
 	// Refresh symbols if file was modified or not yet scanned
 	if currentModTime > lastModified || scanned == 0 {
 		err = db.dropSymbols(unitID)
 		if err != nil {
-			return []Symbol{}, err
+			log.Logger.Warn().Err(err).Msg("dropping symbols error")
+			return []Symbol{}, nil
 		}
 		err = db.fillSymbols(unitID, unitpath)
 		if err != nil {
-			return []Symbol{}, err
+			log.Logger.Warn().Err(err).Msg("filling symbols error")
+			return []Symbol{}, nil
 		}
 	}
 
@@ -205,6 +209,9 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	// rows, err := db.conn.Query(searchQuery, unitID, "%%")
 	rows, err := db.conn.Query(searchQuery, unitID, searchTerm)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return []Symbol{}, nil
+		}
 		return nil, err
 	}
 	defer rows.Close()

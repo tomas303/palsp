@@ -2,6 +2,7 @@ package edit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -36,6 +37,14 @@ type file struct {
 type files struct {
 	// Path to the file.
 	fileDict map[string]file
+}
+
+var ErrFirstSymbolWriten = errors.New("first symbol writen")
+
+type SymbolWriterFunc func(sym *discover.Symbol) error
+
+func (f SymbolWriterFunc) WriteSymbol(sym *discover.Symbol) error {
+	return f(sym)
 }
 
 type Manager struct {
@@ -76,29 +85,40 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	var f *file
 
 	if f, err = mgr.locateFile(uri, text, version); err != nil {
-		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), nil)
+		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
 	var hoverText string
 	if hoverText, err = f.findText(line, character); err != nil {
-		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), nil)
+		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 
 	pos := discover.NewPosition(line, character)
-	var info string
 
-	symbol := f.scope.LocateSymbol(hoverText, pos)
-	if symbol != nil {
-		info = symbol.HoverInfo()
-	} else {
+	var info string
+	writeSymbol := func(sym *discover.Symbol) error {
+		info = sym.HoverInfo()
+		return ErrFirstSymbolWriten
+	}
+	writer := SymbolWriterFunc(writeSymbol)
+	err = f.scope.LocateSimilarSymbols(hoverText, pos, writer)
+	if err != nil && err != ErrFirstSymbolWriten {
+		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
+	}
+	if err != ErrFirstSymbolWriten {
 		if f.scope.IsInImplementation(pos) {
-			info = searchSymbolInUnits(hoverText, f.scope.ImplementationUses())
+			err = searchSymbolInUnits("%"+hoverText+"%", f.scope.ImplementationUses(), writer)
+			if err != nil && err != ErrFirstSymbolWriten {
+				return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
+			}
 		}
-		if info == "" {
-			info = searchSymbolInUnits(hoverText, f.scope.InteraceUsese())
+		err = searchSymbolInUnits("%"+hoverText+"%", f.scope.InteraceUsese(), writer)
+		if err != nil && err != ErrFirstSymbolWriten {
+			return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
 		}
 	}
-	if info == "" {
+
+	if err != ErrFirstSymbolWriten {
 		info = "No information found for " + hoverText
 	}
 
@@ -111,24 +131,17 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	return OpSuccessWith(hoverResp)
 }
 
-// One-time definition at package level
-type SymbolWriterFunc func(sym *discover.Symbol) error
-
-func (f SymbolWriterFunc) WriteSymbol(sym *discover.Symbol) error {
-	return f(sym)
-}
-
 func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
 	var err error
 	var f *file
 
 	if f, err = mgr.locateFile(uri, text, version); err != nil {
-		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), nil)
+		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
 	var hoverText string
 	if hoverText, err = f.findText(line, character); err != nil {
-		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), nil)
+		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	pos := discover.NewPosition(line, character)
 
@@ -144,15 +157,21 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 		return nil
 	}
 	writer := SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSimilarSymbols(hoverText, pos, writer)
+	err = f.scope.LocateSimilarSymbols(".*"+hoverText+".*", pos, writer)
 	if err != nil {
-		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), nil)
+		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 
 	if f.scope.IsInImplementation(pos) {
-		searchSymbolInUnits2("%"+hoverText+"%", f.scope.ImplementationUses(), writer)
+		err = searchSymbolInUnits("%"+hoverText+"%", f.scope.ImplementationUses(), writer)
+		if err != nil {
+			return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
+		}
 	}
-	searchSymbolInUnits2("%"+hoverText+"%", f.scope.InteraceUsese(), writer)
+	err = searchSymbolInUnits("%"+hoverText+"%", f.scope.InteraceUsese(), writer)
+	if err != nil {
+		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
+	}
 
 	cl := CompletionList{
 		IsIncomplete: false,
@@ -161,11 +180,10 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	return OpSuccessWith(cl)
 }
 
-// searchSymbolInUnits looks for a symbol by name in the given list of units
-// and returns formatted information if found
-func searchSymbolInUnits(symbolName string, units []string) string {
+func searchSymbolInUnits(symbolName string, units []string, writer discover.SymbolWriter) error {
+
 	if len(units) == 0 {
-		return ""
+		return nil
 	}
 
 	// Limit concurrency to number of CPU cores
@@ -215,125 +233,44 @@ func searchSymbolInUnits(symbolName string, units []string) string {
 				// Process the unit
 				symbols, err := discover.SymDB().SearchSymbol(unitName, symbolName)
 				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
-				if err == nil && len(symbols) > 0 {
-					// Found symbols, cancel other searches
+			}
+		}()
+	}
+
+	// Close result channel when all workers are done
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	results := make(map[string]searchResult, len(units))
+	idx := 0
+	for result := range resultCh {
+		results[result.unit] = result
+		for {
+			rs, ok := results[units[idx]]
+			if !ok {
+				break
+			}
+			if rs.err != nil {
+				cancel()
+				return rs.err
+			}
+			for _, symbol := range rs.symbols {
+				err := writer.WriteSymbol(&symbol)
+				if err != nil {
 					cancel()
+					return err
 				}
 			}
-		}()
-	}
-
-	// Close result channel when all workers are done
-	go func() {
-		wg.Wait()
-		close(resultCh)
-	}()
-
-	// Process results in original unit order (unchanged)
-	results := make(map[string][]discover.Symbol, len(units))
-	errors := make(map[string]error, len(units))
-
-	for result := range resultCh {
-		if result.err == nil {
-			results[result.unit] = result.symbols
-		} else {
-			errors[result.unit] = result.err
-		}
-	}
-
-	// Check units in original order (unchanged)
-	for _, unit := range units {
-		if symbols, ok := results[unit]; ok && len(symbols) > 0 {
-			return symbols[0].HoverInfo()
-		}
-	}
-
-	return ""
-}
-
-func searchSymbolInUnits2(symbolName string, units []string, writer discover.SymbolWriter) {
-
-	if len(units) == 0 {
-		return
-	}
-
-	// Limit concurrency to number of CPU cores
-	maxWorkers := runtime.NumCPU()
-
-	type searchResult struct {
-		unit    string
-		symbols []discover.Symbol
-		err     error
-	}
-
-	// Context for cancellation
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Create channel for results with buffer
-	resultCh := make(chan searchResult, maxWorkers) // Buffer only needs to be as large as max concurrent workers
-
-	// Process units channel for worker scheduling
-	unitsCh := make(chan string, len(units))
-	for _, unit := range units {
-		unitsCh <- unit
-	}
-	close(unitsCh)
-
-	// Launch only maxWorkers goroutines
-	var wg sync.WaitGroup
-	for i := 0; i < maxWorkers; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			var unitName string
-			var ok bool
-			for {
-				// Get next unit to process
-				select {
-				case unitName, ok = <-unitsCh:
-					if !ok {
-						// No more units to process
-						return
-					}
-				case <-ctx.Done():
-					// Work cancelled
-					return
-				}
-				// Process the unit
-				symbols, err := discover.SymDB().SearchSymbol(unitName, symbolName)
-				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
-			}
-		}()
-	}
-
-	// Close result channel when all workers are done
-	go func() {
-		wg.Wait()
-		close(resultCh)
-	}()
-
-	// Process results in original unit order (unchanged)
-	results := make(map[string][]discover.Symbol, len(units))
-	errors := make(map[string]error, len(units))
-
-	for result := range resultCh {
-		if result.err == nil {
-			results[result.unit] = result.symbols
-		} else {
-			errors[result.unit] = result.err
-		}
-	}
-
-	// Check units in original order (unchanged)
-	for _, unit := range units {
-		if symbols, ok := results[unit]; ok {
-			for _, symbol := range symbols {
-				writer.WriteSymbol(&symbol)
+			idx++
+			if idx >= len(units) {
+				break
 			}
 		}
 	}
+
+	return nil
 
 }
 

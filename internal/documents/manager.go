@@ -200,7 +200,7 @@ func searchSymbolInUnits(symbolName string, units []string, writer discover.Symb
 	defer cancel()
 
 	// Create channel for results with buffer
-	resultCh := make(chan searchResult, maxWorkers) // Buffer only needs to be as large as max concurrent workers
+	resultCh := make(chan searchResult, len(units))
 
 	// Process units channel for worker scheduling
 	unitsCh := make(chan string, len(units))
@@ -253,13 +253,11 @@ func searchSymbolInUnits(symbolName string, units []string, writer discover.Symb
 				break
 			}
 			if rs.err != nil {
-				cancel()
 				return rs.err
 			}
 			for _, symbol := range rs.symbols {
 				err := writer.WriteSymbol(&symbol)
 				if err != nil {
-					cancel()
 					return err
 				}
 			}

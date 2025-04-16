@@ -21,6 +21,7 @@ type symDB struct {
 // Define an interface for symDB operations
 type SymbolDatabase interface {
 	AddSearchPath(path string)
+	DropSymbolsFromPath(path string)
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
@@ -205,8 +206,6 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	WHERE unit_id = ? AND symbol LIKE ? COLLATE NOCASE
 	ORDER BY symbol COLLATE NOCASE`
 
-	// rows, err := db.conn.Query(searchQuery, unitID, "%"+searchTerm+"%")
-	// rows, err := db.conn.Query(searchQuery, unitID, "%%")
 	rows, err := db.conn.Query(searchQuery, unitID, searchTerm)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -280,6 +279,42 @@ func (db *symDB) AddSearchPath(path string) {
 	}
 	db.searchPaths = append(db.searchPaths, path)
 	db.searchUnits(path)
+}
+
+func (db *symDB) DropSymbolsFromPath(path string) {
+	// Extract filename from path (could be in URI format)
+	path = filepath.ToSlash(path) // Convert to forward slashes for consistency
+	fileName := filepath.Base(path)
+	ext := filepath.Ext(fileName)
+	unitName := strings.TrimSuffix(fileName, ext)
+
+	// Get all unit IDs matching this name
+	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
+	rows, err := db.conn.Query(query, unitName)
+	if err != nil {
+		log.Logger.Warn().Err(err).Msgf("DropSymbolsFromPath error: couldn't query units for %s", unitName)
+		return
+	}
+	defer rows.Close()
+
+	// Delete symbols for each matching unit
+	for rows.Next() {
+		var unitID int
+		if err := rows.Scan(&unitID); err != nil {
+			log.Logger.Warn().Err(err).Msg("Error scanning unit ID")
+			continue
+		}
+
+		if err := db.dropSymbols(unitID); err != nil {
+			log.Logger.Warn().Err(err).Msgf("Error dropping symbols for unit ID %d", unitID)
+		}
+
+		// Reset the scanned flag
+		_, err = db.conn.Exec("UPDATE units SET scanned = 0 WHERE id = ?", unitID)
+		if err != nil {
+			log.Logger.Warn().Err(err).Msgf("Error resetting scanned flag for unit ID %d", unitID)
+		}
+	}
 }
 
 func (db *symDB) searchUnits(folder string) {

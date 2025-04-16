@@ -65,8 +65,12 @@ func (mgr *Manager) Init(searchFolders []string) OpResult {
 }
 
 func (mgr *Manager) DidOpen(uri string, text string, version int) OpResult {
-	mgr.locateFile(uri, text, version)
+	var err error
+	if _, err = mgr.locateFile(uri, text, version); err != nil {
+		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
+	}
 	mgr.addPath(uri)
+	discover.SymDB().DropSymbolsFromPath(uri)
 	return OpSuccess()
 }
 

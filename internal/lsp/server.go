@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	edit "palsp/internal/documents"
 	"palsp/internal/log"
 	"strings"
 )
@@ -65,16 +66,22 @@ func processConnection(conn net.Conn) {
 		}
 
 		// Handle the request
-		response := handleRequest(request)
-		responseBytes, err := json.Marshal(response)
-		if err != nil {
-			log.Logger.Error().Err(err).Msg("Error marshalling response")
-			continue
-		}
+		result := handleRequest(request)
+		log.Logger.Info().Msgf("RESULT: %v", result)
 
-		// Write the response
-		fmt.Fprintf(conn, "Content-Length: %d\r\n\r\n", len(responseBytes))
-		conn.Write(responseBytes)
+		if request.ID != nil {
+			response := opResultToLSPResponse(*request.ID, result)
+
+			responseBytes, err := json.Marshal(response)
+			if err != nil {
+				log.Logger.Error().Err(err).Msg("Error marshalling response")
+				continue
+			}
+
+			// Write the response
+			fmt.Fprintf(conn, "Content-Length: %d\r\n\r\n", len(responseBytes))
+			conn.Write(responseBytes)
+		}
 	}
 }
 
@@ -146,21 +153,21 @@ func processStdio() {
 		}
 
 		// Handle the request
-		log.Logger.Info().Msgf("HANDLING REQUEST WITH ID {%d}", request.ID)
-		response := handleRequest(request)
-		log.Logger.Info().Msgf("MARSHALLING RESPONSE WITH ID {%d}", response.ID)
-		responseBytes, err := json.Marshal(response)
-		if err != nil {
-			log.Logger.Error().Err(err).Msg("Error marshalling response")
-			continue
+		result := handleRequest(request)
+		log.Logger.Info().Msgf("RESULT: %v", result)
+
+		if request.ID != nil {
+			response := opResultToLSPResponse(*request.ID, result)
+			responseBytes, err := json.Marshal(response)
+			if err != nil {
+				log.Logger.Error().Err(err).Msg("Error marshalling response")
+				continue
+			}
+			fmt.Fprintf(writer, "Content-Length: %d\r\n\r\n", len(responseBytes))
+			writer.Write(responseBytes)
+			writer.Flush()
 		}
 
-		// Write the response
-		log.Logger.Info().Msg("writing response")
-		fmt.Fprintf(writer, "Content-Length: %d\r\n\r\n", len(responseBytes))
-		writer.Write(responseBytes)
-		writer.Flush()
-		log.Logger.Info().Msg("writing response end and flushing")
 	}
 }
 
@@ -187,5 +194,27 @@ func StartServer(port string) {
 			}
 			go processConnection(conn)
 		}
+	}
+}
+
+// Helper: convert edit.OpResult to LSPResponse.
+func opResultToLSPResponse(id int, opResult edit.OpResult) LSPResponse {
+	if !opResult.Success {
+		var msg string
+		if opResult.Error != nil {
+			msg = fmt.Sprintf("%s (%v)", opResult.Message, opResult.Error)
+		} else {
+			msg = opResult.Message
+		}
+		return LSPResponse{
+			JsonRPC: "2.0",
+			ID:      id,
+			Error:   &LSPError{Code: -32000, Message: msg},
+		}
+	}
+	return LSPResponse{
+		JsonRPC: "2.0",
+		ID:      id,
+		Result:  opResult.Result,
 	}
 }

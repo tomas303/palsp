@@ -1,5 +1,7 @@
 package edit
 
+import "fmt"
+
 type OpResult struct {
 	Success bool
 	Message string
@@ -55,4 +57,11 @@ type CompletionItem struct {
 type CompletionList struct {
 	IsIncomplete bool             `json:"isIncomplete"`
 	Items        []CompletionItem `json:"items"`
+}
+
+func PtrLogVal[T any](p *T, defaultVal T) string {
+	if p == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("%v", *p)
 }

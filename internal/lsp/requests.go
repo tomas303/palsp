@@ -5,7 +5,7 @@ import "encoding/json"
 // LSP Request structure
 type LSPRequest struct {
 	JsonRPC string          `json:"jsonrpc"`
-	ID      int             `json:"id,omitempty"`
+	ID      *int            `json:"id,omitempty"`
 	Method  string          `json:"method"`
 	Params  json.RawMessage `json:"params,omitempty"`
 }

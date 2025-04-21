@@ -26,12 +26,5 @@ func main() {
 
 	log.Initialize(log.LogLevel(*logLevel), output)
 	log.Logger.Info().Msg("Application started")
-
-	if *port == "" {
-		log.Logger.Info().Msg("Starting LSP server on stdio")
-	} else {
-		log.Logger.Info().Str("Starting LSP server on port", *port).Send()
-	}
-
 	lsp.StartServer(*port)
 }

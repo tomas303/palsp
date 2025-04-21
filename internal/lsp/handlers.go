@@ -22,7 +22,7 @@ func handleRequest(request LSPRequest) (response LSPResponse) {
 		}
 	}()
 
-	log.Logger.Debug().Str("method", request.Method).Int("id", request.ID).Msg("Handling LSP request")
+	log.Logger.Info().Str("method", request.Method).Int("id", request.ID).Msg("Handling LSP request")
 
 	switch request.Method {
 	case "initialize":

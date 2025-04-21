@@ -325,6 +325,7 @@ func (db *symDB) searchUnits(folder string) {
 			ext := filepath.Ext(path)
 			unitName := strings.TrimSuffix(filename, ext)
 			db.insertUnit(unitName, path)
+			log.Logger.Debug().Str("unit", unitName).Str("path", path).Msg("Found unit")
 		})
 }
 

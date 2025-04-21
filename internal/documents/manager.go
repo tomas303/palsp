@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 
+	"palsp/internal/log"
+
 	"github.com/antlr4-go/antlr/v4"
 )
 
@@ -65,6 +67,7 @@ func (mgr *Manager) Init(searchFolders []string) OpResult {
 }
 
 func (mgr *Manager) DidOpen(uri string, text string, version int) OpResult {
+	log.Logger.Debug().Str("file", uri).Msg("File opened")
 	var err error
 	if _, err = mgr.locateFile(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
@@ -88,6 +91,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	var err error
 	var f *file
 
+	log.Logger.Debug().Str("file", uri).Msg("Hover requested")
 	if f, err = mgr.locateFile(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}

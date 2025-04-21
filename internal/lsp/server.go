@@ -84,6 +84,7 @@ func processStdio() {
 	writer := bufio.NewWriter(os.Stdout)
 
 	for {
+		log.Logger.Info().Msg("awaiting request")
 		// Parse headers according to LSP spec
 		contentLength := 0
 		for {
@@ -99,6 +100,8 @@ func processStdio() {
 
 			// Trim trailing CR and LF
 			line = strings.TrimRight(line, "\r\n")
+
+			log.Logger.Info().Str("header", line).Msg("Header received")
 
 			// Empty line indicates end of headers
 			if line == "" {
@@ -117,6 +120,7 @@ func processStdio() {
 		}
 
 		// Read the content
+		log.Logger.Info().Msg("reading content")
 		content := make([]byte, contentLength)
 		_, err := io.ReadFull(reader, content)
 		if err != nil {
@@ -125,6 +129,16 @@ func processStdio() {
 		}
 
 		// Unmarshal the request
+		log.Logger.Info().Msg("unmarshalling request")
+
+		// Log the raw content (safely handling UTF-8)
+		contentStr := string(content)
+		if len(contentStr) > 1000 {
+			log.Logger.Info().Str("content", contentStr[:1000]+"...").Msg("Request content (truncated)")
+		} else {
+			log.Logger.Info().Str("content", contentStr).Msg("Request content")
+		}
+
 		var request LSPRequest
 		if err := json.Unmarshal(content, &request); err != nil {
 			log.Logger.Error().Err(err).Msg("Error unmarshalling request")
@@ -132,7 +146,9 @@ func processStdio() {
 		}
 
 		// Handle the request
+		log.Logger.Info().Msgf("HANDLING REQUEST WITH ID {%d}", request.ID)
 		response := handleRequest(request)
+		log.Logger.Info().Msgf("MARSHALLING RESPONSE WITH ID {%d}", response.ID)
 		responseBytes, err := json.Marshal(response)
 		if err != nil {
 			log.Logger.Error().Err(err).Msg("Error marshalling response")
@@ -140,9 +156,11 @@ func processStdio() {
 		}
 
 		// Write the response
+		log.Logger.Info().Msg("writing response")
 		fmt.Fprintf(writer, "Content-Length: %d\r\n\r\n", len(responseBytes))
 		writer.Write(responseBytes)
 		writer.Flush()
+		log.Logger.Info().Msg("writing response end and flushing")
 	}
 }
 
@@ -152,6 +170,7 @@ func StartServer(port string) {
 		log.Logger.Info().Msg("Starting LSP server on stdio")
 		processStdio()
 	} else {
+		log.Logger.Info().Msgf("Starting LSP server on port %s", port)
 		listener, err := net.Listen("tcp", "localhost:"+port)
 		if err != nil {
 			log.Logger.Error().Err(err).Msg("Error starting server")

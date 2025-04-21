@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	edit "palsp/internal/documents"
+	"palsp/internal/log"
 )
 
 // Handle incoming JSON-RPC requests
@@ -21,7 +22,7 @@ func handleRequest(request LSPRequest) (response LSPResponse) {
 		}
 	}()
 
-	fmt.Println("Received request:", request.Method)
+	log.Logger.Debug().Str("method", request.Method).Int("id", request.ID).Msg("Handling LSP request")
 
 	switch request.Method {
 	case "initialize":
@@ -101,7 +102,7 @@ func handleRequest(request LSPRequest) (response LSPResponse) {
 
 // Handle initialize request
 func handleInitialize(id int, params InitializeParams) LSPResponse {
-	fmt.Println("Initialize request received")
+	log.Logger.Debug().Msg("Initialize request received")
 
 	// Extract paths from workspace folders
 	workspaceFolderPaths := make([]string, 0)
@@ -121,35 +122,35 @@ func handleInitialize(id int, params InitializeParams) LSPResponse {
 
 // Modified Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams, id int) LSPResponse {
-	fmt.Println("File opened:", params.TextDocument.URI)
+	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File opened")
 	opRes := edit.Mgr.DidOpen(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams, id int) LSPResponse {
-	fmt.Println("File changed:", params.TextDocument.URI)
+	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File changed")
 	opRes := edit.Mgr.DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/didClose request
 func handleDidClose(params DidCloseTextDocumentParams, id int) LSPResponse {
-	fmt.Println("File closed:", params.TextDocument.URI)
+	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File closed")
 	opRes := edit.Mgr.DidClose(params.TextDocument.URI)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams, id int) LSPResponse {
-	fmt.Println("Completion requested for:", params.TextDocument.URI)
+	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("Completion requested")
 	opRes := edit.Mgr.Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)
 }
 
 // Modified Handle textDocument/hover request
 func handleHover(params HoverParams, id int) LSPResponse {
-	fmt.Println("Hover requested for:", params.TextDocument.URI)
+	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("Hover requested")
 	// Pass line and character from params.Position
 	opRes := edit.Mgr.Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 	return opResultToLSPResponse(id, opRes)

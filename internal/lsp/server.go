@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"palsp/internal/log"
 	"strings"
 )
 
@@ -22,9 +23,9 @@ func processConnection(conn net.Conn) {
 			line, err := reader.ReadString('\n')
 			if err != nil {
 				if err == io.EOF {
-					fmt.Println("Client disconnected")
+					log.Logger.Info().Msg("Client disconnected")
 				} else {
-					fmt.Println("Error reading header:", err.Error())
+					log.Logger.Error().Err(err).Msg("Error reading header")
 				}
 				return
 			}
@@ -44,7 +45,7 @@ func processConnection(conn net.Conn) {
 		}
 
 		if contentLength == 0 {
-			fmt.Println("Invalid Content-Length")
+			log.Logger.Error().Msg("Invalid Content-Length")
 			continue
 		}
 
@@ -52,14 +53,14 @@ func processConnection(conn net.Conn) {
 		content := make([]byte, contentLength)
 		_, err := io.ReadFull(reader, content)
 		if err != nil {
-			fmt.Println("Error reading content:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error reading content")
 			break
 		}
 
 		// Unmarshal the request
 		var request LSPRequest
 		if err := json.Unmarshal(content, &request); err != nil {
-			fmt.Println("Error unmarshalling request:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error unmarshalling request")
 			continue
 		}
 
@@ -67,7 +68,7 @@ func processConnection(conn net.Conn) {
 		response := handleRequest(request)
 		responseBytes, err := json.Marshal(response)
 		if err != nil {
-			fmt.Println("Error marshalling response:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error marshalling response")
 			continue
 		}
 
@@ -89,9 +90,9 @@ func processStdio() {
 			line, err := reader.ReadString('\n')
 			if err != nil {
 				if err == io.EOF {
-					fmt.Println("Client disconnected")
+					log.Logger.Info().Msg("Client disconnected")
 				} else {
-					fmt.Println("Error reading header:", err.Error())
+					log.Logger.Error().Err(err).Msg("Error reading header")
 				}
 				return
 			}
@@ -111,7 +112,7 @@ func processStdio() {
 		}
 
 		if contentLength == 0 {
-			fmt.Println("Invalid Content-Length")
+			log.Logger.Error().Msg("Invalid Content-Length")
 			continue
 		}
 
@@ -119,14 +120,14 @@ func processStdio() {
 		content := make([]byte, contentLength)
 		_, err := io.ReadFull(reader, content)
 		if err != nil {
-			fmt.Println("Error reading content:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error reading content")
 			break
 		}
 
 		// Unmarshal the request
 		var request LSPRequest
 		if err := json.Unmarshal(content, &request); err != nil {
-			fmt.Println("Error unmarshalling request:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error unmarshalling request")
 			continue
 		}
 
@@ -134,7 +135,7 @@ func processStdio() {
 		response := handleRequest(request)
 		responseBytes, err := json.Marshal(response)
 		if err != nil {
-			fmt.Println("Error marshalling response:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error marshalling response")
 			continue
 		}
 
@@ -148,21 +149,21 @@ func processStdio() {
 // Start the LSP server based on the provided port
 func StartServer(port string) {
 	if port == "" {
-		fmt.Println("Starting LSP server on stdio")
+		log.Logger.Info().Msg("Starting LSP server on stdio")
 		processStdio()
 	} else {
 		listener, err := net.Listen("tcp", "localhost:"+port)
 		if err != nil {
-			fmt.Println("Error starting server:", err.Error())
+			log.Logger.Error().Err(err).Msg("Error starting server")
 			return
 		}
 		defer listener.Close()
-		fmt.Println("LSP server started on localhost:" + port)
+		log.Logger.Info().Str("port", port).Msg("LSP server started")
 
 		for {
 			conn, err := listener.Accept()
 			if err != nil {
-				fmt.Println("Error accepting connection:", err.Error())
+				log.Logger.Error().Err(err).Msg("Error accepting connection")
 				continue
 			}
 			go processConnection(conn)

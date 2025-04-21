@@ -30,7 +30,7 @@ func main() {
 	if *port == "" {
 		log.Logger.Info().Msg("Starting LSP server on stdio")
 	} else {
-		log.Logger.Info().Str("Starting LSP server on port", *port)
+		log.Logger.Info().Str("Starting LSP server on port", *port).Send()
 	}
 
 	lsp.StartServer(*port)

@@ -3,6 +3,7 @@ package discover
 
 import (
 	"fmt"
+	"palsp/internal/log"
 	"regexp"
 	"strings"
 )
@@ -155,12 +156,12 @@ func (s *commonScope) getParentSWM() int {
 
 // print outputs the scope hierarchy to standard output
 func (s *commonScope) print() {
-	println("Name: ", s.getName())
-	println("symbols:")
+	log.Logger.Debug().Msgf("Scope: %s", s.getName())
+	log.Logger.Debug().Msg("symbols:")
 	for _, symbol := range s.symbolStack.all() {
-		println(symbol.Name)
+		log.Logger.Debug().Msg(symbol.Name)
 	}
-	println("scopes:")
+	log.Logger.Debug().Msg("scopes:")
 	for _, scope := range s.scopeStack.all() {
 		scope.print()
 	}
@@ -233,15 +234,15 @@ func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer 
 
 // Print outputs the unit scope to standard output, implementing TopScope interface
 func (s *UnitScope) Print() {
-	println("Name: ", s.getName())
-	println("uses: ")
+	log.Logger.Debug().Msgf("Name: %s", s.getName())
+	log.Logger.Debug().Msg("uses: ")
 	for _, unit := range s.interfaceUses.all() {
-		print(unit)
+		log.Logger.Debug().Msg(unit)
 	}
 	for _, unit := range s.implementationUses.all() {
-		print(unit)
+		log.Logger.Debug().Msg(unit)
 	}
-	println("symbols:")
+	log.Logger.Debug().Msg("symbols:")
 	s.Scope.print()
 }
 

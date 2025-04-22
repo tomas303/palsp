@@ -16,80 +16,18 @@ import (
 func processConnection(conn net.Conn) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
-
-	for {
-		// Parse headers according to LSP spec
-		contentLength := 0
-		for {
-			line, err := reader.ReadString('\n')
-			if err != nil {
-				if err == io.EOF {
-					log.Logger.Info().Msg("Client disconnected")
-				} else {
-					log.Logger.Error().Err(err).Msg("Error reading header")
-				}
-				return
-			}
-
-			// Trim trailing CR and LF
-			line = strings.TrimRight(line, "\r\n")
-
-			// Empty line indicates end of headers
-			if line == "" {
-				break
-			}
-
-			// Parse Content-Length header
-			if strings.HasPrefix(line, "Content-Length: ") {
-				fmt.Sscanf(line, "Content-Length: %d", &contentLength)
-			}
-		}
-
-		if contentLength == 0 {
-			log.Logger.Error().Msg("Invalid Content-Length")
-			continue
-		}
-
-		// Read the content
-		content := make([]byte, contentLength)
-		_, err := io.ReadFull(reader, content)
-		if err != nil {
-			log.Logger.Error().Err(err).Msg("Error reading content")
-			break
-		}
-
-		// Unmarshal the request
-		var request LSPRequest
-		if err := json.Unmarshal(content, &request); err != nil {
-			log.Logger.Error().Err(err).Msg("Error unmarshalling request")
-			continue
-		}
-
-		// Handle the request
-		result := handleRequest(request)
-		log.Logger.Info().Msgf("RESULT: %v", result)
-
-		if request.ID != nil {
-			response := opResultToLSPResponse(*request.ID, result)
-
-			responseBytes, err := json.Marshal(response)
-			if err != nil {
-				log.Logger.Error().Err(err).Msg("Error marshalling response")
-				continue
-			}
-
-			// Write the response
-			fmt.Fprintf(conn, "Content-Length: %d\r\n\r\n", len(responseBytes))
-			conn.Write(responseBytes)
-		}
-	}
+	writer := bufio.NewWriter(conn)
+	processRequest(reader, writer)
 }
 
 // Read and process incoming LSP messages from stdio
 func processStdio() {
 	reader := bufio.NewReader(os.Stdin)
 	writer := bufio.NewWriter(os.Stdout)
+	processRequest(reader, writer)
+}
 
+func processRequest(reader *bufio.Reader, writer *bufio.Writer) {
 	for {
 		log.Logger.Info().Msg("awaiting request")
 		// Parse headers according to LSP spec
@@ -169,6 +107,7 @@ func processStdio() {
 		}
 
 	}
+
 }
 
 // Start the LSP server based on the provided port

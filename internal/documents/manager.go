@@ -67,7 +67,6 @@ func (mgr *Manager) Init(searchFolders []string) OpResult {
 }
 
 func (mgr *Manager) DidOpen(uri string, text string, version int) OpResult {
-	log.Logger.Debug().Str("file", uri).Msg("File opened")
 	var err error
 	if _, err = mgr.locateFile(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)

@@ -75,7 +75,6 @@ func handleRequest(request LSPRequest) (response edit.OpResult) {
 
 // Handle initialize request
 func handleInitialize(params InitializeParams) edit.OpResult {
-	log.Logger.Debug().Msg("Initialize request received")
 
 	// Extract paths from workspace folders
 	workspaceFolderPaths := make([]string, 0)
@@ -94,31 +93,25 @@ func handleInitialize(params InitializeParams) edit.OpResult {
 
 // Modified Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams) edit.OpResult {
-	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File opened")
 	return edit.Mgr.DidOpen(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 }
 
 // Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams) edit.OpResult {
-	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File changed")
 	return edit.Mgr.DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 }
 
 // Modified Handle textDocument/didClose request
 func handleDidClose(params DidCloseTextDocumentParams) edit.OpResult {
-	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("File closed")
 	return edit.Mgr.DidClose(params.TextDocument.URI)
 }
 
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams) edit.OpResult {
-	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("Completion requested")
 	return edit.Mgr.Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }
 
 // Modified Handle textDocument/hover request
 func handleHover(params HoverParams) edit.OpResult {
-	log.Logger.Debug().Str("file", params.TextDocument.URI).Msg("Hover requested")
-	// Pass line and character from params.Position
 	return edit.Mgr.Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }

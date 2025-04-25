@@ -1,6 +1,7 @@
 package discover
 
 import (
+	"context"
 	"database/sql"
 	"os" // added to read files
 	"palsp/internal/log"
@@ -14,7 +15,8 @@ import (
 var db *symDB
 
 type symDB struct {
-	conn        *sql.DB
+	db          *sql.DB
+	con         *sql.Conn
 	searchPaths []string
 }
 
@@ -91,6 +93,27 @@ func SymDB() SymbolDatabase {
 	return db
 }
 
+func (db *symDB) Exec(query string, args ...any) (sql.Result, error) {
+	log.Logger.Debug().Msgf("START exec: %s", query)
+	result, err := db.con.ExecContext(context.Background(), query, args...)
+	log.Logger.Debug().Msgf("STOP exec: %s", query)
+	return result, err
+}
+
+func (db *symDB) QueryRow(query string, args ...any) *sql.Row {
+	log.Logger.Debug().Msgf("START queryrow: %s", query)
+	row := db.con.QueryRowContext(context.Background(), query, args...)
+	log.Logger.Debug().Msgf("STOP queryrow: %s", query)
+	return row
+}
+
+func (db *symDB) Query(query string, args ...any) (*sql.Rows, error) {
+	log.Logger.Debug().Msgf("START query: %s", query)
+	result, err := db.con.QueryContext(context.Background(), query, args...)
+	log.Logger.Debug().Msgf("STOP query %s", query)
+	return result, err
+}
+
 func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	// Get the file's modification time
 	modTime, err := getFileModTime(unitpath)
@@ -108,13 +131,13 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	RETURNING id;`
 
 	var unitID int
-	row := db.conn.QueryRow(insertUnitSQL, unitname, unitpath, modTime, modTime)
+	row := db.QueryRow(insertUnitSQL, unitname, unitpath, modTime, modTime)
 	err = row.Scan(&unitID)
 	if err == sql.ErrNoRows {
 		selectUnitIDSQL := `
 		SELECT id FROM units
 		WHERE unitname = ? AND unitpath = ?;`
-		err = db.conn.QueryRow(selectUnitIDSQL, unitname, unitpath).Scan(&unitID)
+		err = db.QueryRow(selectUnitIDSQL, unitname, unitpath).Scan(&unitID)
 		if err != nil {
 			return 0, err
 		}
@@ -129,7 +152,7 @@ func (db *symDB) InsertSymbol(unitID int, symbol, scope string, kind int, defini
 	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
 	VALUES (?, ?, ?, ?, ?);`
 	var err error
-	_, err = db.conn.Exec(insertSymbolSQL, unitID, strings.ToLower(symbol), scope, kind, definition)
+	_, err = db.Exec(insertSymbolSQL, unitID, strings.ToLower(symbol), scope, kind, definition)
 	return err
 }
 
@@ -140,7 +163,7 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 	var unitpath string
 	// Updated query to select both unit id and unitpath with case insensitive comparison
 	query := "SELECT id, unitpath FROM units WHERE unitname = ? COLLATE NOCASE"
-	if err := db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath); err != nil {
+	if err := db.QueryRow(query, unit).Scan(&unitID, &unitpath); err != nil {
 		return 0, "", err
 	}
 	data, err := os.ReadFile(unitpath)
@@ -162,7 +185,7 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 
 	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ?"
 	var err error
-	err = db.conn.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	err = db.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 	if err != nil {
 		log.Logger.Warn().Err(err).Msgf("SearchSymbol error unit %s not found", unit)
 		return []Symbol{}, nil
@@ -206,7 +229,7 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	WHERE unit_id = ? AND symbol LIKE ? COLLATE NOCASE
 	ORDER BY symbol COLLATE NOCASE`
 
-	rows, err := db.conn.Query(searchQuery, unitID, searchTerm)
+	rows, err := db.Query(searchQuery, unitID, searchTerm)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return []Symbol{}, nil
@@ -233,7 +256,7 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 }
 
 func (db *symDB) dropSymbols(unitID int) error {
-	_, err := db.conn.Exec("DELETE FROM symbols WHERE unit_id = ?", unitID)
+	_, err := db.Exec("DELETE FROM symbols WHERE unit_id = ?", unitID)
 	return err
 }
 
@@ -252,7 +275,7 @@ func (db *symDB) fillSymbols(unitID int, unitpath string) error {
 	db.collectSymbols(unitID, string(content), unitpath)
 
 	// Mark this unit as scanned and update the last_modified timestamp
-	_, err = db.conn.Exec("UPDATE units SET scanned = 1, last_modified = ? WHERE id = ?", modTime, unitID)
+	_, err = db.Exec("UPDATE units SET scanned = 1, last_modified = ? WHERE id = ?", modTime, unitID)
 	return err
 }
 
@@ -287,10 +310,9 @@ func (db *symDB) DropSymbolsFromPath(path string) {
 	fileName := filepath.Base(path)
 	ext := filepath.Ext(fileName)
 	unitName := strings.TrimSuffix(fileName, ext)
-
 	// Get all unit IDs matching this name
 	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
-	rows, err := db.conn.Query(query, unitName)
+	rows, err := db.Query(query, unitName)
 	if err != nil {
 		log.Logger.Warn().Err(err).Msgf("DropSymbolsFromPath error: couldn't query units for %s", unitName)
 		return
@@ -308,9 +330,8 @@ func (db *symDB) DropSymbolsFromPath(path string) {
 		if err := db.dropSymbols(unitID); err != nil {
 			log.Logger.Warn().Err(err).Msgf("Error dropping symbols for unit ID %d", unitID)
 		}
-
 		// Reset the scanned flag
-		_, err = db.conn.Exec("UPDATE units SET scanned = 0 WHERE id = ?", unitID)
+		_, err = db.Exec("UPDATE units SET scanned = 0 WHERE id = ?", unitID)
 		if err != nil {
 			log.Logger.Warn().Err(err).Msgf("Error resetting scanned flag for unit ID %d", unitID)
 		}
@@ -325,7 +346,6 @@ func (db *symDB) searchUnits(folder string) {
 			ext := filepath.Ext(path)
 			unitName := strings.TrimSuffix(filename, ext)
 			db.insertUnit(unitName, path)
-			log.Logger.Debug().Str("unit", unitName).Str("path", path).Msg("Found unit")
 		})
 }
 
@@ -338,11 +358,20 @@ func getFileModTime(filepath string) (int64, error) {
 }
 
 func newSymDB() (*symDB, error) {
-	db := &symDB{}
 	var err error
-	db.conn, err = sql.Open("sqlite", "file::memory:?cache=shared")
-	db.conn.SetMaxOpenConns(1)
-	return db, err
+	var db *sql.DB
+	var con *sql.Conn
+	db, err = sql.Open("sqlite", "file::memory:?cache=shared")
+	if err != nil {
+		return nil, err
+	}
+	db.SetMaxOpenConns(1)
+	con, err = db.Conn(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	symdb := &symDB{db: db, con: con}
+	return symdb, err
 }
 
 func createTables(db *symDB) error {
@@ -355,7 +384,7 @@ func createTables(db *symDB) error {
 		scanned INTEGER NOT NULL DEFAULT 0,
 		UNIQUE(unitname, unitpath)
 	);`
-	_, err := db.conn.Exec(createUnitsTableSQL)
+	_, err := db.Exec(createUnitsTableSQL)
 	if err != nil {
 		return err
 	}
@@ -364,7 +393,7 @@ func createTables(db *symDB) error {
 	CREATE INDEX IF NOT EXISTS idx_unitname ON units (
 		unitname COLLATE NOCASE
 	);`
-	_, err = db.conn.Exec(createUnitNameIndexSQL)
+	_, err = db.Exec(createUnitNameIndexSQL)
 	if err != nil {
 		return err
 	}
@@ -373,7 +402,7 @@ func createTables(db *symDB) error {
 	CREATE INDEX IF NOT EXISTS idx_unitpath ON units (
 		unitpath COLLATE NOCASE
 	);`
-	_, err = db.conn.Exec(createUnitPathIndexSQL)
+	_, err = db.Exec(createUnitPathIndexSQL)
 	if err != nil {
 		return err
 	}
@@ -387,7 +416,7 @@ func createTables(db *symDB) error {
 		definition TEXT,
 		FOREIGN KEY(unit_id) REFERENCES units(id)
 	);`
-	_, err = db.conn.Exec(createSymbolsTableSQL)
+	_, err = db.Exec(createSymbolsTableSQL)
 	if err != nil {
 		return err
 	}
@@ -397,7 +426,7 @@ func createTables(db *symDB) error {
 		unit_id,
 		scope COLLATE NOCASE
 	);`
-	_, err = db.conn.Exec(createIndexSQL)
+	_, err = db.Exec(createIndexSQL)
 	if err != nil {
 		return err
 	}

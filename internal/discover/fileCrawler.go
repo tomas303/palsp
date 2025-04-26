@@ -2,7 +2,6 @@ package discover
 
 import (
 	"io"
-	"net/url"
 	"os"
 	"palsp/internal/log"
 	"path/filepath"
@@ -15,20 +14,7 @@ type fileCrawler struct{}
 
 // processPasFiles processes Pascal files without loading the entire directory structure first
 func (fc *fileCrawler) processPasFiles(rootPath string, processor func(filepath string)) {
-	// Convert URI to file path if needed
-	root := rootPath
-
-	// Try to parse as URL - this is more robust than just checking prefix
-	if uri, err := url.Parse(rootPath); err == nil && uri.Scheme == "file" {
-		// Valid file URI, convert to file path
-		root = uri.Path
-
-		// On Windows, remove leading slash if present
-		if runtime.GOOS == "windows" && strings.HasPrefix(root, "/") {
-			root = root[1:]
-		}
-	}
-
+	root := DecodePath(rootPath)
 	// Use a worker pool pattern with bounded concurrency
 	numWorkers := runtime.NumCPU()
 	pathChan := make(chan string, 100) // Buffer for paths to process

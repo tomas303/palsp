@@ -2,8 +2,23 @@ package discover
 
 import (
 	"fmt"
+	"net/url"
+	"runtime"
 	"strings"
 )
+
+func DecodePath(path string) string {
+	if uri, err := url.Parse(path); err == nil && uri.Scheme == "file" {
+		result := uri.Path
+		// On Windows, remove leading slash if present
+		if runtime.GOOS == "windows" && strings.HasPrefix(result, "/") {
+			result = result[1:]
+		}
+		return result
+	} else {
+		return path
+	}
+}
 
 // stack is a generic stack that holds values of any type.
 type stack[T any] struct {

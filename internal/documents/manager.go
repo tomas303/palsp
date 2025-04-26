@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"os"
 	"palsp/internal/discover"
 	"path/filepath"
@@ -283,12 +282,9 @@ func (mgr *Manager) locateFile(uri string, text string, version int) (*file, err
 	var err error
 	if text == "" {
 		// Read file content from URI when text is not provided
-		var parsed *url.URL
-		if parsed, err = url.Parse(uri); err != nil {
-			return nil, err
-		}
+		path := discover.DecodePath(uri)
 		var content []byte
-		if content, err = os.ReadFile(parsed.Path); err != nil {
+		if content, err = os.ReadFile(path); err != nil {
 			return nil, err
 		}
 		text = string(content) // Assuming UTF-8 encoding
@@ -319,11 +315,8 @@ func (mgr *Manager) dropFile(uri string) {
 }
 
 func (mgr *Manager) getDir(uri string) (string, error) {
-	parsed, err := url.Parse(uri)
-	if err != nil {
-		return "", err
-	}
-	return filepath.Dir(parsed.Path), nil
+	path := discover.DecodePath(uri)
+	return filepath.Dir(path), nil
 }
 
 func (mgr *Manager) addPath(uri string) {

@@ -1,3 +1,4 @@
 palsp
 internal/discover/test*.txt
 cmd/*bin*
+palsp.exe

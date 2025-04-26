@@ -94,23 +94,23 @@ func SymDB() SymbolDatabase {
 }
 
 func (db *symDB) Exec(query string, args ...any) (sql.Result, error) {
-	log.Logger.Debug().Msgf("START exec: %s", query)
+	// log.Logger.Debug().Msgf("START exec: %s", query)
 	result, err := db.con.ExecContext(context.Background(), query, args...)
-	log.Logger.Debug().Msgf("STOP exec: %s", query)
+	// log.Logger.Debug().Msgf("STOP exec: %s", query)
 	return result, err
 }
 
 func (db *symDB) QueryRow(query string, args ...any) *sql.Row {
-	log.Logger.Debug().Msgf("START queryrow: %s", query)
+	// log.Logger.Debug().Msgf("START queryrow: %s", query)
 	row := db.con.QueryRowContext(context.Background(), query, args...)
-	log.Logger.Debug().Msgf("STOP queryrow: %s", query)
+	// log.Logger.Debug().Msgf("STOP queryrow: %s", query)
 	return row
 }
 
 func (db *symDB) Query(query string, args ...any) (*sql.Rows, error) {
-	log.Logger.Debug().Msgf("START query: %s", query)
+	// log.Logger.Debug().Msgf("START query: %s", query)
 	result, err := db.con.QueryContext(context.Background(), query, args...)
-	log.Logger.Debug().Msgf("STOP query %s", query)
+	// log.Logger.Debug().Msgf("STOP query %s", query)
 	return result, err
 }
 

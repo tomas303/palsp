@@ -197,7 +197,7 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : identifier EQUAL (type_ | functionType | procedureType | forwardClassType)
+    : identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType)
     ;
 
 functionType
@@ -213,7 +213,7 @@ forwardClassType
     ;
 
 classType
-    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS (LPAREN identifier genericTemplate? classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
     ;
 
 classImplementsInterfaces
@@ -303,7 +303,7 @@ type_
 simpleType
     : scalarType
     | subrangeType
-    | typeIdentifier
+    | typeIdentifier genericTemplate?
     | stringtype
     ;
 

@@ -29,7 +29,17 @@
             "buildFlags": "",
             "logOutput": "dap",
             "showLog": false,
-            "trace": "error"
-        }
+            "trace": "error",
+            // Add these options to break on errors and panics
+            "debugAdapter": "dlv-dap",
+            "dlvFlags": ["--check-go-version=false"],
+            // Break on panic - The correct setting name
+            // Set this to true to halt at the first line
+            "stopOnEntry": false,
+            // Show global variables while debugging
+            // Set this to true to see global variables in the variables panel
+            "showGlobalVariables": true,
+        },
+        
     ]
 }

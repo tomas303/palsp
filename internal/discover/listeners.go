@@ -95,33 +95,33 @@ func (dc *DBSymbolCollector) AccessSpecifier(as AccessSpec) {
 
 // MemorySymbolCollector implements SymbolCollector for in-memory model
 type MemorySymbolCollector struct {
-	usb              *UnitScopeBuilder
-	sbs              *scopeBuilderStack
+	unitScope        *UnitScope
+	scopeStack       *scopeStack
 	inImplementation bool
 	currentScope     stack[string]
 }
 
 // NewMemorySymbolCollector creates a new collector for in-memory model
 func NewMemorySymbolCollector() *MemorySymbolCollector {
-	csb := commonScopeBuilder{cmsc: commonScope{}}
-	sbs := newScopeBuilderStack()
-	sbs.push(&csb)
-	usb := &UnitScopeBuilder{
-		commonScopeBuilder: &csb,
+	rootScope := commonScope{name: "root", position: Position{}}
+	scopeStack := newScopeStack()
+	scopeStack.push(&rootScope)
+	unitScope := &UnitScope{
 		interfaceUses:      *newStack[string](),
 		implementationUses: *newStack[string](),
 	}
 	currentScope := stack[string]{}
 	return &MemorySymbolCollector{
-		usb:          usb,
-		sbs:          sbs,
+		unitScope:    unitScope,
+		scopeStack:   scopeStack,
 		currentScope: currentScope,
 	}
 }
 
 func (mc *MemorySymbolCollector) BeginScope(name string, position Position) {
-	newsb := commonScopeBuilder{cmsc: commonScope{name: name, position: position}}
-	mc.sbs.push(&newsb)
+	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
+	newScope := commonScope{name: strings.ToLower(name), position: position}
+	mc.scopeStack.push(&newScope)
 	if mc.currentScope.length() == 0 {
 		mc.currentScope.push(strings.ToLower(name))
 	} else {
@@ -130,58 +130,61 @@ func (mc *MemorySymbolCollector) BeginScope(name string, position Position) {
 }
 
 func (mc *MemorySymbolCollector) EndScope(name string) {
-	sb := mc.sbs.pop()
-	sb.setName(name)
-	sb.parentSWM(mc.sbs.peek().symbolStackLast())
-	mc.sbs.peek().addScope(sb.finish())
+	// log.Logger.Debug().Str("end scope", name).Send()
+	scope := mc.scopeStack.pop()
+	parentscope := mc.scopeStack.peek()
+	scope.parentSWM = parentscope.symbolStack.length() - 1
+	parentscope.scopeStack.push(scope)
 	mc.currentScope.pop()
 }
 
 func (mc *MemorySymbolCollector) EnterImplementation(position Position) {
 	mc.inImplementation = true
-	mc.usb.setImplementationPos(position)
+	mc.unitScope.implementationPos = position
 }
 
 func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
 	if mc.inImplementation {
-		mc.usb.addImplementationUses(unit)
+		mc.unitScope.implementationUses.push(unit)
 	} else {
-		mc.usb.addInterfaceUses(unit)
+		mc.unitScope.interfaceUses.push(unit)
 	}
 }
 
 func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
-	currentBuilder := mc.sbs.current()
-	currentBuilder.addSymbol(name, definition, int(kind), position, mc.currentScope.peek())
+	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek()}
+	scope := mc.scopeStack.current()
+	scope.symbolStack.push(smb)
 }
 
 func (mc *MemorySymbolCollector) GetScope() TopScope {
-	return mc.usb.finish()
+	mc.unitScope.Scope = mc.scopeStack.peek().scopeStack.peek()
+	return mc.unitScope
 }
 
 func (dc *MemorySymbolCollector) AccessSpecifier(as AccessSpec) {
 
 }
 
-// scopeBuilderStack manages a stack of scope builders
-type scopeBuilderStack struct {
-	items []*commonScopeBuilder
+// scopeStack manages a stack of scope builders
+type scopeStack struct {
+	items []*commonScope
 }
 
-// newScopeBuilderStack creates a new scope builder stack
-func newScopeBuilderStack() *scopeBuilderStack {
-	return &scopeBuilderStack{
-		items: make([]*commonScopeBuilder, 0),
+// newScopeStack creates a new scope builder stack
+func newScopeStack() *scopeStack {
+	return &scopeStack{
+		items: make([]*commonScope, 0),
 	}
 }
 
 // push adds a scope builder to the top of the stack
-func (s *scopeBuilderStack) push(item *commonScopeBuilder) {
+func (s *scopeStack) push(item *commonScope) {
 	s.items = append(s.items, item)
 }
 
 // pop removes and returns the top scope builder from the stack
-func (s *scopeBuilderStack) pop() *commonScopeBuilder {
+func (s *scopeStack) pop() *commonScope {
 	if len(s.items) == 0 {
 		return nil
 	}
@@ -193,7 +196,7 @@ func (s *scopeBuilderStack) pop() *commonScopeBuilder {
 }
 
 // peek returns the top scope builder without removing it
-func (s *scopeBuilderStack) peek() *commonScopeBuilder {
+func (s *scopeStack) peek() *commonScope {
 	if len(s.items) == 0 {
 		return nil
 	}
@@ -201,12 +204,12 @@ func (s *scopeBuilderStack) peek() *commonScopeBuilder {
 }
 
 // current returns the current scope builder (alias for peek)
-func (s *scopeBuilderStack) current() *commonScopeBuilder {
+func (s *scopeStack) current() *commonScope {
 	return s.peek()
 }
 
 // length returns the number of items in the stack
-func (s *scopeBuilderStack) length() int {
+func (s *scopeStack) length() int {
 	return len(s.items)
 }
 

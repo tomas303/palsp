@@ -382,7 +382,9 @@ func newScope(cst antlr.Tree) discover.TopScope {
 	collector := discover.NewMemorySymbolCollector()
 	sl := discover.NewUnifiedListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
-	return collector.GetScope()
+	scope := collector.GetScope()
+	scope.WriteToLog()
+	return scope
 }
 
 // Helper function to convert symbol kinds to LSP completion item kinds

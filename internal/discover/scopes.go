@@ -14,14 +14,14 @@ type Scope interface {
 	getPosition() Position
 	getParentSWM() int
 	locateSimilarSymbols(name string, position Position, writer SymbolWriter) error
-	print()
+	writeToLog(prefix string)
 	findSymbol(position Position) *Symbol
 }
 
 // TopScope represents a top-level scope with public methods for interaction
 type TopScope interface {
 	Scope
-	Print()
+	WriteToLog()
 	FindSymbol(position Position) *Symbol
 	LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	IsInImplementation(position Position) bool
@@ -97,22 +97,9 @@ type commonScope struct {
 	position    Position
 }
 
-// commonScopeBuilder provides methods to construct a commonScope
-type commonScopeBuilder struct {
-	cmsc commonScope
-}
-
 // UnitScope represents a program unit scope (like a file or module)
 type UnitScope struct {
 	Scope
-	interfaceUses      stack[string]
-	implementationUses stack[string]
-	implementationPos  Position
-}
-
-// UnitScopeBuilder provides methods to construct a UnitScope
-type UnitScopeBuilder struct {
-	*commonScopeBuilder
 	interfaceUses      stack[string]
 	implementationUses stack[string]
 	implementationPos  Position
@@ -155,15 +142,15 @@ func (s *commonScope) getParentSWM() int {
 }
 
 // print outputs the scope hierarchy to standard output
-func (s *commonScope) print() {
-	log.Logger.Debug().Msgf("Scope: %s", s.getName())
-	log.Logger.Debug().Msg("symbols:")
+func (s *commonScope) writeToLog(prefix string) {
+	log.Logger.Debug().Msgf(prefix+"scope name: %s", s.getName())
+	log.Logger.Debug().Msg(prefix + "--symbols:")
 	for _, symbol := range s.symbolStack.all() {
-		log.Logger.Debug().Msg(symbol.Name)
+		log.Logger.Debug().Msg(prefix + "----" + symbol.Name)
 	}
-	log.Logger.Debug().Msg("scopes:")
+	log.Logger.Debug().Msg(prefix + "--scopes:")
 	for _, scope := range s.scopeStack.all() {
-		scope.print()
+		scope.writeToLog(prefix + "----")
 	}
 }
 
@@ -232,9 +219,8 @@ func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer 
 	return s.Scope.locateSimilarSymbols(name, position, writer)
 }
 
-// Print outputs the unit scope to standard output, implementing TopScope interface
-func (s *UnitScope) Print() {
-	log.Logger.Debug().Msgf("Name: %s", s.getName())
+func (s *UnitScope) WriteToLog() {
+	log.Logger.Debug().Msgf("Top scope: %s", s.getName())
 	log.Logger.Debug().Msg("uses: ")
 	for _, unit := range s.interfaceUses.all() {
 		log.Logger.Debug().Msg(unit)
@@ -242,8 +228,7 @@ func (s *UnitScope) Print() {
 	for _, unit := range s.implementationUses.all() {
 		log.Logger.Debug().Msg(unit)
 	}
-	log.Logger.Debug().Msg("symbols:")
-	s.Scope.print()
+	s.Scope.writeToLog("  ")
 }
 
 // IsInImplementation checks if the position is within the implementation part of the unit
@@ -259,72 +244,6 @@ func (s *UnitScope) InteraceUsese() []string {
 // ImplementationUses returns the list of implementation unit dependencies
 func (s *UnitScope) ImplementationUses() []string {
 	return s.implementationUses.all()
-}
-
-// addSymbol adds a symbol to the scope being built
-func (b *commonScopeBuilder) addSymbol(name string, definition string, kind int, position Position, scope string) *commonScopeBuilder {
-	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: kind, Position: position, Scope: scope}
-	b.cmsc.symbolStack.push(smb)
-	return b
-}
-
-// addScope adds a child scope to the scope being built
-func (b *commonScopeBuilder) addScope(sc Scope) *commonScopeBuilder {
-	b.cmsc.scopeStack.push(sc)
-	return b
-}
-
-// parentSWM sets the parent SWM identifier for the scope
-func (b *commonScopeBuilder) parentSWM(swm int) *commonScopeBuilder {
-	b.cmsc.parentSWM = swm
-	return b
-}
-
-// setName sets the name of the scope being built
-func (b *commonScopeBuilder) setName(name string) *commonScopeBuilder {
-	b.cmsc.name = name
-	return b
-}
-
-// getName gets the name of the scope being built
-func (b *commonScopeBuilder) getName() string {
-	return b.cmsc.name
-}
-
-// symbolStackLast returns the index of the last symbol in the stack
-func (b *commonScopeBuilder) symbolStackLast() int {
-	return b.cmsc.symbolStack.length() - 1
-}
-
-// finish completes the scope building process and returns the built Scope
-func (b *commonScopeBuilder) finish() Scope {
-	return &b.cmsc
-}
-
-// addUses adds a interface unit dependency to the UnitScope being built
-func (b *UnitScopeBuilder) addInterfaceUses(unit string) *UnitScopeBuilder {
-	b.interfaceUses.push(unit)
-	return b
-}
-
-// addUses adds a implementation unit dependency to the UnitScope being built
-func (b *UnitScopeBuilder) addImplementationUses(unit string) *UnitScopeBuilder {
-	b.implementationUses.push(unit)
-	return b
-}
-
-func (b *UnitScopeBuilder) setImplementationPos(pos Position) *UnitScopeBuilder {
-	b.implementationPos = pos
-	return b
-}
-
-func (b *UnitScopeBuilder) finish() TopScope {
-	return &UnitScope{
-		Scope:              b.commonScopeBuilder.finish(),
-		interfaceUses:      b.interfaceUses,
-		implementationUses: b.implementationUses,
-		implementationPos:  b.implementationPos,
-	}
 }
 
 func (smb *Symbol) String() string {

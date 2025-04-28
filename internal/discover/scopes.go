@@ -172,7 +172,8 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 	var hitScope Scope
 	for i := s.scopeStack.length() - 1; i >= 0; i-- {
 		scope := s.scopeStack.get(i)
-		if scope.getPosition().Line <= position.Line {
+		scopeLine := scope.getPosition().Line
+		if scopeLine > 0 && scopeLine <= position.Line {
 			hitScope = scope
 			break
 		}
@@ -191,6 +192,15 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 			return err
 		}
 		watermark = hitScope.getParentSWM()
+		// symbol could be added later on same line(f.e. function is scope and in upper scope symbol too)
+		for watermark < s.symbolStack.length() {
+			symLine := s.symbolStack.get(watermark).Position.Line
+			if symLine > 0 && symLine <= position.Line {
+				watermark++
+			} else {
+				break
+			}
+		}
 	} else {
 		watermark = s.symbolStack.length() - 1
 	}

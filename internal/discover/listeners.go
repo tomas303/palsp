@@ -152,6 +152,9 @@ func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
 }
 
 func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
+	// if name == "" {
+	// 	return
+	// }
 	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek()}
 	scope := mc.scopeStack.current()
 	scope.symbolStack.push(smb)

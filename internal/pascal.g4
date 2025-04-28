@@ -277,10 +277,6 @@ propertyIndexParametersList
     : identifierList COLON indexType (SEMI identifierList COLON indexType)*
     ;
 
-methodIdentifier
-    : (typeIdentifier DOT)+ identifier
-    ;
-
 genericTemplate
     : '<' genericTemplateList '>'
     ;
@@ -401,11 +397,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier|methodIdentifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : CLASS? FUNCTION (identifier|methodIdentifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? FUNCTION (identifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader
@@ -584,7 +580,7 @@ unsignedConstant
     ;
 
 functionDesignator
-    : (identifier|methodIdentifier) (LT typeIdentifier GT)? (LPAREN parameterList RPAREN)?
+    : (identifier) (LT typeIdentifier GT)? (LPAREN parameterList RPAREN)?
     ;
 
 parameterList
@@ -607,7 +603,6 @@ element
 
 procedureStatement
     : identifier (LPAREN parameterList RPAREN)?
-    | methodIdentifier (LPAREN parameterList RPAREN)?
     ;
 
 methodCallStatement
@@ -627,7 +622,7 @@ gotoStatement
     ;
 
 inheritedStatement
-    : INHERITED (identifier|methodIdentifier) (LPAREN parameterList RPAREN)?
+    : INHERITED (identifier) (LPAREN parameterList RPAREN)?
     ;
 
 emptyStatement_

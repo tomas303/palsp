@@ -33,6 +33,7 @@ type file struct {
 	text    string
 	scope   discover.TopScope
 	cst     antlr.Tree
+	stream  antlr.TokenStream
 }
 
 type files struct {
@@ -86,6 +87,7 @@ func (mgr *Manager) DidClose(uri string) OpResult {
 }
 
 func (mgr *Manager) Hover(uri string, text string, version int, line int, character int) OpResult {
+	var found bool
 	var err error
 	var f *file
 
@@ -95,7 +97,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	}
 
 	var hoverText string
-	if hoverText, err = f.findText(line, character); err != nil {
+	if hoverText, found = f.findText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 
@@ -138,6 +140,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 }
 
 func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
+	var found bool
 	var err error
 	var f *file
 
@@ -146,7 +149,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	}
 
 	var hoverText string
-	if hoverText, err = f.findText(line, character); err != nil {
+	if hoverText, found = f.findText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	pos := discover.NewPosition(line, character)
@@ -291,7 +294,7 @@ func (mgr *Manager) locateFile(uri string, text string, version int) (*file, err
 	}
 	f, ok := mgr.fls.fileDict[uri]
 	if !ok {
-		cst := discover.ParseCST(text, uri)
+		cst, stream := discover.ParseCST(text, uri)
 		scope := newScope(cst)
 		f = file{
 			uri:     uri,
@@ -299,13 +302,16 @@ func (mgr *Manager) locateFile(uri string, text string, version int) (*file, err
 			text:    text,
 			scope:   scope,
 			cst:     cst,
+			stream:  stream,
 		}
 		mgr.fls.fileDict[uri] = f
 	} else if f.version < version {
+		cst, stream := discover.ParseCST(text, uri)
 		f.text = text
 		f.version = version
-		f.cst = discover.ParseCST(text, uri)
-		f.scope = newScope(f.cst)
+		f.scope = newScope(cst)
+		f.cst = cst
+		f.stream = stream
 	}
 	return &f, nil
 }
@@ -330,52 +336,16 @@ func (f *file) walk(l antlr.ParseTreeListener) {
 	antlr.ParseTreeWalkerDefault.Walk(l, f.cst)
 }
 
-func (f *file) findNode(line int, character int) (antlr.TerminalNode, error) {
-	var result antlr.TerminalNode
-	var err error
-
-	// Function to be executed in a deferred context
-	func() {
-		// Defer the recovery
-		defer func() {
-			if r := recover(); r != nil {
-				switch v := r.(type) {
-				case error:
-					// If the panic value is an error, store it
-					err = v
-				case string:
-					// If the panic value is a string, create an error from it
-					err = fmt.Errorf("%s", v)
-				default:
-					// For any other type, create a generic error
-					err = fmt.Errorf("unexpected panic: %v", r)
-				}
-			}
-		}()
-
-		// Create the listener and walk the tree
-		l := newLsnFindOnPos(line, character)
-		f.walk(l)
-		result = l.GetFound()
-	}()
-
-	// Check if we found a result or if there was an error
-	if err != nil {
-		return nil, err
+func (f *file) findText(line int, character int) (string, bool) {
+	for i := 0; i < f.stream.Size(); i++ {
+		token := f.stream.Get(i)
+		if token.GetLine() == line &&
+			token.GetColumn() <= character &&
+			(token.GetColumn()+len(token.GetText()) >= character) {
+			return strings.ToLower(token.GetText()), true
+		}
 	}
-	if result == nil {
-		return nil, fmt.Errorf("no node found at position line: %d, character: %d", line, character)
-	}
-
-	return result, nil
-}
-
-func (f *file) findText(line int, character int) (string, error) {
-	node, err := f.findNode(line, character)
-	if err != nil {
-		return "", err
-	}
-	return strings.ToLower(node.GetText()), nil
+	return "", false
 }
 
 func newScope(cst antlr.Tree) discover.TopScope {

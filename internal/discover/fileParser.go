@@ -112,7 +112,7 @@ func NewResilientErrorStrategy() *ResilientErrorStrategy {
 }
 
 // Modify your ParseCST function to use these listeners:
-func ParseCST(content string, debugInfo string) antlr.Tree {
+func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
 	input := antlr.NewInputStream(content)
 	lexer := parser.NewpascalLexer(input)
 
@@ -134,5 +134,5 @@ func ParseCST(content string, debugInfo string) antlr.Tree {
 	}
 
 	// Return the AST by invoking the Source rule
-	return p.Source()
+	return p.Source(), stream
 }

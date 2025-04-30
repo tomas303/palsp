@@ -13,6 +13,7 @@ type Scope interface {
 	getName() string
 	getPosition() Position
 	getParentSWM() int
+	setParentSWM(swm int)
 	locateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	writeToLog(prefix string)
 	findSymbol(position Position) *Symbol
@@ -141,6 +142,10 @@ func (s *commonScope) getParentSWM() int {
 	return s.parentSWM
 }
 
+func (s *commonScope) setParentSWM(swm int) {
+	s.parentSWM = swm
+}
+
 // print outputs the scope hierarchy to standard output
 func (s *commonScope) writeToLog(prefix string) {
 	log.Logger.Debug().Msgf(prefix+"scope name: %s", s.getName())
@@ -192,15 +197,6 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 			return err
 		}
 		watermark = hitScope.getParentSWM()
-		// symbol could be added later on same line(f.e. function is scope and in upper scope symbol too)
-		for watermark < s.symbolStack.length() {
-			symLine := s.symbolStack.get(watermark).Position.Line
-			if symLine > 0 && symLine <= position.Line {
-				watermark++
-			} else {
-				break
-			}
-		}
 	} else {
 		watermark = s.symbolStack.length() - 1
 	}

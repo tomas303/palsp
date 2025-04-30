@@ -133,7 +133,9 @@ func (mc *MemorySymbolCollector) EndScope(name string) {
 	// log.Logger.Debug().Str("end scope", name).Send()
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
-	scope.parentSWM = parentscope.symbolStack.length() - 1
+	// will show one higher ... well how do I know if this scope is actually a symbol?
+	// need to do it later
+	scope.parentSWM = parentscope.symbolStack.length()
 	parentscope.scopeStack.push(scope)
 	mc.currentScope.pop()
 }
@@ -152,12 +154,13 @@ func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
 }
 
 func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
-	// if name == "" {
-	// 	return
-	// }
-	smb := Symbol{Name: strings.ToLower(name), Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek()}
+	name = strings.ToLower(name)
+	smb := Symbol{Name: name, Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek()}
 	scope := mc.scopeStack.current()
 	scope.symbolStack.push(smb)
+	if scope.scopeStack.length() > 0 && scope.scopeStack.peek().getName() == name {
+		scope.scopeStack.peek().setParentSWM(scope.symbolStack.length())
+	}
 }
 
 func (mc *MemorySymbolCollector) GetScope() TopScope {
@@ -337,7 +340,7 @@ func (s *UnifiedListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext)
 
 func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if ctx.ResultType() != nil {
-		s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
 	}
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), newPosition(ctx.Identifier()))

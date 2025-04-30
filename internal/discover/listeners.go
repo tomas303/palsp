@@ -133,9 +133,7 @@ func (mc *MemorySymbolCollector) EndScope(name string) {
 	// log.Logger.Debug().Str("end scope", name).Send()
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
-	// will show one higher ... well how do I know if this scope is actually a symbol?
-	// need to do it later
-	scope.parentSWM = parentscope.symbolStack.length()
+	scope.parentSWM = parentscope.symbolStack.length() - 1
 	parentscope.scopeStack.push(scope)
 	mc.currentScope.pop()
 }
@@ -159,7 +157,7 @@ func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definit
 	scope := mc.scopeStack.current()
 	scope.symbolStack.push(smb)
 	if scope.scopeStack.length() > 0 && scope.scopeStack.peek().getName() == name {
-		scope.scopeStack.peek().setParentSWM(scope.symbolStack.length())
+		scope.scopeStack.peek().setParentSWM(scope.symbolStack.length() - 1)
 	}
 }
 

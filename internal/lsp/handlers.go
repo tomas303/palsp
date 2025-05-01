@@ -88,7 +88,7 @@ func handleInitialize(params InitializeParams) edit.OpResult {
 	searchFolders := params.InitializationOptions.SearchFolders
 	allFolders := append(workspaceFolderPaths, searchFolders...)
 
-	return edit.Mgr.Init(allFolders)
+	return edit.Mgr.Init(allFolders, params.InitializationOptions.UnitScopeNames)
 }
 
 // Modified Handle textDocument/didOpen request

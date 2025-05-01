@@ -15,14 +15,16 @@ import (
 var db *symDB
 
 type symDB struct {
-	db          *sql.DB
-	con         *sql.Conn
-	searchPaths []string
+	db             *sql.DB
+	con            *sql.Conn
+	searchPaths    []string
+	unitScopeNames []string
 }
 
 // Define an interface for symDB operations
 type SymbolDatabase interface {
 	AddSearchPath(path string)
+	SetUnitScopeNames(unitScopeNames []string)
 	DropSymbolsFromPath(path string)
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
@@ -304,6 +306,12 @@ func (db *symDB) AddSearchPath(path string) {
 	db.searchUnits(path)
 }
 
+func (db *symDB) SetUnitScopeNames(unitScopeNames []string) {
+	for _, name := range unitScopeNames {
+		db.unitScopeNames = append(db.unitScopeNames, strings.ToLower(name))
+	}
+}
+
 func (db *symDB) DropSymbolsFromPath(path string) {
 	// Extract filename from path (could be in URI format)
 	path = filepath.ToSlash(path) // Convert to forward slashes for consistency
@@ -370,7 +378,7 @@ func newSymDB() (*symDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	symdb := &symDB{db: db, con: con}
+	symdb := &symDB{db: db, con: con, searchPaths: []string{}, unitScopeNames: []string{}}
 	return symdb, err
 }
 

@@ -53,10 +53,11 @@ type Manager struct {
 	fls *files
 }
 
-func (mgr *Manager) Init(searchFolders []string) OpResult {
+func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResult {
 	for _, folder := range searchFolders {
 		discover.SymDB().AddSearchPath(folder)
 	}
+	discover.SymDB().SetUnitScopeNames(unitScopeNames)
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
 			"textDocumentSync": 1, // Full document sync

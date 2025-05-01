@@ -42,7 +42,8 @@ type InitializeParams struct {
 
 // Add new custom initialization options struct with SearchFolders as a subkey.
 type InitializationOptions struct {
-	SearchFolders []string `json:"searchFolders,omitempty"`
+	SearchFolders  []string `json:"searchFolders,omitempty"`
+	UnitScopeNames []string `json:"unitScopeNames,omitempty"`
 }
 
 // WorkspaceFolder structure based on LSP standard

@@ -178,18 +178,9 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 // SearchSymbol searches for symbols within a specific unit that match the search term.
 // It returns a slice of matching symbol information.
 func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
-	var unitID int
-	var unitpath string
-	var lastModified int64
-	var scanned int
 
-	unit = strings.ToLower(unit)
-
-	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ?"
-	var err error
-	err = db.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	unitID, unitpath, lastModified, scanned, err := db.findUnitInfo(unit)
 	if err != nil {
-		log.Logger.Warn().Err(err).Msgf("SearchSymbol error unit %s not found", unit)
 		return []Symbol{}, nil
 	}
 
@@ -221,6 +212,33 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 	}
 
 	return results, nil
+}
+
+// findUnitInfo looks up unit information by name, trying with scope prefixes if the direct lookup fails
+func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastModified int64, scanned int, err error) {
+	unit = strings.ToLower(unit)
+
+	// First try direct lookup
+	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ? COLLATE NOCASE"
+	err = db.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	if err == nil {
+		return unitID, unitpath, lastModified, scanned, nil
+	}
+
+	// If not found, try with scope prefixes
+	for _, scope := range db.unitScopeNames {
+		scopedUnit := scope + "." + unit
+		log.Logger.Debug().Str("original", unit).Str("scoped", scopedUnit).Msg("Trying with scope prefix")
+
+		err = db.QueryRow(query, scopedUnit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+		if err == nil {
+			return unitID, unitpath, lastModified, scanned, nil
+		}
+	}
+
+	// If we get here, we couldn't find the unit
+	log.Logger.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
+	return 0, "", 0, 0, err
 }
 
 // fetchSymbolsFromUnit queries the database for symbols matching the search term in a specific unit

@@ -316,6 +316,18 @@ func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHead
 	return result
 }
 
+func getLastIdent(ctx parser.IIdentifierContext) string {
+	if ctx != nil {
+		identTokens := ctx.AllIDENT()
+		if len(identTokens) == 0 {
+			return ""
+		}
+		lastIdent := identTokens[len(identTokens)-1]
+		return lastIdent.GetText()
+	}
+	return ""
+}
+
 func buildIdentifier(ctx parser.IIdentifierContext) string {
 	if ctx != nil {
 		nodes := ctx.AllIDENT()

@@ -44,8 +44,6 @@ type SymbolCollector interface {
 	AddSymbol(name string, kind SymbolKind, definition string, position Position)
 	BeginScope(name string, position Position)
 	EndScope(name string)
-	BeginMergeScope(name string, position Position)
-	EndMergeScope(name string)
 	EnterImplementation(position Position)
 	AddUseUnit(unit string)
 	AccessSpecifier(as AccessSpec)
@@ -57,7 +55,6 @@ type DBSymbolCollector struct {
 	db               *symDB
 	currentScope     stack[string]
 	curentAccessSpec AccessSpec
-	inMergeScope     bool
 }
 
 // NewDBSymbolCollector creates a new collector for database storage
@@ -70,9 +67,6 @@ func NewDBSymbolCollector(unitID int, db *symDB) *DBSymbolCollector {
 }
 
 func (dc *DBSymbolCollector) BeginScope(name string, position Position) {
-	if dc.inMergeScope {
-		return
-	}
 	if dc.currentScope.length() == 0 {
 		dc.currentScope.push(strings.ToLower(name))
 	} else {
@@ -81,20 +75,7 @@ func (dc *DBSymbolCollector) BeginScope(name string, position Position) {
 }
 
 func (dc *DBSymbolCollector) EndScope(name string) {
-	if dc.inMergeScope {
-		return
-	}
 	dc.currentScope.pop()
-}
-
-func (dc *DBSymbolCollector) BeginMergeScope(name string, position Position) {
-	dc.BeginScope(name, position)
-	dc.inMergeScope = true
-}
-
-func (dc *DBSymbolCollector) EndMergeScope(name string) {
-	dc.inMergeScope = false
-	dc.EndScope(name)
 }
 
 func (dc *DBSymbolCollector) EnterImplementation(position Position) {
@@ -118,7 +99,6 @@ type MemorySymbolCollector struct {
 	scopeStack       *scopeStack
 	inImplementation bool
 	currentScope     stack[string]
-	inMergeScope     bool
 }
 
 // NewMemorySymbolCollector creates a new collector for in-memory model
@@ -140,9 +120,6 @@ func NewMemorySymbolCollector() *MemorySymbolCollector {
 
 func (mc *MemorySymbolCollector) BeginScope(name string, position Position) {
 	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
-	if mc.inMergeScope {
-		return
-	}
 	newScope := commonScope{name: strings.ToLower(name), position: position}
 	mc.scopeStack.push(&newScope)
 	if mc.currentScope.length() == 0 {
@@ -154,24 +131,11 @@ func (mc *MemorySymbolCollector) BeginScope(name string, position Position) {
 
 func (mc *MemorySymbolCollector) EndScope(name string) {
 	// log.Logger.Debug().Str("end scope", name).Send()
-	if mc.inMergeScope {
-		return
-	}
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
 	scope.parentSWM = parentscope.symbolStack.length() - 1
 	parentscope.scopeStack.push(scope)
 	mc.currentScope.pop()
-}
-
-func (dc *MemorySymbolCollector) BeginMergeScope(name string, position Position) {
-	dc.BeginScope(name, position)
-	dc.inMergeScope = true
-}
-
-func (dc *MemorySymbolCollector) EndMergeScope(name string) {
-	dc.inMergeScope = false
-	dc.EndScope(name)
 }
 
 func (mc *MemorySymbolCollector) EnterImplementation(position Position) {
@@ -256,13 +220,8 @@ func (s *scopeStack) length() int {
 // UnifiedListener is a parse tree listener that can collect symbols for different purposes
 type UnifiedListener struct {
 	parser.BasepascalListener
-	collector SymbolCollector
-	// unitName         string
-	// inUsesList       bool
-	// inImplementation bool
-	// currentSymbol    string
-	// currentType      string
-	// scope            string
+	collector     SymbolCollector
+	inDeclaration bool
 }
 
 // NewUnifiedListener creates a new unified listener with the specified collector
@@ -352,27 +311,46 @@ func (s *UnifiedListener) ExitUnit(ctx *parser.UnitContext) {
 }
 
 func (s *UnifiedListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+	if s.inDeclaration {
+		return
+	}
 	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+	if s.inDeclaration {
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), newPosition(ctx.Identifier()))
+		return
+	}
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
 	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), newPosition(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
-	s.collector.BeginMergeScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), newPosition(ctx.ProcedureHeader().Identifier()))
+	s.inDeclaration = true
+	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), newPosition(ctx.ProcedureHeader().Identifier()))
 }
 
 func (s *UnifiedListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
-	s.collector.EndMergeScope(buildIdentifier(ctx.ProcedureHeader().Identifier()))
+	s.collector.EndScope(buildIdentifier(ctx.ProcedureHeader().Identifier()))
+	s.inDeclaration = false
 }
 
 func (s *UnifiedListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
+	if s.inDeclaration {
+		return
+	}
 	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
+	if s.inDeclaration {
+		if ctx.ResultType() != nil {
+			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
+		}
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), newPosition(ctx.Identifier()))
+		return
+	}
 	if ctx.ResultType() != nil {
 		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
 	}
@@ -381,11 +359,13 @@ func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) 
 }
 
 func (s *UnifiedListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
-	s.collector.BeginMergeScope(buildIdentifier(ctx.FunctionHeader().Identifier()), newPosition(ctx.FunctionHeader().Identifier()))
+	s.inDeclaration = true
+	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), newPosition(ctx.FunctionHeader().Identifier()))
 }
 
 func (s *UnifiedListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
-	s.collector.EndMergeScope(buildIdentifier(ctx.FunctionHeader().Identifier()))
+	s.collector.EndScope(buildIdentifier(ctx.FunctionHeader().Identifier()))
+	s.inDeclaration = false
 }
 
 func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {

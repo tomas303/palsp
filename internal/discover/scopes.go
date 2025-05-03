@@ -2,10 +2,13 @@
 package discover
 
 import (
+	"context"
 	"fmt"
 	"palsp/internal/log"
 	"regexp"
+	"runtime"
 	"strings"
+	"sync"
 )
 
 // Scope represents a code scope that can be searched for symbols
@@ -274,7 +277,110 @@ func (s *UnitScope) FindSymbol(position Position) *Symbol {
 // LocateSimilarSymbols search for symbol based on regex pattern given by name parameter (search is case
 // insensitive and over all subject).
 func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
-	return s.Scope.locateSimilarSymbols(name, position, writer)
+	if err := s.Scope.locateSimilarSymbols(name, position, writer); err != nil {
+		return err
+	}
+	if s.IsInImplementation(position) {
+		if err := s.searchSymbolInUnits(name, s.ImplementationUses(), writer); err != nil {
+			return err
+		}
+	}
+	if err := s.searchSymbolInUnits(name, s.InteraceUsese(), writer); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UnitScope) searchSymbolInUnits(name string, units []string, writer SymbolWriter) error {
+
+	if len(units) == 0 {
+		return nil
+	}
+
+	// Limit concurrency to number of CPU cores
+	maxWorkers := runtime.NumCPU()
+
+	type searchResult struct {
+		unit    string
+		symbols []Symbol
+		err     error
+	}
+
+	// Context for cancellation
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Create channel for results with buffer
+	resultCh := make(chan searchResult, len(units))
+
+	// Process units channel for worker scheduling
+	unitsCh := make(chan string, len(units))
+	for _, unit := range units {
+		unitsCh <- unit
+	}
+	close(unitsCh)
+
+	// Launch only maxWorkers goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < maxWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			var unitName string
+			var ok bool
+			for {
+				// Get next unit to process
+				select {
+				case unitName, ok = <-unitsCh:
+					if !ok {
+						// No more units to process
+						return
+					}
+				case <-ctx.Done():
+					// Work cancelled
+					return
+				}
+				// Process the unit
+				symbols, err := SymDB().SearchSymbol(unitName, name)
+				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
+			}
+		}()
+	}
+
+	// Close result channel when all workers are done
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	results := make(map[string]searchResult, len(units))
+	idx := 0
+	for result := range resultCh {
+		results[result.unit] = result
+		for {
+			rs, ok := results[units[idx]]
+			if !ok {
+				break
+			}
+			if rs.err != nil {
+				return rs.err
+			}
+			for _, symbol := range rs.symbols {
+				err := writer.WriteSymbol(&symbol)
+				if err != nil {
+					return err
+				}
+			}
+			idx++
+			if idx >= len(units) {
+				break
+			}
+		}
+	}
+
+	return nil
+
 }
 
 func (s *UnitScope) WriteToLog() {

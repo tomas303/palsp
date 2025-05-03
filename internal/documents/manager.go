@@ -1,15 +1,12 @@
 package edit
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
 	"palsp/internal/discover"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"sync"
 
 	"palsp/internal/log"
 
@@ -111,22 +108,6 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	}
 	writer := SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSimilarSymbols(hoverText, pos, writer)
-	if err != nil && err != ErrFirstSymbolWriten {
-		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-	}
-	if err != ErrFirstSymbolWriten {
-		if f.scope.IsInImplementation(pos) {
-			err = searchSymbolInUnits("%"+hoverText+"%", f.scope.ImplementationUses(), writer)
-			if err != nil && err != ErrFirstSymbolWriten {
-				return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-			}
-		}
-		err = searchSymbolInUnits("%"+hoverText+"%", f.scope.InteraceUsese(), writer)
-		if err != nil && err != ErrFirstSymbolWriten {
-			return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-		}
-	}
-
 	if err != ErrFirstSymbolWriten {
 		info = "No information found for " + hoverText
 	}
@@ -168,118 +149,12 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	}
 	writer := SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSimilarSymbols(".*"+hoverText+".*", pos, writer)
-	if err != nil {
-		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-	}
-
-	if f.scope.IsInImplementation(pos) {
-		err = searchSymbolInUnits("%"+hoverText+"%", f.scope.ImplementationUses(), writer)
-		if err != nil {
-			return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-		}
-	}
-	err = searchSymbolInUnits("%"+hoverText+"%", f.scope.InteraceUsese(), writer)
-	if err != nil {
-		return OpFailure(fmt.Sprintf("cannot find symbol - URI: %s, line: %d, chr: %d", uri, line, character), err)
-	}
 
 	cl := CompletionList{
 		IsIncomplete: false,
 		Items:        items,
 	}
 	return OpSuccessWith(cl)
-}
-
-func searchSymbolInUnits(symbolName string, units []string, writer discover.SymbolWriter) error {
-
-	if len(units) == 0 {
-		return nil
-	}
-
-	// Limit concurrency to number of CPU cores
-	maxWorkers := runtime.NumCPU()
-
-	type searchResult struct {
-		unit    string
-		symbols []discover.Symbol
-		err     error
-	}
-
-	// Context for cancellation
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Create channel for results with buffer
-	resultCh := make(chan searchResult, len(units))
-
-	// Process units channel for worker scheduling
-	unitsCh := make(chan string, len(units))
-	for _, unit := range units {
-		unitsCh <- unit
-	}
-	close(unitsCh)
-
-	// Launch only maxWorkers goroutines
-	var wg sync.WaitGroup
-	for i := 0; i < maxWorkers; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			var unitName string
-			var ok bool
-			for {
-				// Get next unit to process
-				select {
-				case unitName, ok = <-unitsCh:
-					if !ok {
-						// No more units to process
-						return
-					}
-				case <-ctx.Done():
-					// Work cancelled
-					return
-				}
-				// Process the unit
-				symbols, err := discover.SymDB().SearchSymbol(unitName, symbolName)
-				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
-			}
-		}()
-	}
-
-	// Close result channel when all workers are done
-	go func() {
-		wg.Wait()
-		close(resultCh)
-	}()
-
-	results := make(map[string]searchResult, len(units))
-	idx := 0
-	for result := range resultCh {
-		results[result.unit] = result
-		for {
-			rs, ok := results[units[idx]]
-			if !ok {
-				break
-			}
-			if rs.err != nil {
-				return rs.err
-			}
-			for _, symbol := range rs.symbols {
-				err := writer.WriteSymbol(&symbol)
-				if err != nil {
-					return err
-				}
-			}
-			idx++
-			if idx >= len(units) {
-				break
-			}
-		}
-	}
-
-	return nil
-
 }
 
 func (mgr *Manager) locateFile(uri string, text string, version int) (*file, error) {

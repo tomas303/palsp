@@ -29,7 +29,7 @@ type TopScope interface {
 	FindSymbol(position Position) *Symbol
 	LocateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	IsInImplementation(position Position) bool
-	InteraceUsese() []string
+	InterfaceUses() []string
 	ImplementationUses() []string
 }
 
@@ -285,7 +285,7 @@ func (s *UnitScope) LocateSimilarSymbols(name string, position Position, writer 
 			return err
 		}
 	}
-	if err := s.searchSymbolInUnits(name, s.InteraceUsese(), writer); err != nil {
+	if err := s.searchSymbolInUnits(name, s.InterfaceUses(), writer); err != nil {
 		return err
 	}
 	return nil
@@ -400,8 +400,8 @@ func (s *UnitScope) IsInImplementation(position Position) bool {
 	return position.Line >= s.implementationPos.Line
 }
 
-// InteraceUsese returns the list of interface unit dependencies
-func (s *UnitScope) InteraceUsese() []string {
+// InterfaceUses returns the list of interface unit dependencies
+func (s *UnitScope) InterfaceUses() []string {
 	return s.interfaceUses.all()
 }
 

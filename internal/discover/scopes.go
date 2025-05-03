@@ -93,7 +93,7 @@ type Symbol struct {
 type commonScope struct {
 	name        string
 	symbolStack stack[Symbol]
-	scopeStack  stack[Scope]
+	scopeStack  stack[*commonScope]
 	parentSWM   int
 	position    Position
 }
@@ -172,6 +172,62 @@ func (s *commonScope) findSymbol(position Position) *Symbol {
 	return nil
 }
 
+func (s *commonScope) findScopeByName(name string) *commonScope {
+	for i := 0; i < s.scopeStack.length(); i++ {
+		scope := s.scopeStack.get(i)
+		if name == scope.getName() {
+			return scope
+		}
+	}
+	return nil
+}
+
+func (s *commonScope) locateInClass(name string, prefixes []string, methodname string, writer SymbolWriter) error {
+	if len(prefixes) == 0 {
+		methodScope := s.findScopeByName(methodname)
+		if methodScope != nil {
+			if err := methodScope.locateSymbolByName(name, methodScope.symbolStack.length()-1, writer); err != nil {
+				return err
+			}
+		}
+	} else {
+		partScope := s.findScopeByName(prefixes[0])
+		if partScope != nil {
+			if err := partScope.locateInClass(name, prefixes[1:], methodname, writer); err != nil {
+				return err
+			}
+			if len(prefixes) == 1 {
+				// todo - this is class where method is declared, for going up scope some helper to name should be passed like to what context belongs
+				if err := partScope.locateSymbolByName(name, partScope.symbolStack.length()-1, writer); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (s *commonScope) locateSymbolByName(name string, watermark int, writer SymbolWriter) error {
+
+	pattern := "(?i)^" + name + "$"
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return fmt.Errorf("invalid search pattern: %w", err)
+	}
+
+	for i := watermark; i >= 0; i-- {
+		sym := s.symbolStack.get(i)
+		if re.MatchString(sym.Name) {
+			if err := writer.WriteSymbol(&sym); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+
+}
+
 func (s *commonScope) locateSimilarSymbols(name string, position Position, writer SymbolWriter) error {
 	// Find the most specific scope for the position
 	var hitScope Scope
@@ -184,33 +240,29 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 		}
 	}
 
-	pattern := "(?i)^" + name + "$"
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return fmt.Errorf("invalid search pattern: %w", err)
-	}
-
 	var watermark int
 	// If we found a more specific scope, search there first
 	if hitScope != nil {
 		if err := hitScope.locateSimilarSymbols(name, position, writer); err != nil {
 			return err
 		}
+		// if inside a method scope, look inside class or record
+		prefixes, methodName := SplitQualifiedName(hitScope.getName())
+		if len(prefixes) > 0 {
+			if err := s.locateInClass(name, prefixes, methodName, writer); err != nil {
+				return err
+			}
+		}
 		watermark = hitScope.getParentSWM()
+
 	} else {
 		watermark = s.symbolStack.length() - 1
 	}
 
-	// Search in the current scope from watermark up
-	for i := watermark; i >= 0; i-- {
-		sym := s.symbolStack.get(i)
-		if re.MatchString(sym.Name) {
-			if err := writer.WriteSymbol(&sym); err != nil {
-				return err
-			}
-		}
+	// continue up the current symbols(in pascal symbol must be declared before usage)
+	if err := s.locateSymbolByName(name, watermark, writer); err != nil {
+		return err
 	}
-
 	return nil
 }
 

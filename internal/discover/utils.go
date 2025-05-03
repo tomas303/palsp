@@ -20,6 +20,26 @@ func DecodePath(path string) string {
 	}
 }
 
+// SplitQualifiedName splits a dotted name (e.g., "a.b.c") into:
+// - a slice of prefix parts (e.g., ["a", "b"])
+// - the last part as a name (e.g., "c")
+func SplitQualifiedName(qualifiedName string) ([]string, string) {
+	// Split the name by dots
+	parts := strings.Split(qualifiedName, ".")
+
+	if len(parts) <= 1 {
+		// No dots in the name, return empty prefix and the original name
+		return []string{}, qualifiedName
+	}
+
+	// Get all parts except the last one as prefix
+	prefix := parts[:len(parts)-1]
+	// Get the last part as the name
+	name := parts[len(parts)-1]
+
+	return prefix, name
+}
+
 // stack is a generic stack that holds values of any type.
 type stack[T any] struct {
 	data []T

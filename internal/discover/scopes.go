@@ -98,6 +98,7 @@ type commonScope struct {
 	symbolStack stack[Symbol]
 	scopeStack  stack[*commonScope]
 	parentSWM   int
+	parentScope *commonScope
 	scopeInfo   ScopeInfo
 }
 
@@ -185,23 +186,61 @@ func (s *commonScope) findScopeByName(name string) *commonScope {
 	return nil
 }
 
-func (s *commonScope) locateInClass(name string, prefixes []string, methodname string, writer SymbolWriter) error {
+func (s *commonScope) findScopeBackword(name string) *commonScope {
+	for i := 0; i < s.scopeStack.length(); i++ {
+		scope := s.scopeStack.get(i)
+		if name == scope.getName() {
+			return scope
+		}
+	}
+	if s.parentScope != nil {
+		return s.parentScope.findScopeBackword(name)
+	} else {
+		return nil
+	}
+}
+
+func (s *commonScope) locateInClassHierarchy(name string, writer SymbolWriter) error {
+	if err := s.locateSymbolByName(name, s.symbolStack.length()-1, writer); err != nil {
+		return err
+	}
+	if s.scopeInfo.Ancestor != nil {
+		// todo - how to search for scope same way like symbols? so from this scope up the ladder?
+		// and in case not found then pass it to db like units
+		// no other way then to link to parent too.
+		if s.parentScope != nil {
+			ancestorScope := s.parentScope.findScopeBackword(*s.scopeInfo.Ancestor)
+			if ancestorScope != nil {
+				if err := ancestorScope.locateSymbolByName(name, ancestorScope.symbolStack.length()-1, writer); err != nil {
+					return err
+				}
+				if err := ancestorScope.locateInClassHierarchy(name, writer); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (s *commonScope) locateInClass(name string, prefixes []string, functionName string, writer SymbolWriter) error {
 	if len(prefixes) == 0 {
-		methodScope := s.findScopeByName(methodname)
-		if methodScope != nil {
-			if err := methodScope.locateSymbolByName(name, methodScope.symbolStack.length()-1, writer); err != nil {
+		// parameters can be declared in header only
+		functionScope := s.findScopeByName(functionName)
+		if functionScope != nil {
+			if err := functionScope.locateSymbolByName(name, functionScope.symbolStack.length()-1, writer); err != nil {
 				return err
 			}
 		}
 	} else {
 		partScope := s.findScopeByName(prefixes[0])
 		if partScope != nil {
-			if err := partScope.locateInClass(name, prefixes[1:], methodname, writer); err != nil {
+			if err := partScope.locateInClass(name, prefixes[1:], functionName, writer); err != nil {
 				return err
 			}
 			if len(prefixes) == 1 {
 				// todo - this is class where method is declared, for going up scope some helper to name should be passed like to what context belongs
-				if err := partScope.locateSymbolByName(name, partScope.symbolStack.length()-1, writer); err != nil {
+				if err := partScope.locateInClassHierarchy(name, writer); err != nil {
 					return err
 				}
 			}

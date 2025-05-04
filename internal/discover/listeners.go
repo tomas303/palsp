@@ -125,7 +125,13 @@ func NewMemorySymbolCollector() *MemorySymbolCollector {
 
 func (mc *MemorySymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
-	newScope := commonScope{name: strings.ToLower(name), scopeInfo: scopeInfo}
+	var parentScope *commonScope
+	if mc.scopeStack.length() == 0 {
+		parentScope = nil
+	} else {
+		parentScope = mc.scopeStack.peek()
+	}
+	newScope := commonScope{name: strings.ToLower(name), scopeInfo: scopeInfo, parentScope: parentScope}
 	mc.scopeStack.push(&newScope)
 	if mc.currentScope.length() == 0 {
 		mc.currentScope.push(strings.ToLower(name))

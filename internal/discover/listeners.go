@@ -47,7 +47,7 @@ type ScopeInfo struct {
 // SymbolCollector defines an interface for collecting symbols
 type SymbolCollector interface {
 	AddSymbol(name string, kind SymbolKind, definition string, position Position)
-	BeginScope(name string, position Position, info ScopeInfo)
+	BeginScope(name string, info ScopeInfo)
 	EndScope(name string)
 	EnterImplementation(position Position)
 	AddUseUnit(unit string)
@@ -71,7 +71,7 @@ func NewDBSymbolCollector(unitID int, db *symDB) *DBSymbolCollector {
 	}
 }
 
-func (dc *DBSymbolCollector) BeginScope(name string, position Position, scopeInfo ScopeInfo) {
+func (dc *DBSymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	if dc.currentScope.length() == 0 {
 		dc.currentScope.push(strings.ToLower(name))
 	} else {
@@ -108,7 +108,7 @@ type MemorySymbolCollector struct {
 
 // NewMemorySymbolCollector creates a new collector for in-memory model
 func NewMemorySymbolCollector() *MemorySymbolCollector {
-	rootScope := commonScope{name: "root", position: Position{}}
+	rootScope := commonScope{name: "root"}
 	scopeStack := newScopeStack()
 	scopeStack.push(&rootScope)
 	unitScope := &UnitScope{
@@ -123,9 +123,9 @@ func NewMemorySymbolCollector() *MemorySymbolCollector {
 	}
 }
 
-func (mc *MemorySymbolCollector) BeginScope(name string, position Position, scopeInfo ScopeInfo) {
+func (mc *MemorySymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
-	newScope := commonScope{name: strings.ToLower(name), position: position}
+	newScope := commonScope{name: strings.ToLower(name), scopeInfo: scopeInfo}
 	mc.scopeStack.push(&newScope)
 	if mc.currentScope.length() == 0 {
 		mc.currentScope.push(strings.ToLower(name))
@@ -308,7 +308,7 @@ func (s *UnifiedListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationP
 }
 
 func (s *UnifiedListener) EnterUnit(ctx *parser.UnitContext) {
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitUnit(ctx *parser.UnitContext) {
@@ -319,7 +319,7 @@ func (s *UnifiedListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContex
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
@@ -333,7 +333,7 @@ func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext
 
 func (s *UnifiedListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), newPosition(ctx.ProcedureHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.ProcedureHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.ProcedureHeader().Identifier())})
 }
 
 func (s *UnifiedListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
@@ -345,7 +345,7 @@ func (s *UnifiedListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext)
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
@@ -365,7 +365,7 @@ func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) 
 
 func (s *UnifiedListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), newPosition(ctx.FunctionHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.FunctionHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.FunctionHeader().Identifier())})
 }
 
 func (s *UnifiedListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
@@ -381,7 +381,7 @@ func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext)
 	} else {
 		ancestor = nil
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), newPosition(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier()), Ancestor: ancestor})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier()), Ancestor: ancestor})
 }
 
 func (s *UnifiedListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {

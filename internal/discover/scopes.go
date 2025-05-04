@@ -98,7 +98,7 @@ type commonScope struct {
 	symbolStack stack[Symbol]
 	scopeStack  stack[*commonScope]
 	parentSWM   int
-	position    Position
+	scopeInfo   ScopeInfo
 }
 
 // UnitScope represents a program unit scope (like a file or module)
@@ -137,7 +137,7 @@ func (s *commonScope) getName() string {
 // getPosition returns the scoping position of the scope.
 // It provides access to the location information within the source code.
 func (s *commonScope) getPosition() Position {
-	return s.position
+	return s.scopeInfo.Position
 }
 
 // getParentSWM returns the parent SWM identifier for the scope

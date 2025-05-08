@@ -88,6 +88,7 @@ func (dc *DBSymbolCollector) EnterImplementation(position Position) {
 }
 
 func (dc *DBSymbolCollector) AddUseUnit(unit string) {
+	dc.db.InsertSymbol(dc.unitID, unit, dc.currentScope.peek(), int(UnitReference), unit)
 }
 
 func (dc *DBSymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
@@ -104,10 +105,11 @@ type MemorySymbolCollector struct {
 	scopeStack       *scopeStack
 	inImplementation bool
 	currentScope     stack[string]
+	unitName         string
 }
 
 // NewMemorySymbolCollector creates a new collector for in-memory model
-func NewMemorySymbolCollector() *MemorySymbolCollector {
+func NewMemorySymbolCollector(unitName string) *MemorySymbolCollector {
 	rootScope := commonScope{name: "root"}
 	scopeStack := newScopeStack()
 	scopeStack.push(&rootScope)
@@ -115,11 +117,13 @@ func NewMemorySymbolCollector() *MemorySymbolCollector {
 		interfaceUses:      *newStack[string](),
 		implementationUses: *newStack[string](),
 	}
+
 	currentScope := stack[string]{}
 	return &MemorySymbolCollector{
 		unitScope:    unitScope,
 		scopeStack:   scopeStack,
 		currentScope: currentScope,
+		unitName:     unitName,
 	}
 }
 
@@ -164,7 +168,7 @@ func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
 
 func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
 	name = strings.ToLower(name)
-	smb := Symbol{Name: name, Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek()}
+	smb := Symbol{Name: name, Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek(), Unitname: mc.unitName}
 	scope := mc.scopeStack.current()
 	scope.symbolStack.push(smb)
 	if scope.scopeStack.length() > 0 && scope.scopeStack.peek().getName() == name {
@@ -173,7 +177,10 @@ func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definit
 }
 
 func (mc *MemorySymbolCollector) GetScope() TopScope {
-	mc.unitScope.Scope = mc.scopeStack.peek().scopeStack.peek()
+	// todo later try to have it like root from the beginning
+	topCommon := mc.scopeStack.peek().scopeStack.peek()
+	topCommon.parentScope = mc.unitScope
+	mc.unitScope.Scope = topCommon
 	return mc.unitScope
 }
 

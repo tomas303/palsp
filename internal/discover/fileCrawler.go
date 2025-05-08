@@ -34,7 +34,7 @@ func (fc *fileCrawler) processPasFiles(rootPath string, processor func(filepath 
 	// Start a single goroutine for directory scanning
 	go func() {
 		defer close(pathChan)
-		scanDirTree(root, pathChan)
+		scanDirTree(root.Path(), pathChan)
 	}()
 
 	// Wait for all processing to complete

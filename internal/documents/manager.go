@@ -1,11 +1,9 @@
 package edit
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"palsp/internal/discover"
-	"path/filepath"
 	"strings"
 
 	"palsp/internal/log"
@@ -36,14 +34,6 @@ type file struct {
 type files struct {
 	// Path to the file.
 	fileDict map[string]file
-}
-
-var ErrFirstSymbolWriten = errors.New("first symbol writen")
-
-type SymbolWriterFunc func(sym *discover.Symbol) error
-
-func (f SymbolWriterFunc) WriteSymbol(sym *discover.Symbol) error {
-	return f(sym)
 }
 
 type Manager struct {
@@ -104,11 +94,11 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	var info string
 	writeSymbol := func(sym *discover.Symbol) error {
 		info = sym.HoverInfo()
-		return ErrFirstSymbolWriten
+		return discover.ErrFirstSymbolWriten
 	}
-	writer := SymbolWriterFunc(writeSymbol)
+	writer := discover.SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSimilarSymbols(hoverText, pos, writer)
-	if err != ErrFirstSymbolWriten {
+	if err != discover.ErrFirstSymbolWriten {
 		info = "No information found for " + hoverText
 	}
 
@@ -147,7 +137,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 		items = append(items, item)
 		return nil
 	}
-	writer := SymbolWriterFunc(writeSymbol)
+	writer := discover.SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSimilarSymbols(".*"+hoverText+".*", pos, writer)
 
 	cl := CompletionList{
@@ -159,11 +149,11 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 
 func (mgr *Manager) locateFile(uri string, text string, version int) (*file, error) {
 	var err error
+	pathElements := discover.DecodePath(uri)
 	if text == "" {
 		// Read file content from URI when text is not provided
-		path := discover.DecodePath(uri)
 		var content []byte
-		if content, err = os.ReadFile(path); err != nil {
+		if content, err = os.ReadFile(pathElements.Path()); err != nil {
 			return nil, err
 		}
 		text = string(content) // Assuming UTF-8 encoding
@@ -171,7 +161,7 @@ func (mgr *Manager) locateFile(uri string, text string, version int) (*file, err
 	f, ok := mgr.fls.fileDict[uri]
 	if !ok {
 		cst, stream := discover.ParseCST(text, uri)
-		scope := newScope(cst)
+		scope := newScope(cst, strings.ToLower(pathElements.Name()))
 		f = file{
 			uri:     uri,
 			version: version,
@@ -185,7 +175,7 @@ func (mgr *Manager) locateFile(uri string, text string, version int) (*file, err
 		cst, stream := discover.ParseCST(text, uri)
 		f.text = text
 		f.version = version
-		f.scope = newScope(cst)
+		f.scope = newScope(cst, strings.ToLower(pathElements.Name()))
 		f.cst = cst
 		f.stream = stream
 	}
@@ -197,8 +187,8 @@ func (mgr *Manager) dropFile(uri string) {
 }
 
 func (mgr *Manager) getDir(uri string) (string, error) {
-	path := discover.DecodePath(uri)
-	return filepath.Dir(path), nil
+	pathElements := discover.DecodePath(uri)
+	return pathElements.Dir(), nil
 }
 
 func (mgr *Manager) addPath(uri string) {
@@ -224,8 +214,8 @@ func (f *file) findText(line int, character int) (string, bool) {
 	return "", false
 }
 
-func newScope(cst antlr.Tree) discover.TopScope {
-	collector := discover.NewMemorySymbolCollector()
+func newScope(cst antlr.Tree, unitName string) discover.TopScope {
+	collector := discover.NewMemorySymbolCollector(unitName)
 	sl := discover.NewUnifiedListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	scope := collector.GetScope()

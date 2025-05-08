@@ -2,8 +2,8 @@ package discover
 
 import (
 	"context"
-	"database/sql"
-	"os" // added to read files
+	"database/sql" // added for formatted strings
+	"os"           // added to read files
 	"palsp/internal/log"
 	"path/filepath"
 	"strings"
@@ -21,6 +21,9 @@ type symDB struct {
 	unitScopeNames []string
 }
 
+type UnitString string
+type UnitID int
+
 // Define an interface for symDB operations
 type SymbolDatabase interface {
 	AddSearchPath(path string)
@@ -29,6 +32,10 @@ type SymbolDatabase interface {
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
+	SearchSymbolByKind(unit string, kind int) ([]Symbol, error)
+	SearchSymbol2(kind int, searchTerm string) (map[UnitString]UnitID, error)
+	RetriveUnit(unit string) (int, string, error)
+	LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -175,20 +182,18 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 	return unitID, string(data), nil
 }
 
-// SearchSymbol searches for symbols within a specific unit that match the search term.
-// It returns a slice of matching symbol information.
-func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
-
-	unitID, unitpath, lastModified, scanned, err := db.findUnitInfo(unit)
+// RetriveUnit retrieves the unit ID for a given unit name. In case of changes it refreshes the unit content.
+func (db *symDB) RetriveUnit(unit string) (int, string, error) {
+	unitID, unitpath, lastModified, scanned, unitname, err := db.findUnitInfo(unit)
 	if err != nil {
-		return []Symbol{}, nil
+		return 0, "", err
 	}
 
 	// Check the current file modification time
 	currentModTime, err := getFileModTime(unitpath)
 	if err != nil {
 		log.Logger.Warn().Err(err).Msgf("SearchSymbol error path %s errored obtaining file time", unitpath)
-		return []Symbol{}, nil
+		return 0, unitname, err
 	}
 
 	// Refresh symbols if file was modified or not yet scanned
@@ -196,53 +201,30 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 		err = db.dropSymbols(unitID)
 		if err != nil {
 			log.Logger.Warn().Err(err).Msg("dropping symbols error")
-			return []Symbol{}, nil
+			return 0, unitname, err
 		}
 		err = db.fillSymbols(unitID, unitpath)
 		if err != nil {
 			log.Logger.Warn().Err(err).Msg("filling symbols error")
-			return []Symbol{}, nil
+			return 0, unitname, err
 		}
 	}
+	return unitID, unitname, nil
+}
 
-	// fetch symbols
-	results, err := db.fetchSymbolsFromUnit(unitID, searchTerm)
+// SearchSymbol searches for symbols within a specific unit that match the search term.
+// It returns a slice of matching symbol information.
+func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
+
+	unitID, unitname, err := db.RetriveUnit(unit)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Logger.Warn().Err(err).Msgf("SearchSymbol error path %s not found", unit)
+			return []Symbol{}, nil
+		}
 		return nil, err
 	}
 
-	return results, nil
-}
-
-// findUnitInfo looks up unit information by name, trying with scope prefixes if the direct lookup fails
-func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastModified int64, scanned int, err error) {
-	unit = strings.ToLower(unit)
-
-	// First try direct lookup
-	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ? COLLATE NOCASE"
-	err = db.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
-	if err == nil {
-		return unitID, unitpath, lastModified, scanned, nil
-	}
-
-	// If not found, try with scope prefixes
-	for _, scope := range db.unitScopeNames {
-		scopedUnit := scope + "." + unit
-		log.Logger.Debug().Str("original", unit).Str("scoped", scopedUnit).Msg("Trying with scope prefix")
-
-		err = db.QueryRow(query, scopedUnit).Scan(&unitID, &unitpath, &lastModified, &scanned)
-		if err == nil {
-			return unitID, unitpath, lastModified, scanned, nil
-		}
-	}
-
-	// If we get here, we couldn't find the unit
-	log.Logger.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
-	return 0, "", 0, 0, err
-}
-
-// fetchSymbolsFromUnit queries the database for symbols matching the search term in a specific unit
-func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, error) {
 	searchQuery := `
 	SELECT symbol, scope, kind, definition 
 	FROM symbols 
@@ -258,9 +240,144 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 	}
 	defer rows.Close()
 
+	// fetch symbols
+	results, err := db.fetchSymbolsFromRows(rows, unitname)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (db *symDB) SearchSymbolByKind(unit string, kind int) ([]Symbol, error) {
+	unitID, unitname, err := db.RetriveUnit(unit)
+	if err != nil {
+		return nil, err
+	}
+
+	searchQuery := `
+	SELECT symbol, scope, kind, definition
+	FROM symbols
+	WHERE unit_id = ? AND kind = ?
+	ORDER BY symbol COLLATE NOCASE`
+	rows, err := db.Query(searchQuery, unitID, kind)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return []Symbol{}, nil
+		}
+		return nil, err
+	}
+	defer rows.Close()
+	// fetch symbols
+	results, err := db.fetchSymbolsFromRows(rows, unitname)
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
+
+}
+
+func (db *symDB) SearchSymbol2(kind int, searchTerm string) (map[UnitString]UnitID, error) {
+	// Prepare the query to search for symbols and join with units table to get unit names
+	query := `
+	SELECT u.unitname, s.unit_id
+	FROM symbols s
+	JOIN units u ON s.unit_id = u.id
+	WHERE s.kind = ? AND s.symbol LIKE ? COLLATE NOCASE
+	GROUP BY u.unitname, s.unit_id
+	ORDER BY u.unitname COLLATE NOCASE`
+
+	rows, err := db.Query(query, kind, searchTerm)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return make(map[UnitString]UnitID), nil
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := make(map[UnitString]UnitID)
+	for rows.Next() {
+		var unitName string
+		var unitID int
+		if err := rows.Scan(&unitName, &unitID); err != nil {
+			return nil, err
+		}
+		results[UnitString(unitName)] = UnitID(unitID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error {
+	// Prepare the query to search for symbols in a specific scope
+	query := `
+	SELECT s.symbol, s.scope, s.kind, s.definition
+	FROM symbols s
+	JOIN units u ON s.unit_id = u.id
+	WHERE s.scope = ? AND u.unitname = ? AND s.symbol LIKE ? COLLATE NOCASE
+	ORDER BY s.symbol COLLATE NOCASE`
+
+	sym := Symbol{Unitname: unitName}
+	rows, err := db.Query(query, scope, unitName, name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
+			return err
+		}
+		writer.WriteSymbol(&sym)
+	}
+
+	if err = rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// findUnitInfo looks up unit information by name, trying with scope prefixes if the direct lookup fails
+func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastModified int64, scanned int, unitname string, err error) {
+	unit = strings.ToLower(unit)
+
+	// First try direct lookup
+	query := "SELECT id, unitpath, last_modified, scanned FROM units WHERE unitname = ? COLLATE NOCASE"
+	err = db.QueryRow(query, unit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+	if err == nil {
+		return unitID, unitpath, lastModified, scanned, unit, nil
+	}
+
+	// If not found, try with scope prefixes
+	for _, scope := range db.unitScopeNames {
+		scopedUnit := scope + "." + unit
+		log.Logger.Debug().Str("original", unit).Str("scoped", scopedUnit).Msg("Trying with scope prefix")
+
+		err = db.QueryRow(query, scopedUnit).Scan(&unitID, &unitpath, &lastModified, &scanned)
+		if err == nil {
+			return unitID, unitpath, lastModified, scanned, scopedUnit, nil
+		}
+	}
+
+	// If we get here, we couldn't find the unit
+	log.Logger.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
+	return 0, "", 0, 0, "", err
+}
+
+func (db *symDB) fetchSymbolsFromRows(rows *sql.Rows, unitname string) ([]Symbol, error) {
+
 	var results []Symbol
 	for rows.Next() {
-		var sym Symbol
+		sym := Symbol{Unitname: unitname}
 		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
 			return nil, err
 		}
@@ -268,7 +385,7 @@ func (db *symDB) fetchSymbolsFromUnit(unitID int, searchTerm string) ([]Symbol, 
 		results = append(results, sym)
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 

@@ -3,6 +3,7 @@ package discover
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"palsp/internal/log"
 	"regexp"
@@ -20,6 +21,11 @@ type Scope interface {
 	locateSimilarSymbols(name string, position Position, writer SymbolWriter) error
 	writeToLog(prefix string)
 	findSymbol(position Position) *Symbol
+	// todo - later write info ... echa of those will have some meaning on UnitScope
+	// locateSymbolsInHierarchy(name string, writer SymbolWriter) error
+	// findScopeBackword(name string) Scope
+	// locateSymbolByName(name string, writer SymbolWriter) error
+	findHierarchyScope(name string) (HierarchyScope, error)
 }
 
 // TopScope represents a top-level scope with public methods for interaction
@@ -33,9 +39,22 @@ type TopScope interface {
 	ImplementationUses() []string
 }
 
+type HierarchyScope interface {
+	getAncestor() (HierarchyScope, error)
+	locateSymbolsInHierarchy(name string, writer SymbolWriter) error
+}
+
 type SymbolWriter interface {
 	WriteSymbol(sym *Symbol) error
 }
+
+type SymbolWriterFunc func(sym *Symbol) error
+
+func (f SymbolWriterFunc) WriteSymbol(sym *Symbol) error {
+	return f(sym)
+}
+
+var ErrFirstSymbolWriten = errors.New("first symbol writen")
 
 // Position represents a position in source code
 type Position struct {
@@ -90,6 +109,7 @@ type Symbol struct {
 	Position   Position
 	Kind       int
 	Scope      string
+	Unitname   string
 }
 
 // commonScope implements basic scope functionality
@@ -98,7 +118,8 @@ type commonScope struct {
 	symbolStack stack[Symbol]
 	scopeStack  stack[*commonScope]
 	parentSWM   int
-	parentScope *commonScope
+	// parentScope *commonScope
+	parentScope Scope
 	scopeInfo   ScopeInfo
 }
 
@@ -186,39 +207,35 @@ func (s *commonScope) findScopeByName(name string) *commonScope {
 	return nil
 }
 
-func (s *commonScope) findScopeBackword(name string) *commonScope {
+func (s *commonScope) findHierarchyScope(name string) (HierarchyScope, error) {
 	for i := 0; i < s.scopeStack.length(); i++ {
 		scope := s.scopeStack.get(i)
 		if name == scope.getName() {
-			return scope
+			return scope, nil
 		}
 	}
 	if s.parentScope != nil {
-		return s.parentScope.findScopeBackword(name)
+		return s.parentScope.findHierarchyScope(name)
 	} else {
-		return nil
+		return nil, fmt.Errorf("scope %s not found", name)
 	}
 }
 
-func (s *commonScope) locateInClassHierarchy(name string, writer SymbolWriter) error {
-	if err := s.locateSymbolByName(name, s.symbolStack.length()-1, writer); err != nil {
+func (s *commonScope) getAncestor() (HierarchyScope, error) {
+	if s.scopeInfo.Ancestor != nil {
+		return s.findHierarchyScope(*s.scopeInfo.Ancestor)
+	}
+	return nil, nil
+}
+
+func (s *commonScope) locateSymbolsInHierarchy(name string, writer SymbolWriter) error {
+	if err := s.locateSymbolByName(name, writer); err != nil {
 		return err
 	}
-	if s.scopeInfo.Ancestor != nil {
-		// todo - how to search for scope same way like symbols? so from this scope up the ladder?
-		// and in case not found then pass it to db like units
-		// no other way then to link to parent too.
-		if s.parentScope != nil {
-			ancestorScope := s.parentScope.findScopeBackword(*s.scopeInfo.Ancestor)
-			if ancestorScope != nil {
-				if err := ancestorScope.locateSymbolByName(name, ancestorScope.symbolStack.length()-1, writer); err != nil {
-					return err
-				}
-				if err := ancestorScope.locateInClassHierarchy(name, writer); err != nil {
-					return err
-				}
-			}
-		}
+	if ancestor, err := s.getAncestor(); err != nil {
+		return err
+	} else if ancestor != nil {
+		return ancestor.locateSymbolsInHierarchy(name, writer)
 	}
 	return nil
 }
@@ -228,7 +245,7 @@ func (s *commonScope) locateInClass(name string, prefixes []string, functionName
 		// parameters can be declared in header only
 		functionScope := s.findScopeByName(functionName)
 		if functionScope != nil {
-			if err := functionScope.locateSymbolByName(name, functionScope.symbolStack.length()-1, writer); err != nil {
+			if err := functionScope.locateSymbolByName(name, writer); err != nil {
 				return err
 			}
 		}
@@ -240,7 +257,7 @@ func (s *commonScope) locateInClass(name string, prefixes []string, functionName
 			}
 			if len(prefixes) == 1 {
 				// todo - this is class where method is declared, for going up scope some helper to name should be passed like to what context belongs
-				if err := partScope.locateInClassHierarchy(name, writer); err != nil {
+				if err := partScope.locateSymbolsInHierarchy(name, writer); err != nil {
 					return err
 				}
 			}
@@ -249,7 +266,11 @@ func (s *commonScope) locateInClass(name string, prefixes []string, functionName
 	return nil
 }
 
-func (s *commonScope) locateSymbolByName(name string, watermark int, writer SymbolWriter) error {
+func (s *commonScope) locateSymbolByName(name string, writer SymbolWriter) error {
+	return s.locateSymbolByNameFrom(name, s.symbolStack.length()-1, writer)
+}
+
+func (s *commonScope) locateSymbolByNameFrom(name string, watermark int, writer SymbolWriter) error {
 
 	pattern := "(?i)^" + name + "$"
 	re, err := regexp.Compile(pattern)
@@ -302,7 +323,7 @@ func (s *commonScope) locateSimilarSymbols(name string, position Position, write
 	}
 
 	// continue up the current symbols(in pascal symbol must be declared before usage)
-	if err := s.locateSymbolByName(name, watermark, writer); err != nil {
+	if err := s.locateSymbolByNameFrom(name, watermark, writer); err != nil {
 		return err
 	}
 	return nil
@@ -449,6 +470,22 @@ func (s *UnitScope) ImplementationUses() []string {
 	return s.implementationUses.all()
 }
 
+func (s *UnitScope) findHierarchyScope(name string) (HierarchyScope, error) {
+	var nameSym *Symbol
+	writeSymbol := func(sym *Symbol) error {
+		nameSym = sym
+		return ErrFirstSymbolWriten
+	}
+	writer := SymbolWriterFunc(writeSymbol)
+	err := s.searchSymbolInUnits(name, s.InterfaceUses(), writer)
+	if err != ErrFirstSymbolWriten {
+		return nil, err
+	}
+
+	result := DBScopeHierarchy{unitName: nameSym.Unitname, hierarchyName: nameSym.Name, definition: nameSym.Definition}
+	return &result, nil
+}
+
 func (smb *Symbol) String() string {
 	return smb.Name
 }
@@ -472,4 +509,81 @@ func (smb *Symbol) HoverInfo() string {
 	}
 
 	return result.String()
+}
+
+type DBScopeHierarchy struct {
+	unitName      string
+	hierarchyName string
+	definition    string
+}
+
+func (dbsh *DBScopeHierarchy) getAncestor() (HierarchyScope, error) {
+	// zkusit dohledat predka z definice
+	// definice bude class=(ancestor  a bud konec nebo seznam interfacu
+	// muzem machnout dbsh.definition ... a pokud dostnam ancestora, tak jak tua budu potreobovat uses
+	// db collector nema AddUseUnit dodelane ... treaba ulozit a tu natahnout podle poradi
+
+	// var nameSym *Symbol
+	// writeSymbol := func(sym *Symbol) error {
+	// 	nameSym = sym
+	// 	return ErrFirstSymbolWriten
+	// }
+	// writer := SymbolWriterFunc(writeSymbol)
+	// err := s.searchSymbolInUnits(name, s.InterfaceUses(), writer)
+	// if err != ErrFirstSymbolWriten {
+	// 	return nil, err
+	// }
+
+	// result := DBScopeHierarchy{unitName: nameSym.Unitname, hierarchyName: nameSym.Name, definition: nameSym.Definition}
+	// return &result, nil
+
+	re, err := regexp.Compile("class\\s*=\\s*\\(\\s*(\\w*)")
+	if err != nil {
+		return nil, err
+	}
+	if re.MatchString(dbsh.definition) {
+		matches := re.FindStringSubmatch(dbsh.definition)
+
+		if len(matches) > 1 {
+			ancestorName := matches[1]
+
+			symbols, err := SymDB().SearchSymbol(dbsh.unitName, ancestorName)
+			if err != nil {
+				return nil, err
+			} else if len(symbols) > 0 {
+				ancSymbol := symbols[0]
+				result := DBScopeHierarchy{unitName: ancSymbol.Unitname, hierarchyName: ancSymbol.Name, definition: ancSymbol.Definition}
+				return &result, nil
+			}
+			// todo sort based oreder ... later add order column and fill there some order of geting from tree
+			symbols, err = SymDB().SearchSymbolByKind(dbsh.unitName, int(UnitReference))
+			if err != nil {
+				return nil, err
+			}
+			for _, useUnitSmb := range symbols {
+				ancestrors, err := SymDB().SearchSymbol(useUnitSmb.Name, ancestorName)
+				if err != nil {
+					return nil, err
+				} else if len(ancestrors) > 0 {
+					ancSymbol := symbols[0]
+					result := DBScopeHierarchy{unitName: ancSymbol.Unitname, hierarchyName: ancSymbol.Name, definition: ancSymbol.Definition}
+					return &result, nil
+				}
+			}
+			// for each try ... up is parallel algotihm, so later generalize
+			//symbols, err := SymDB().SearchSymbol(unitName, name)
+
+		}
+	}
+	return nil, nil
+}
+
+func (dbsh *DBScopeHierarchy) locateSymbolsInHierarchy(name string, writer SymbolWriter) error {
+	SymDB().LocateSymbolsInScope(name, dbsh.unitName, dbsh.hierarchyName, writer)
+	if ancestor, err := dbsh.getAncestor(); err != nil {
+		return err
+	} else if ancestor != nil {
+		return ancestor.locateSymbolsInHierarchy(name, writer)
+	}
+	return nil
 }

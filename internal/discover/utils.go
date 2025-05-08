@@ -7,16 +7,61 @@ import (
 	"strings"
 )
 
-func DecodePath(path string) string {
+type pathElements struct {
+	dir  string
+	name string
+	ext  string
+}
+
+func (p pathElements) Path() string {
+	return p.dir + p.name + p.ext
+}
+
+func (p pathElements) Dir() string {
+	return p.dir
+}
+
+func (p pathElements) Name() string {
+	return p.name
+}
+
+func (p pathElements) Ext() string {
+	return p.ext
+}
+
+func DecodePath(path string) pathElements {
+	var normPath string
 	if uri, err := url.Parse(path); err == nil && uri.Scheme == "file" {
-		result := uri.Path
+		normPath = uri.Path
 		// On Windows, remove leading slash if present
-		if runtime.GOOS == "windows" && strings.HasPrefix(result, "/") {
-			result = result[1:]
+		if runtime.GOOS == "windows" && strings.HasPrefix(normPath, "/") {
+			normPath = normPath[1:]
 		}
-		return result
 	} else {
-		return path
+		normPath = path
+	}
+
+	// Split the path into directory, filename, and extension
+	lastSlash := strings.LastIndex(normPath, "/")
+	dir := ""
+	fileWithExt := normPath
+	if lastSlash >= 0 {
+		dir = normPath[:lastSlash+1]
+		fileWithExt = normPath[lastSlash+1:]
+	}
+
+	lastDot := strings.LastIndex(fileWithExt, ".")
+	name := fileWithExt
+	ext := ""
+	if lastDot >= 0 {
+		name = fileWithExt[:lastDot]
+		ext = fileWithExt[lastDot:]
+	}
+
+	return pathElements{
+		dir:  dir,
+		name: name,
+		ext:  ext,
 	}
 }
 

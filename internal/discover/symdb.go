@@ -333,7 +333,7 @@ func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string
 	defer rows.Close()
 
 	for rows.Next() {
-		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
+		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition); err != nil {
 			return err
 		}
 		writer.WriteSymbol(&sym)
@@ -378,7 +378,7 @@ func (db *symDB) fetchSymbolsFromRows(rows *sql.Rows, unitname string) ([]Symbol
 	var results []Symbol
 	for rows.Next() {
 		sym := Symbol{Unitname: unitname}
-		if err := rows.Scan(&sym.Name, &sym.Scope, &sym.Kind, &sym.Definition); err != nil {
+		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition); err != nil {
 			return nil, err
 		}
 

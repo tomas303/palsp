@@ -123,7 +123,7 @@ type Symbol struct {
 	Definition string
 	Position   Position
 	Kind       int
-	Scope      string
+	Path       string
 	Unitname   string
 }
 
@@ -137,7 +137,7 @@ func (smb *Symbol) HoverInfo() string {
 	result.WriteString(SymbolKindToString(SymbolKind(smb.Kind)))
 	result.WriteString("\n")
 	result.WriteString("scope: ")
-	result.WriteString(smb.Scope)
+	result.WriteString(smb.Path)
 	result.WriteString("\n")
 	result.WriteString(smb.Name)
 	if smb.Definition != "" {

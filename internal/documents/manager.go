@@ -132,7 +132,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 			Label:         sym.Name,
 			Kind:          symbolKindToCompletionKind(discover.SymbolKind(sym.Kind)),
 			Detail:        sym.Definition,
-			Documentation: fmt.Sprintf("scope: %s", sym.Scope),
+			Documentation: fmt.Sprintf("scope: %s", sym.Path),
 		}
 		items = append(items, item)
 		return nil

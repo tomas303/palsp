@@ -286,21 +286,9 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 
 func (s *scopesListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
 	for _, parSecCtx := range ctx.AllFormalParameterSection() {
-		parType := ""
-		if parSecCtx.ParameterGroup() == nil {
-			continue
-		}
-		if parSecCtx.ParameterGroup().TypeIdentifier() != nil {
-			parType = parSecCtx.ParameterGroup().TypeIdentifier().GetText()
-		}
-		// todo - builders have only buildParameterGroup ... this must be changed to be able to create only one parameter (each symbol is independent)
-		// if ctx.DefaultValue() != nil {
-		// 	result += " = " + ctx.DefaultValue().GetText()
-		// }
 		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, parType, positionFromCtx(id))
+			s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, buildOneParameter(parSecCtx, id), positionFromCtx(id))
 		}
-		//
 	}
 }
 

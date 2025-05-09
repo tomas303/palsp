@@ -248,25 +248,50 @@ func buildParameterGroup(ctx parser.IParameterGroupContext) string {
 	return result
 }
 
-func buildParameterSection(ctx parser.IFormalParameterSectionContext) string {
+func getParameterSpecifier(ctx parser.IFormalParameterSectionContext) string {
 	result := ""
 	if ctx.VAR() != nil {
-		result += "var "
+		result = "var"
 	}
 	if ctx.CONST() != nil {
-		result += "const "
+		result = "const"
 	}
 	if ctx.OUT() != nil {
-		result += "out "
+		result = "out"
 	}
 	if ctx.FUNCTION() != nil {
-		result += "function "
+		result = "function"
 	}
 	if ctx.PROCEDURE() != nil {
-		result += "procedure "
+		result += "procedure"
+	}
+	return result
+}
+
+func buildParameterSection(ctx parser.IFormalParameterSectionContext) string {
+	result := getParameterSpecifier(ctx)
+	if len(result) > 0 {
+		result += " "
 	}
 	if ctx.ParameterGroup() != nil {
 		result += buildParameterGroup(ctx.ParameterGroup())
+	}
+	return result
+}
+
+func buildOneParameter(paramSectionCtx parser.IFormalParameterSectionContext, paramCtx parser.IIdentifierContext) string {
+	result := getParameterSpecifier(paramSectionCtx)
+	if len(result) > 0 {
+		result += " "
+	}
+	result += paramCtx.GetText()
+	if paramSectionCtx.ParameterGroup() != nil {
+		if paramSectionCtx.ParameterGroup().TypeIdentifier() != nil {
+			result += ": " + paramSectionCtx.ParameterGroup().TypeIdentifier().GetText()
+		}
+		if paramSectionCtx.ParameterGroup().DefaultValue() != nil {
+			result += " = " + paramSectionCtx.ParameterGroup().DefaultValue().GetText()
+		}
 	}
 	return result
 }

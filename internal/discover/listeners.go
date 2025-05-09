@@ -2,10 +2,9 @@ package discover
 
 import (
 	"errors"
-	"palsp/internal/parser" // Ensure this import is correct
+	"palsp/internal/parser"
 	"strings"
 
-	// added
 	"github.com/antlr4-go/antlr/v4"
 )
 
@@ -15,14 +14,11 @@ type positionable interface {
 }
 
 // Helper function to create a Position from any context that has GetStart()
-func newPosition(ctx positionable) Position {
+func positionFromCtx(ctx positionable) Position {
 	if ctx == nil || ctx.GetStart() == nil {
-		return Position{Line: 0, Character: 0}
+		return NewPosition(0, 0)
 	}
-	return Position{
-		Line:      ctx.GetStart().GetLine(),
-		Character: ctx.GetStart().GetColumn(),
-	}
+	return NewPosition(ctx.GetStart().GetLine(), ctx.GetStart().GetColumn())
 }
 
 type AccessSpec int
@@ -101,7 +97,7 @@ func (dc *DBSymbolCollector) AccessSpecifier(as AccessSpec) {
 
 // MemorySymbolCollector implements SymbolCollector for in-memory model
 type MemorySymbolCollector struct {
-	unitScope        *UnitScope
+	unitScope        *unitScope
 	scopeStack       *scopeStack
 	inImplementation bool
 	currentScope     stack[string]
@@ -113,7 +109,7 @@ func NewMemorySymbolCollector(unitName string) *MemorySymbolCollector {
 	rootScope := commonScope{name: "root"}
 	scopeStack := newScopeStack()
 	scopeStack.push(&rootScope)
-	unitScope := &UnitScope{
+	unitScope := &unitScope{
 		interfaceUses:      *newStack[string](),
 		implementationUses: *newStack[string](),
 	}
@@ -180,7 +176,7 @@ func (mc *MemorySymbolCollector) GetScope() TopScope {
 	// todo later try to have it like root from the beginning
 	topCommon := mc.scopeStack.peek().scopeStack.peek()
 	topCommon.parentScope = mc.unitScope
-	mc.unitScope.Scope = topCommon
+	mc.unitScope.scope = topCommon
 	return mc.unitScope
 }
 
@@ -250,7 +246,7 @@ func NewUnifiedListener(collector SymbolCollector) *UnifiedListener {
 }
 
 func (s *UnifiedListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
-	s.collector.EnterImplementation(newPosition(ctx))
+	s.collector.EnterImplementation(positionFromCtx(ctx))
 }
 
 // func (s *UnifiedListener) GetScope() TopScope {
@@ -264,14 +260,14 @@ func (s *UnifiedListener) EnterImplementationSection(ctx *parser.ImplementationS
 func (s *UnifiedListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
 		s.collector.AddUseUnit(buildIdentifier(identifier))
-		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), newPosition(identifier))
+		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), positionFromCtx(identifier))
 	}
 }
 
 func (s *UnifiedListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
 	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, newPosition(identifier))
+		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, positionFromCtx(identifier))
 	}
 }
 
@@ -289,7 +285,7 @@ func (s *UnifiedListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionC
 			fieldtype = "integer"
 		}
 	}
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, newPosition(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, positionFromCtx(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
@@ -305,7 +301,7 @@ func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterLis
 		// 	result += " = " + ctx.DefaultValue().GetText()
 		// }
 		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, parType, newPosition(id))
+			s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, parType, positionFromCtx(id))
 		}
 		//
 	}
@@ -315,13 +311,13 @@ func (s *UnifiedListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationP
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-			s.collector.AddSymbol(buildIdentifier(id), ClassVariable, typedef, newPosition(id))
+			s.collector.AddSymbol(buildIdentifier(id), ClassVariable, typedef, positionFromCtx(id))
 		}
 	}
 }
 
 func (s *UnifiedListener) EnterUnit(ctx *parser.UnitContext) {
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitUnit(ctx *parser.UnitContext) {
@@ -332,21 +328,21 @@ func (s *UnifiedListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContex
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.inDeclaration {
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), newPosition(ctx.Identifier()))
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), positionFromCtx(ctx.Identifier()))
 		return
 	}
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), newPosition(ctx.Identifier()))
+	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), positionFromCtx(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.ProcedureHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), ScopeInfo{Position: positionFromCtx(ctx.ProcedureHeader().Identifier())})
 }
 
 func (s *UnifiedListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
@@ -358,27 +354,27 @@ func (s *UnifiedListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext)
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
 }
 
 func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.inDeclaration {
 		if ctx.ResultType() != nil {
-			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
+			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), positionFromCtx(ctx.Identifier()))
 		}
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), newPosition(ctx.Identifier()))
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), positionFromCtx(ctx.Identifier()))
 		return
 	}
 	if ctx.ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), newPosition(ctx.Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), positionFromCtx(ctx.Identifier()))
 	}
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), newPosition(ctx.Identifier()))
+	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), positionFromCtx(ctx.Identifier()))
 }
 
 func (s *UnifiedListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), ScopeInfo{Position: newPosition(ctx.FunctionHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), ScopeInfo{Position: positionFromCtx(ctx.FunctionHeader().Identifier())})
 }
 
 func (s *UnifiedListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
@@ -394,10 +390,10 @@ func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext)
 	} else {
 		ancestor = nil
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: newPosition(ctx.Identifier()), Ancestor: ancestor})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier()), Ancestor: ancestor})
 }
 
 func (s *UnifiedListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), TypeSymbol, buildTypeDef(ctx), newPosition(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), TypeSymbol, buildTypeDef(ctx), positionFromCtx(ctx.Identifier()))
 }

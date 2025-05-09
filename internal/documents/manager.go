@@ -97,7 +97,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 		return discover.ErrFirstSymbolWriten
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSimilarSymbols(hoverText, pos, writer)
+	err = f.scope.LocateSymbolsByName(hoverText, pos, writer)
 	if err != discover.ErrFirstSymbolWriten {
 		info = "No information found for " + hoverText
 	}
@@ -138,7 +138,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 		return nil
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSimilarSymbols(".*"+hoverText+".*", pos, writer)
+	err = f.scope.LocateSymbolsByName(".*"+hoverText+".*", pos, writer)
 
 	cl := CompletionList{
 		IsIncomplete: false,

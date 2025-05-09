@@ -107,14 +107,14 @@ type scope interface {
 	locateSymbolsByName(name string, position Position, writer SymbolWriter) error
 	writeToLog(prefix string)
 	findSymbolOnPosition(position Position) *Symbol
-	findScopeGlobally(ancestorName string) (inheritenceHierarchyScope, error)
+	findAncestorScope(ancestorName string) (inheritenceScope, error)
 }
 
 // helper scope to be used to crawl up the scope by inheritance hierarchy
 // and locate symbols there.
-type inheritenceHierarchyScope interface {
-	getAncestor() (inheritenceHierarchyScope, error)
-	locateSymbolsByNameInInheritanceHierarchy(name string, writer SymbolWriter) error
+type inheritenceScope interface {
+	getAncestorScope() (inheritenceScope, error)
+	locateSymbolsByNameUsingInheritance(name string, writer SymbolWriter) error
 }
 
 // Symbol represents a metadata of a code symbol
@@ -297,7 +297,7 @@ func (s *unitScope) getImplementationUses() []string {
 	return s.implementationUses.all()
 }
 
-func (s *unitScope) findScopeGlobally(name string) (inheritenceHierarchyScope, error) {
+func (s *unitScope) findAncestorScope(name string) (inheritenceScope, error) {
 	var nameSym *Symbol
 	writeSymbol := func(sym *Symbol) error {
 		nameSym = sym
@@ -309,7 +309,7 @@ func (s *unitScope) findScopeGlobally(name string) (inheritenceHierarchyScope, e
 		return nil, err
 	}
 
-	result := NewDBScopeHierarchy(nameSym.Unitname, nameSym.Name, nameSym.Definition)
+	result := NewdbInheritenceScope(nameSym.Unitname, nameSym.Name, nameSym.Definition)
 	return result, nil
 }
 
@@ -328,7 +328,7 @@ type commonScope struct {
 	scopeStack  stack[*commonScope]
 	parentScope scope
 	parentSWM   int
-	scopeInfo   ScopeInfo
+	info        scopeInfo
 }
 
 func (s *commonScope) getName() string {
@@ -336,7 +336,7 @@ func (s *commonScope) getName() string {
 }
 
 func (s *commonScope) getPosition() Position {
-	return s.scopeInfo.Position
+	return s.info.position
 }
 
 func (s *commonScope) getParentSWM() int {
@@ -370,7 +370,26 @@ func (s *commonScope) findSymbolOnPosition(position Position) *Symbol {
 	return nil
 }
 
-func (s *commonScope) findScopeLocally(name string) *commonScope {
+func (s *commonScope) getAncestorScope() (inheritenceScope, error) {
+	if s.info.ancestor != nil {
+		return s.findAncestorScope(*s.info.ancestor)
+	}
+	return nil, nil
+}
+
+func (s *commonScope) locateSymbolsByNameUsingInheritance(name string, writer SymbolWriter) error {
+	if err := s.locateSymbolByName(name, writer); err != nil {
+		return err
+	}
+	if ancestor, err := s.getAncestorScope(); err != nil {
+		return err
+	} else if ancestor != nil {
+		return ancestor.locateSymbolsByNameUsingInheritance(name, writer)
+	}
+	return nil
+}
+
+func (s *commonScope) findLocalScope(name string) *commonScope {
 	for i := 0; i < s.scopeStack.length(); i++ {
 		scope := s.scopeStack.get(i)
 		if name == scope.getName() {
@@ -380,57 +399,39 @@ func (s *commonScope) findScopeLocally(name string) *commonScope {
 	return nil
 }
 
-func (s *commonScope) findScopeGlobally(name string) (inheritenceHierarchyScope, error) {
+func (s *commonScope) findAncestorScope(name string) (inheritenceScope, error) {
 
 	// check if the name is in the current scope
-	if scope := s.findScopeLocally(name); scope != nil {
+	if scope := s.findLocalScope(name); scope != nil {
 		return scope, nil
 	}
 
+	// continue searching in the parent scope
 	if s.parentScope != nil {
-		return s.parentScope.findScopeGlobally(name)
+		return s.parentScope.findAncestorScope(name)
 	} else {
 		return nil, fmt.Errorf("scope %s not found", name)
 	}
 }
 
-func (s *commonScope) getAncestor() (inheritenceHierarchyScope, error) {
-	if s.scopeInfo.Ancestor != nil {
-		return s.findScopeGlobally(*s.scopeInfo.Ancestor)
-	}
-	return nil, nil
-}
-
-func (s *commonScope) locateSymbolsByNameInInheritanceHierarchy(name string, writer SymbolWriter) error {
-	if err := s.locateSymbolByName(name, writer); err != nil {
-		return err
-	}
-	if ancestor, err := s.getAncestor(); err != nil {
-		return err
-	} else if ancestor != nil {
-		return ancestor.locateSymbolsByNameInInheritanceHierarchy(name, writer)
-	}
-	return nil
-}
-
 func (s *commonScope) locateInClass(name string, prefixes []string, functionName string, writer SymbolWriter) error {
 	if len(prefixes) == 0 {
 		// parameters can be declared in header only
-		functionScope := s.findScopeLocally(functionName)
+		functionScope := s.findLocalScope(functionName)
 		if functionScope != nil {
 			if err := functionScope.locateSymbolByName(name, writer); err != nil {
 				return err
 			}
 		}
 	} else {
-		partScope := s.findScopeLocally(prefixes[0])
+		partScope := s.findLocalScope(prefixes[0])
 		if partScope != nil {
 			if err := partScope.locateInClass(name, prefixes[1:], functionName, writer); err != nil {
 				return err
 			}
 			if len(prefixes) == 1 {
 				// todo - this is class where method is declared, for going up scope some helper to name should be passed like to what context belongs
-				if err := partScope.locateSymbolsByNameInInheritanceHierarchy(name, writer); err != nil {
+				if err := partScope.locateSymbolsByNameUsingInheritance(name, writer); err != nil {
 					return err
 				}
 			}
@@ -502,40 +503,26 @@ func (s *commonScope) locateSymbolsByName(name string, position Position, writer
 	return nil
 }
 
-type DBScopeHierarchy struct {
+// dbInheritenceScope encapsulate scope stored in database which can locate symbols
+// further up the inheritance hierarchy.
+
+type dbInheritenceScope struct {
 	unitName   string
 	name       string
 	definition string
 }
 
-func NewDBScopeHierarchy(unitName, name, definition string) *DBScopeHierarchy {
-	return &DBScopeHierarchy{
+func NewdbInheritenceScope(unitName, name, definition string) *dbInheritenceScope {
+	return &dbInheritenceScope{
 		unitName:   unitName,
 		name:       name,
 		definition: definition,
 	}
 }
 
-func (dbsh *DBScopeHierarchy) getAncestor() (inheritenceHierarchyScope, error) {
-	// zkusit dohledat predka z definice
-	// definice bude class=(ancestor  a bud konec nebo seznam interfacu
-	// muzem machnout dbsh.definition ... a pokud dostnam ancestora, tak jak tua budu potreobovat uses
-	// db collector nema AddUseUnit dodelane ... treaba ulozit a tu natahnout podle poradi
-
-	// var nameSym *Symbol
-	// writeSymbol := func(sym *Symbol) error {
-	// 	nameSym = sym
-	// 	return ErrFirstSymbolWriten
-	// }
-	// writer := SymbolWriterFunc(writeSymbol)
-	// err := s.searchSymbolInUnits(name, s.InterfaceUses(), writer)
-	// if err != ErrFirstSymbolWriten {
-	// 	return nil, err
-	// }
-
-	// result := DBScopeHierarchy{unitName: nameSym.Unitname, hierarchyName: nameSym.Name, definition: nameSym.Definition}
-	// return &result, nil
-
+// will construct a scope from the database which is ancestor of the current scope
+func (dbsh *dbInheritenceScope) getAncestorScope() (inheritenceScope, error) {
+	// todo - try find out better solution then parsing the definition(some helper info in the database too)
 	re, err := regexp.Compile("class\\s*=\\s*\\(\\s*(\\w*)")
 	if err != nil {
 		return nil, err
@@ -546,43 +533,45 @@ func (dbsh *DBScopeHierarchy) getAncestor() (inheritenceHierarchyScope, error) {
 		if len(matches) > 1 {
 			ancestorName := matches[1]
 
+			// try to find ancestor in same unit first
 			symbols, err := SymDB().SearchSymbol(dbsh.unitName, ancestorName)
 			if err != nil {
 				return nil, err
 			} else if len(symbols) > 0 {
 				ancSymbol := symbols[0]
-				result := DBScopeHierarchy{unitName: ancSymbol.Unitname, name: ancSymbol.Name, definition: ancSymbol.Definition}
-				return &result, nil
+				result := NewdbInheritenceScope(ancSymbol.Unitname, ancSymbol.Name, ancSymbol.Definition)
+				return result, nil
 			}
-			// todo sort based oreder ... later add order column and fill there some order of geting from tree
+
+			// otherwise try to find ancestor in units this unit references
+			// todo sort based order - later add order column and fill there some order of geting from tree
+			// todo - actually all interface and implementation uses units are searched, split UnitReference to two different kinds, here only from interface section should be used
+			// todoe - later use here generalized multi threading algorithm, but which is able to maintaing order of searched results
 			symbols, err = SymDB().SearchSymbolByKind(dbsh.unitName, int(UnitReference))
 			if err != nil {
 				return nil, err
 			}
 			for _, useUnitSmb := range symbols {
-				ancestrors, err := SymDB().SearchSymbol(useUnitSmb.Name, ancestorName)
+				ancestors, err := SymDB().SearchSymbol(useUnitSmb.Name, ancestorName)
 				if err != nil {
 					return nil, err
-				} else if len(ancestrors) > 0 {
+				} else if len(ancestors) > 0 {
 					ancSymbol := symbols[0]
-					result := DBScopeHierarchy{unitName: ancSymbol.Unitname, name: ancSymbol.Name, definition: ancSymbol.Definition}
-					return &result, nil
+					result := NewdbInheritenceScope(ancSymbol.Unitname, ancSymbol.Name, ancSymbol.Definition)
+					return result, nil
 				}
 			}
-			// for each try ... up is parallel algotihm, so later generalize
-			//symbols, err := SymDB().SearchSymbol(unitName, name)
-
 		}
 	}
 	return nil, nil
 }
 
-func (dbsh *DBScopeHierarchy) locateSymbolsByNameInInheritanceHierarchy(name string, writer SymbolWriter) error {
+func (dbsh *dbInheritenceScope) locateSymbolsByNameUsingInheritance(name string, writer SymbolWriter) error {
 	SymDB().LocateSymbolsInScope(name, dbsh.unitName, dbsh.name, writer)
-	if ancestor, err := dbsh.getAncestor(); err != nil {
+	if ancestor, err := dbsh.getAncestorScope(); err != nil {
 		return err
 	} else if ancestor != nil {
-		return ancestor.locateSymbolsByNameInInheritanceHierarchy(name, writer)
+		return ancestor.locateSymbolsByNameUsingInheritance(name, writer)
 	}
 	return nil
 }

@@ -216,7 +216,7 @@ func (f *file) findText(line int, character int) (string, bool) {
 
 func newScope(cst antlr.Tree, unitName string) discover.TopScope {
 	collector := discover.NewMemorySymbolCollector(unitName)
-	sl := discover.NewUnifiedListener(collector)
+	sl := discover.NewScopesListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	scope := collector.GetScope()
 	scope.WriteToLog()

@@ -21,6 +21,7 @@ func positionFromCtx(ctx positionable) Position {
 	return NewPosition(ctx.GetStart().GetLine(), ctx.GetStart().GetColumn())
 }
 
+// Scope visibility levels
 type AccessSpec int
 
 const (
@@ -35,39 +36,39 @@ const (
 
 var ErrListenerBreak = errors.New("listener breaks gracefully")
 
-type ScopeInfo struct {
-	Position Position
-	Ancestor *string
+// helper information for scope (can differ based on scope type)
+type scopeInfo struct {
+	position Position
+	ancestor *string
 }
 
 // SymbolCollector defines an interface for collecting symbols
 type SymbolCollector interface {
 	AddSymbol(name string, kind SymbolKind, definition string, position Position)
-	BeginScope(name string, info ScopeInfo)
+	BeginScope(name string, info scopeInfo)
 	EndScope(name string)
 	EnterImplementation(position Position)
 	AddUseUnit(unit string)
 	AccessSpecifier(as AccessSpec)
 }
 
-// DBSymbolCollector implements SymbolCollector for database storage
-type DBSymbolCollector struct {
+// dbCollector implements SymbolCollector and store symbols in database
+type dbCollector struct {
 	unitID           int
 	db               *symDB
 	currentScope     stack[string]
 	curentAccessSpec AccessSpec
 }
 
-// NewDBSymbolCollector creates a new collector for database storage
-func NewDBSymbolCollector(unitID int, db *symDB) *DBSymbolCollector {
-	return &DBSymbolCollector{
+func NewDBSymbolCollector(unitID int, db *symDB) *dbCollector {
+	return &dbCollector{
 		unitID:       unitID,
 		db:           db,
 		currentScope: *newStack[string](),
 	}
 }
 
-func (dc *DBSymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
+func (dc *dbCollector) BeginScope(name string, scopeInfo scopeInfo) {
 	if dc.currentScope.length() == 0 {
 		dc.currentScope.push(strings.ToLower(name))
 	} else {
@@ -75,37 +76,40 @@ func (dc *DBSymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	}
 }
 
-func (dc *DBSymbolCollector) EndScope(name string) {
+func (dc *dbCollector) EndScope(name string) {
 	dc.currentScope.pop()
 }
 
-func (dc *DBSymbolCollector) EnterImplementation(position Position) {
+func (dc *dbCollector) EnterImplementation(position Position) {
+	// for now only public symbols are stored in the database - symbols are searched using uses unit
+	// references so only public symbols are needed
 	panic(ErrListenerBreak)
 }
 
-func (dc *DBSymbolCollector) AddUseUnit(unit string) {
+func (dc *dbCollector) AddUseUnit(unit string) {
 	dc.db.InsertSymbol(dc.unitID, unit, dc.currentScope.peek(), int(UnitReference), unit)
 }
 
-func (dc *DBSymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
+func (dc *dbCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
 	dc.db.InsertSymbol(dc.unitID, name, dc.currentScope.peek(), int(kind), definition)
 }
 
-func (dc *DBSymbolCollector) AccessSpecifier(as AccessSpec) {
+func (dc *dbCollector) AccessSpecifier(as AccessSpec) {
 	dc.curentAccessSpec = as
 }
 
-// MemorySymbolCollector implements SymbolCollector for in-memory model
-type MemorySymbolCollector struct {
+// memoryCollector implements SymbolCollector and creates structure of scopes
+// and returns it as TopScope
+type memoryCollector struct {
 	unitScope        *unitScope
 	scopeStack       *scopeStack
 	inImplementation bool
-	currentScope     stack[string]
-	unitName         string
+	// todo - maybe replace with some support of listener (listener can track current scope internally ... its just names of scopes split by ".")
+	currentScope stack[string]
+	unitName     string
 }
 
-// NewMemorySymbolCollector creates a new collector for in-memory model
-func NewMemorySymbolCollector(unitName string) *MemorySymbolCollector {
+func NewMemorySymbolCollector(unitName string) *memoryCollector {
 	rootScope := commonScope{name: "root"}
 	scopeStack := newScopeStack()
 	scopeStack.push(&rootScope)
@@ -113,9 +117,8 @@ func NewMemorySymbolCollector(unitName string) *MemorySymbolCollector {
 		interfaceUses:      *newStack[string](),
 		implementationUses: *newStack[string](),
 	}
-
 	currentScope := stack[string]{}
-	return &MemorySymbolCollector{
+	return &memoryCollector{
 		unitScope:    unitScope,
 		scopeStack:   scopeStack,
 		currentScope: currentScope,
@@ -123,7 +126,8 @@ func NewMemorySymbolCollector(unitName string) *MemorySymbolCollector {
 	}
 }
 
-func (mc *MemorySymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
+func (mc *memoryCollector) BeginScope(name string, scopeInfo scopeInfo) {
+	// todo - create some specific logger for parsing scopes(too much infos so to be able to allow only something per demand and use it in listener)
 	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
 	var parentScope *commonScope
 	if mc.scopeStack.length() == 0 {
@@ -131,7 +135,7 @@ func (mc *MemorySymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	} else {
 		parentScope = mc.scopeStack.peek()
 	}
-	newScope := commonScope{name: strings.ToLower(name), scopeInfo: scopeInfo, parentScope: parentScope}
+	newScope := commonScope{name: strings.ToLower(name), info: scopeInfo, parentScope: parentScope}
 	mc.scopeStack.push(&newScope)
 	if mc.currentScope.length() == 0 {
 		mc.currentScope.push(strings.ToLower(name))
@@ -140,7 +144,7 @@ func (mc *MemorySymbolCollector) BeginScope(name string, scopeInfo ScopeInfo) {
 	}
 }
 
-func (mc *MemorySymbolCollector) EndScope(name string) {
+func (mc *memoryCollector) EndScope(name string) {
 	// log.Logger.Debug().Str("end scope", name).Send()
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
@@ -149,12 +153,12 @@ func (mc *MemorySymbolCollector) EndScope(name string) {
 	mc.currentScope.pop()
 }
 
-func (mc *MemorySymbolCollector) EnterImplementation(position Position) {
+func (mc *memoryCollector) EnterImplementation(position Position) {
 	mc.inImplementation = true
 	mc.unitScope.implementationPos = position
 }
 
-func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
+func (mc *memoryCollector) AddUseUnit(unit string) {
 	if mc.inImplementation {
 		mc.unitScope.implementationUses.push(unit)
 	} else {
@@ -162,7 +166,7 @@ func (mc *MemorySymbolCollector) AddUseUnit(unit string) {
 	}
 }
 
-func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
+func (mc *memoryCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
 	name = strings.ToLower(name)
 	smb := Symbol{Name: name, Definition: definition, Kind: int(kind), Position: position, Scope: mc.currentScope.peek(), Unitname: mc.unitName}
 	scope := mc.scopeStack.current()
@@ -172,7 +176,7 @@ func (mc *MemorySymbolCollector) AddSymbol(name string, kind SymbolKind, definit
 	}
 }
 
-func (mc *MemorySymbolCollector) GetScope() TopScope {
+func (mc *memoryCollector) GetScope() TopScope {
 	// todo later try to have it like root from the beginning
 	topCommon := mc.scopeStack.peek().scopeStack.peek()
 	topCommon.parentScope = mc.unitScope
@@ -180,8 +184,8 @@ func (mc *MemorySymbolCollector) GetScope() TopScope {
 	return mc.unitScope
 }
 
-func (dc *MemorySymbolCollector) AccessSpecifier(as AccessSpec) {
-
+func (dc *memoryCollector) AccessSpecifier(as AccessSpec) {
+	// todo - implement access specifier(must be in db too and locate symbols will have some filtering function to reflect various conditions)
 }
 
 // scopeStack manages a stack of scope builders
@@ -231,47 +235,39 @@ func (s *scopeStack) length() int {
 	return len(s.items)
 }
 
-// UnifiedListener is a parse tree listener that can collect symbols for different purposes
-type UnifiedListener struct {
+// scopesListener separates beginings and endings of scopes and collects symbols
+// in between
+type scopesListener struct {
 	parser.BasepascalListener
 	collector     SymbolCollector
 	inDeclaration bool
 }
 
-// NewUnifiedListener creates a new unified listener with the specified collector
-func NewUnifiedListener(collector SymbolCollector) *UnifiedListener {
-	return &UnifiedListener{
+func NewScopesListener(collector SymbolCollector) *scopesListener {
+	return &scopesListener{
 		collector: collector,
 	}
 }
 
-func (s *UnifiedListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
+func (s *scopesListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
 	s.collector.EnterImplementation(positionFromCtx(ctx))
 }
 
-// func (s *UnifiedListener) GetScope() TopScope {
-// 	return s.usb.finish()
-// }
-
-// func (s *UnifiedListener) ab() *commonScopeBuilder {
-// 	return s.sbs.peek()
-// }
-
-func (s *UnifiedListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
+func (s *scopesListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
 		s.collector.AddUseUnit(buildIdentifier(identifier))
 		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), positionFromCtx(identifier))
 	}
 }
 
-func (s *UnifiedListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
+func (s *scopesListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
 	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
 		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, positionFromCtx(identifier))
 	}
 }
 
-func (s *UnifiedListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
+func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
 	fieldtype := ""
 	if ctx.TypeIdentifier() != nil {
 		fieldtype = buildTypeIdentifier(ctx.TypeIdentifier())
@@ -288,7 +284,7 @@ func (s *UnifiedListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionC
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, positionFromCtx(ctx.Identifier()))
 }
 
-func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
+func (s *scopesListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
 	for _, parSecCtx := range ctx.AllFormalParameterSection() {
 		parType := ""
 		if parSecCtx.ParameterGroup() == nil {
@@ -297,6 +293,7 @@ func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterLis
 		if parSecCtx.ParameterGroup().TypeIdentifier() != nil {
 			parType = parSecCtx.ParameterGroup().TypeIdentifier().GetText()
 		}
+		// todo - builders have only buildParameterGroup ... this must be changed to be able to create only one parameter (each symbol is independent)
 		// if ctx.DefaultValue() != nil {
 		// 	result += " = " + ctx.DefaultValue().GetText()
 		// }
@@ -307,7 +304,7 @@ func (s *UnifiedListener) ExitFormalParameterList(ctx *parser.FormalParameterLis
 	}
 }
 
-func (s *UnifiedListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPartContext) {
+func (s *scopesListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPartContext) {
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
@@ -316,22 +313,22 @@ func (s *UnifiedListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationP
 	}
 }
 
-func (s *UnifiedListener) EnterUnit(ctx *parser.UnitContext) {
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
+func (s *scopesListener) EnterUnit(ctx *parser.UnitContext) {
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), scopeInfo{position: positionFromCtx(ctx.Identifier())})
 }
 
-func (s *UnifiedListener) ExitUnit(ctx *parser.UnitContext) {
+func (s *scopesListener) ExitUnit(ctx *parser.UnitContext) {
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
 }
 
-func (s *UnifiedListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+func (s *scopesListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), scopeInfo{position: positionFromCtx(ctx.Identifier())})
 }
 
-func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
+func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.inDeclaration {
 		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), positionFromCtx(ctx.Identifier()))
 		return
@@ -340,24 +337,24 @@ func (s *UnifiedListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext
 	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), positionFromCtx(ctx.Identifier()))
 }
 
-func (s *UnifiedListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
+func (s *scopesListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), ScopeInfo{Position: positionFromCtx(ctx.ProcedureHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.ProcedureHeader().Identifier()), scopeInfo{position: positionFromCtx(ctx.ProcedureHeader().Identifier())})
 }
 
-func (s *UnifiedListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
+func (s *scopesListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.collector.EndScope(buildIdentifier(ctx.ProcedureHeader().Identifier()))
 	s.inDeclaration = false
 }
 
-func (s *UnifiedListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
+func (s *scopesListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.inDeclaration {
 		return
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), scopeInfo{position: positionFromCtx(ctx.Identifier())})
 }
 
-func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
+func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.inDeclaration {
 		if ctx.ResultType() != nil {
 			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), positionFromCtx(ctx.Identifier()))
@@ -372,17 +369,17 @@ func (s *UnifiedListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) 
 	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), positionFromCtx(ctx.Identifier()))
 }
 
-func (s *UnifiedListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
+func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), ScopeInfo{Position: positionFromCtx(ctx.FunctionHeader().Identifier())})
+	s.collector.BeginScope(buildIdentifier(ctx.FunctionHeader().Identifier()), scopeInfo{position: positionFromCtx(ctx.FunctionHeader().Identifier())})
 }
 
-func (s *UnifiedListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
+func (s *scopesListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.collector.EndScope(buildIdentifier(ctx.FunctionHeader().Identifier()))
 	s.inDeclaration = false
 }
 
-func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
+func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	var ancestor *string
 	if ctx.Type_() != nil && ctx.Type_().StructuredType() != nil && ctx.Type_().StructuredType().ClassType() != nil {
 		tmp := buildIdentifier(ctx.Type_().StructuredType().ClassType().Identifier())
@@ -390,10 +387,10 @@ func (s *UnifiedListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext)
 	} else {
 		ancestor = nil
 	}
-	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), ScopeInfo{Position: positionFromCtx(ctx.Identifier()), Ancestor: ancestor})
+	s.collector.BeginScope(buildIdentifier(ctx.Identifier()), scopeInfo{position: positionFromCtx(ctx.Identifier()), ancestor: ancestor})
 }
 
-func (s *UnifiedListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
+func (s *scopesListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	s.collector.EndScope(buildIdentifier(ctx.Identifier()))
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), TypeSymbol, buildTypeDef(ctx), positionFromCtx(ctx.Identifier()))
 }

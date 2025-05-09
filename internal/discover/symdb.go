@@ -426,7 +426,7 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 		}
 	}()
 	collector := NewDBSymbolCollector(unitID, db)
-	sl := NewUnifiedListener(collector)
+	sl := NewScopesListener(collector)
 	cst, _ := ParseCST(content, fileName)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 }

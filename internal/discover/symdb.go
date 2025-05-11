@@ -392,7 +392,7 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 	sl := NewScopesListener(collector)
 	cst, _ := ParseCST(content, fileName)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
-	db.writeToLog(fileName, "")
+	db.writeToLog(strings.ToLower(DecodePath(fileName).name))
 }
 
 func (db *symDB) AddSearchPath(path string) {
@@ -456,7 +456,7 @@ func (db *symDB) searchUnits(folder string) {
 		})
 }
 
-func (db *symDB) writeToLog(unitName string, prefix string) {
+func (db *symDB) writeToLog(unitName string) {
 
 	var writeLevel func(scope string, prefix string)
 
@@ -464,14 +464,14 @@ func (db *symDB) writeToLog(unitName string, prefix string) {
 		writeSymbol := func(sym *Symbol) error {
 			log.Structure.Debug().Msgf(prefix+"path: %s", sym.Path)
 			log.Structure.Debug().Msgf(prefix+"name: %s", sym.Name)
-			writeLevel(sym.Path, prefix+"----")
+			writeLevel(scope+"."+sym.Name, prefix+"----")
 			return nil
 		}
 		writer := SymbolWriterFunc(writeSymbol)
 		db.LocateSymbolsInScope("%", unitName, scope, writer)
 	}
 	if log.Structure.Debug().Enabled() {
-		writeLevel("", "")
+		writeLevel(unitName, "")
 	}
 
 }

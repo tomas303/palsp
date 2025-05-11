@@ -162,13 +162,13 @@ type unitScope struct {
 }
 
 func (s *unitScope) WriteToLog() {
-	log.Main.Debug().Msgf("Top scope: %s", s.getName())
-	log.Main.Debug().Msg("uses: ")
+	log.Structure.Debug().Msgf("Top scope: %s", s.getName())
+	log.Structure.Debug().Msg("uses: ")
 	for _, unit := range s.interfaceUses.all() {
-		log.Main.Debug().Msg(unit)
+		log.Structure.Debug().Msg(unit)
 	}
 	for _, unit := range s.implementationUses.all() {
-		log.Main.Debug().Msg(unit)
+		log.Structure.Debug().Msg(unit)
 	}
 	s.scope.writeToLog("  ")
 }
@@ -348,12 +348,12 @@ func (s *commonScope) setParentSWM(swm int) {
 }
 
 func (s *commonScope) writeToLog(prefix string) {
-	log.Main.Debug().Msgf(prefix+"scope name: %s", s.getName())
-	log.Main.Debug().Msg(prefix + "--symbols:")
+	log.Structure.Debug().Msgf(prefix+"scope name: %s", s.getName())
+	log.Structure.Debug().Msg(prefix + "--symbols:")
 	for _, symbol := range s.symbolStack.all() {
-		log.Main.Debug().Msg(prefix + "----" + symbol.Name)
+		log.Structure.Debug().Msg(prefix + "----" + symbol.Name)
 	}
-	log.Main.Debug().Msg(prefix + "--scopes:")
+	log.Structure.Debug().Msg(prefix + "--scopes:")
 	for _, scope := range s.scopeStack.all() {
 		scope.writeToLog(prefix + "----")
 	}

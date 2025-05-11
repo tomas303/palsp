@@ -13,6 +13,7 @@ var (
 	Main       zerolog.Logger
 	AntlrError zerolog.Logger
 	AntlrTrace zerolog.Logger
+	Structure  zerolog.Logger
 )
 
 // LogLevel represents log severity levels

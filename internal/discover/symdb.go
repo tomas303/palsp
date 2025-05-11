@@ -33,7 +33,6 @@ type SymbolDatabase interface {
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
 	SearchSymbolByKind(unit string, kind int) ([]Symbol, error)
-	SearchSymbol2(kind int, searchTerm string) (map[UnitString]UnitID, error)
 	RetriveUnit(unit string) (int, string, error)
 	LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error
 }
@@ -277,42 +276,6 @@ func (db *symDB) SearchSymbolByKind(unit string, kind int) ([]Symbol, error) {
 
 }
 
-func (db *symDB) SearchSymbol2(kind int, searchTerm string) (map[UnitString]UnitID, error) {
-	// Prepare the query to search for symbols and join with units table to get unit names
-	query := `
-	SELECT u.unitname, s.unit_id
-	FROM symbols s
-	JOIN units u ON s.unit_id = u.id
-	WHERE s.kind = ? AND s.symbol LIKE ? COLLATE NOCASE
-	GROUP BY u.unitname, s.unit_id
-	ORDER BY u.unitname COLLATE NOCASE`
-
-	rows, err := db.Query(query, kind, searchTerm)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return make(map[UnitString]UnitID), nil
-		}
-		return nil, err
-	}
-	defer rows.Close()
-
-	results := make(map[UnitString]UnitID)
-	for rows.Next() {
-		var unitName string
-		var unitID int
-		if err := rows.Scan(&unitName, &unitID); err != nil {
-			return nil, err
-		}
-		results[UnitString(unitName)] = UnitID(unitID)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return results, nil
-}
-
 func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error {
 	// Prepare the query to search for symbols in a specific scope
 	query := `
@@ -429,6 +392,7 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 	sl := NewScopesListener(collector)
 	cst, _ := ParseCST(content, fileName)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
+	db.writeToLog(fileName, "")
 }
 
 func (db *symDB) AddSearchPath(path string) {
@@ -490,6 +454,26 @@ func (db *symDB) searchUnits(folder string) {
 			unitName := strings.TrimSuffix(filename, ext)
 			db.insertUnit(unitName, path)
 		})
+}
+
+func (db *symDB) writeToLog(unitName string, prefix string) {
+
+	var writeLevel func(scope string, prefix string)
+
+	writeLevel = func(scope string, prefix string) {
+		writeSymbol := func(sym *Symbol) error {
+			log.Structure.Debug().Msgf(prefix+"path: %s", sym.Path)
+			log.Structure.Debug().Msgf(prefix+"name: %s", sym.Name)
+			writeLevel(sym.Path, prefix+"----")
+			return nil
+		}
+		writer := SymbolWriterFunc(writeSymbol)
+		db.LocateSymbolsInScope("%", unitName, scope, writer)
+	}
+	if log.Structure.Debug().Enabled() {
+		writeLevel("", "")
+	}
+
 }
 
 func getFileModTime(filepath string) (int64, error) {

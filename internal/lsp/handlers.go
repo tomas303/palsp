@@ -21,7 +21,7 @@ func handleRequest(request LSPRequest) (response edit.OpResult) {
 				err = fmt.Errorf("%v", v)
 			}
 			response = edit.OpFailure("", err)
-			log.Logger.Error().Err(err).Msg("Recovered from panic in LSP handler")
+			log.Main.Error().Err(err).Msg("Recovered from panic in LSP handler")
 		}
 	}()
 

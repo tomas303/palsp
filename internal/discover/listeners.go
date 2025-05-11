@@ -118,8 +118,6 @@ func NewMemorySymbolCollector(unitName string) *memoryCollector {
 }
 
 func (mc *memoryCollector) BeginScope(name string, scopeInfo scopeInfo) {
-	// todo - create some specific logger for parsing scopes(too much infos so to be able to allow only something per demand and use it in listener)
-	// log.Logger.Debug().Str("begin scope", name).Int("line", position.Line).Int("chr", position.Character).Send()
 	var parentScope *commonScope
 	if mc.scopeStack.length() == 0 {
 		parentScope = nil
@@ -131,7 +129,6 @@ func (mc *memoryCollector) BeginScope(name string, scopeInfo scopeInfo) {
 }
 
 func (mc *memoryCollector) EndScope(name string) {
-	// log.Logger.Debug().Str("end scope", name).Send()
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
 	scope.parentSWM = parentscope.symbolStack.length() - 1

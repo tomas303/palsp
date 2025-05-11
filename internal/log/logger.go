@@ -10,9 +10,9 @@ import (
 
 var (
 	// Global logger instance
-	Logger           zerolog.Logger
-	AntlrErrorLogger zerolog.Logger
-	AntlrTraceLogger zerolog.Logger
+	Main       zerolog.Logger
+	AntlrError zerolog.Logger
+	AntlrTrace zerolog.Logger
 )
 
 // LogLevel represents log severity levels
@@ -124,7 +124,7 @@ func NewAntlrTraceLogger(level *string, file *string) zerolog.Logger {
 }
 
 func IsDebugEnabled() bool {
-	return Logger.GetLevel() == zerolog.DebugLevel
+	return Main.GetLevel() == zerolog.DebugLevel
 }
 
 func toString(i interface{}) string {

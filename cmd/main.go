@@ -17,10 +17,10 @@ func main() {
 	logFileAntlrTrace := flag.String("log-file-antlr-trace", "", "Log file path (defaults to stderr)")
 	flag.Parse()
 
-	log.Logger = log.NewLogger(logLevel, logFile)
-	log.AntlrErrorLogger = log.NewAntlrErrorLogger(logLevelAntlrError, logFileAntlrError)
-	log.AntlrTraceLogger = log.NewAntlrTraceLogger(logLevelAntlrTrace, logFileAntlrTrace)
+	log.Main = log.NewLogger(logLevel, logFile)
+	log.AntlrError = log.NewAntlrErrorLogger(logLevelAntlrError, logFileAntlrError)
+	log.AntlrTrace = log.NewAntlrTraceLogger(logLevelAntlrTrace, logFileAntlrTrace)
 
-	log.Logger.Info().Msg("Application started")
+	log.Main.Info().Msg("Application started")
 	lsp.StartServer(*port)
 }

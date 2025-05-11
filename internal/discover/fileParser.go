@@ -24,7 +24,7 @@ func NewZerologErrorListener(debugInfo string) *ZerologErrorListener {
 // SyntaxError is called by ANTLR when a syntax error occurs
 func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
 	line, column int, msg string, e antlr.RecognitionException) {
-	log.AntlrErrorLogger.Error().
+	log.AntlrError.Error().
 		Int("line", line).
 		Int("column", column).
 		Str("msg", msg).
@@ -49,7 +49,7 @@ func (t *ZerologTraceListener) VisitErrorNode(_ antlr.ErrorNode) {
 }
 
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTraceLogger.Debug().
+	log.AntlrTrace.Debug().
 		Str("di", t.degubInfo).
 		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
@@ -57,7 +57,7 @@ func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 }
 
 func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
-	log.AntlrTraceLogger.Debug().
+	log.AntlrTrace.Debug().
 		Str("di", t.degubInfo).
 		Str("consume", fmt.Sprint(node.GetSymbol())).
 		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
@@ -65,7 +65,7 @@ func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
 }
 
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTraceLogger.Debug().
+	log.AntlrTrace.Debug().
 		Str("di", t.degubInfo).
 		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", t.parser.GetTokenStream().LT(1).GetText()).

@@ -59,12 +59,12 @@ func init() {
 	var err error
 	db, err = newSymDB()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to initialize database")
+		log.Main.Fatal().Err(err).Msg("Failed to initialize database")
 	}
 
 	err = createTables(db)
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("Failed to create tables")
+		log.Main.Fatal().Err(err).Msg("Failed to create tables")
 	}
 }
 
@@ -192,7 +192,7 @@ func (db *symDB) RetriveUnit(unit string) (int, string, error) {
 	// Check the current file modification time
 	currentModTime, err := getFileModTime(unitpath)
 	if err != nil {
-		log.Logger.Warn().Err(err).Msgf("SearchSymbol error path %s errored obtaining file time", unitpath)
+		log.Main.Warn().Err(err).Msgf("SearchSymbol error path %s errored obtaining file time", unitpath)
 		return 0, unitname, err
 	}
 
@@ -200,12 +200,12 @@ func (db *symDB) RetriveUnit(unit string) (int, string, error) {
 	if currentModTime > lastModified || scanned == 0 {
 		err = db.dropSymbols(unitID)
 		if err != nil {
-			log.Logger.Warn().Err(err).Msg("dropping symbols error")
+			log.Main.Warn().Err(err).Msg("dropping symbols error")
 			return 0, unitname, err
 		}
 		err = db.fillSymbols(unitID, unitpath)
 		if err != nil {
-			log.Logger.Warn().Err(err).Msg("filling symbols error")
+			log.Main.Warn().Err(err).Msg("filling symbols error")
 			return 0, unitname, err
 		}
 	}
@@ -219,7 +219,7 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 	unitID, unitname, err := db.RetriveUnit(unit)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Logger.Warn().Err(err).Msgf("SearchSymbol error path %s not found", unit)
+			log.Main.Warn().Err(err).Msgf("SearchSymbol error path %s not found", unit)
 			return []Symbol{}, nil
 		}
 		return nil, err
@@ -360,7 +360,7 @@ func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastMod
 	// If not found, try with scope prefixes
 	for _, scope := range db.unitScopeNames {
 		scopedUnit := scope + "." + unit
-		log.Logger.Debug().Str("original", unit).Str("scoped", scopedUnit).Msg("Trying with scope prefix")
+		log.Main.Debug().Str("original", unit).Str("scoped", scopedUnit).Msg("Trying with scope prefix")
 
 		err = db.QueryRow(query, scopedUnit).Scan(&unitID, &unitpath, &lastModified, &scanned)
 		if err == nil {
@@ -369,7 +369,7 @@ func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastMod
 	}
 
 	// If we get here, we couldn't find the unit
-	log.Logger.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
+	log.Main.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
 	return 0, "", 0, 0, "", err
 }
 
@@ -457,7 +457,7 @@ func (db *symDB) DropSymbolsFromPath(path string) {
 	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
 	rows, err := db.Query(query, unitName)
 	if err != nil {
-		log.Logger.Warn().Err(err).Msgf("DropSymbolsFromPath error: couldn't query units for %s", unitName)
+		log.Main.Warn().Err(err).Msgf("DropSymbolsFromPath error: couldn't query units for %s", unitName)
 		return
 	}
 	defer rows.Close()
@@ -466,17 +466,17 @@ func (db *symDB) DropSymbolsFromPath(path string) {
 	for rows.Next() {
 		var unitID int
 		if err := rows.Scan(&unitID); err != nil {
-			log.Logger.Warn().Err(err).Msg("Error scanning unit ID")
+			log.Main.Warn().Err(err).Msg("Error scanning unit ID")
 			continue
 		}
 
 		if err := db.dropSymbols(unitID); err != nil {
-			log.Logger.Warn().Err(err).Msgf("Error dropping symbols for unit ID %d", unitID)
+			log.Main.Warn().Err(err).Msgf("Error dropping symbols for unit ID %d", unitID)
 		}
 		// Reset the scanned flag
 		_, err = db.Exec("UPDATE units SET scanned = 0 WHERE id = ?", unitID)
 		if err != nil {
-			log.Logger.Warn().Err(err).Msgf("Error resetting scanned flag for unit ID %d", unitID)
+			log.Main.Warn().Err(err).Msgf("Error resetting scanned flag for unit ID %d", unitID)
 		}
 	}
 }

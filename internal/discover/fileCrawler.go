@@ -46,7 +46,7 @@ func scanDirTree(root string, pathChan chan<- string) {
 	// Process the current directory
 	dir, err := os.Open(root)
 	if err != nil {
-		log.Logger.Error().Str("path", root).Msg("Error opening directory")
+		log.Main.Error().Str("path", root).Msg("Error opening directory")
 		return
 	}
 	defer dir.Close()
@@ -55,7 +55,7 @@ func scanDirTree(root string, pathChan chan<- string) {
 		// Read directory entries in chunks without loading all at once
 		entries, err := dir.ReadDir(100)
 		if err != nil && err != io.EOF {
-			log.Logger.Error().Str("path", root).Msg("Error reading directory")
+			log.Main.Error().Str("path", root).Msg("Error reading directory")
 			return
 		}
 		if len(entries) == 0 {

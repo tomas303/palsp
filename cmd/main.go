@@ -16,7 +16,7 @@ func main() {
 	logLevelAntlrTrace := flag.String("log-level-antlr-trace", "none", "Log level (debug, info, warn, error, none)")
 	logFileAntlrTrace := flag.String("log-file-antlr-trace", "", "Log file path (defaults to stderr)")
 	logLevelStructure := flag.String("log-level-structure", "none", "Log level (debug, info, warn, error, none)")
-	logFileStructure := flag.String("log-file-antlr-structure", "", "Log file path (defaults to stderr)")
+	logFileStructure := flag.String("log-file-structure", "", "Log file path (defaults to stderr)")
 	flag.Parse()
 
 	log.Main = log.NewLogger(logLevelMain, logFileMain)

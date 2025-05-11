@@ -9,8 +9,8 @@ import (
 
 func main() {
 	port := flag.String("port", "", "Port to run the LSP server on (leave empty for stdio)")
-	logLevel := flag.String("log-level", "none", "Log level (debug, info, warn, error, none)")
-	logFile := flag.String("log-file", "", "Log file path (defaults to stderr)")
+	logLevelMain := flag.String("log-level-main", "none", "Log level (debug, info, warn, error, none)")
+	logFileMain := flag.String("log-file-main", "", "Log file path (defaults to stderr)")
 	logLevelAntlrError := flag.String("log-level-antlr-error", "none", "Log level (debug, info, warn, error, none)")
 	logFileAntlrError := flag.String("log-file-antlr-error", "", "Log file path (defaults to stderr)")
 	logLevelAntlrTrace := flag.String("log-level-antlr-trace", "none", "Log level (debug, info, warn, error, none)")
@@ -19,7 +19,7 @@ func main() {
 	logFileStructure := flag.String("log-file-antlr-structure", "", "Log file path (defaults to stderr)")
 	flag.Parse()
 
-	log.Main = log.NewLogger(logLevel, logFile)
+	log.Main = log.NewLogger(logLevelMain, logFileMain)
 	log.AntlrError = log.NewAntlrErrorLogger(logLevelAntlrError, logFileAntlrError)
 	log.AntlrTrace = log.NewAntlrTraceLogger(logLevelAntlrTrace, logFileAntlrTrace)
 	log.Structure = log.NewLogger(logLevelStructure, logFileStructure)

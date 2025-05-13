@@ -124,10 +124,6 @@ func NewAntlrTraceLogger(level *string, file *string) zerolog.Logger {
 	return result
 }
 
-func IsDebugEnabled() bool {
-	return Main.GetLevel() == zerolog.DebugLevel
-}
-
 func toString(i interface{}) string {
 	if i == nil {
 		return ""

@@ -25,10 +25,10 @@
             "mode": "debug",
             "program": "${workspaceFolder}/cmd",
             "args": ["--port", "8080", 
-                "--log-level-main", "debug", 
+                "--log-level-main", "none", 
                 "--log-level-antlr-error", "debug",
                 "--log-level-antlr-trace", "debug",
-                "--log-level-structure", "debug",
+                "--log-level-structure", "none",
                 "--log-file-structure", "/home/tomas/testsrcs/structures.log"
             ],
             "env": {},

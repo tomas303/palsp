@@ -7,6 +7,7 @@ import (
 	"palsp/internal/log"
 
 	"github.com/antlr4-go/antlr/v4"
+	"github.com/rs/zerolog"
 )
 
 // Custom error listener that sends errors to zerolog
@@ -129,7 +130,7 @@ func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) 
 
 	p.SetErrorHandler(NewResilientErrorStrategy())
 
-	if log.IsDebugEnabled() {
+	if log.AntlrTrace.GetLevel() == zerolog.DebugLevel {
 		p.AddParseListener(NewZerologTraceListener(p, debugInfo))
 	}
 

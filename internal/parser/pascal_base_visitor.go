@@ -164,6 +164,10 @@ func (v *BasepascalVisitor) VisitClassDeclarationPart(ctx *ClassDeclarationPartC
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitPropertyDeclaration(ctx *PropertyDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -189,10 +193,6 @@ func (v *BasepascalVisitor) VisitPropertyIndexParameters(ctx *PropertyIndexParam
 }
 
 func (v *BasepascalVisitor) VisitPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitMethodIdentifier(ctx *MethodIdentifierContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

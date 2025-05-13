@@ -125,6 +125,9 @@ type pascalListener interface {
 	// EnterClassDeclarationPart is called when entering the classDeclarationPart production.
 	EnterClassDeclarationPart(c *ClassDeclarationPartContext)
 
+	// EnterErrorClassDeclarationPart is called when entering the errorClassDeclarationPart production.
+	EnterErrorClassDeclarationPart(c *ErrorClassDeclarationPartContext)
+
 	// EnterPropertyDeclaration is called when entering the propertyDeclaration production.
 	EnterPropertyDeclaration(c *PropertyDeclarationContext)
 
@@ -145,9 +148,6 @@ type pascalListener interface {
 
 	// EnterPropertyIndexParametersList is called when entering the propertyIndexParametersList production.
 	EnterPropertyIndexParametersList(c *PropertyIndexParametersListContext)
-
-	// EnterMethodIdentifier is called when entering the methodIdentifier production.
-	EnterMethodIdentifier(c *MethodIdentifierContext)
 
 	// EnterGenericTemplate is called when entering the genericTemplate production.
 	EnterGenericTemplate(c *GenericTemplateContext)
@@ -533,6 +533,9 @@ type pascalListener interface {
 	// ExitClassDeclarationPart is called when exiting the classDeclarationPart production.
 	ExitClassDeclarationPart(c *ClassDeclarationPartContext)
 
+	// ExitErrorClassDeclarationPart is called when exiting the errorClassDeclarationPart production.
+	ExitErrorClassDeclarationPart(c *ErrorClassDeclarationPartContext)
+
 	// ExitPropertyDeclaration is called when exiting the propertyDeclaration production.
 	ExitPropertyDeclaration(c *PropertyDeclarationContext)
 
@@ -553,9 +556,6 @@ type pascalListener interface {
 
 	// ExitPropertyIndexParametersList is called when exiting the propertyIndexParametersList production.
 	ExitPropertyIndexParametersList(c *PropertyIndexParametersListContext)
-
-	// ExitMethodIdentifier is called when exiting the methodIdentifier production.
-	ExitMethodIdentifier(c *MethodIdentifierContext)
 
 	// ExitGenericTemplate is called when exiting the genericTemplate production.
 	ExitGenericTemplate(c *GenericTemplateContext)

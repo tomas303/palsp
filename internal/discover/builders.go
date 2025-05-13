@@ -506,9 +506,7 @@ func buildProcedureHeader(ctx *parser.ProcedureHeaderContext) string {
 	} else if ctx.DESTRUCTOR() != nil {
 		definition += "destructor "
 	}
-	if ctx.MethodIdentifier() != nil {
-		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
-	} else if ctx.Identifier() != nil {
+	if ctx.Identifier() != nil {
 		name = buildIdentifier(ctx.Identifier())
 	}
 	definition += name
@@ -524,9 +522,7 @@ func buildFunctionHeader(ctx *parser.FunctionHeaderContext) string {
 		definition = "class "
 	}
 	definition += "function "
-	if ctx.MethodIdentifier() != nil {
-		name = buildIdentifier(ctx.MethodIdentifier().Identifier())
-	} else if ctx.Identifier() != nil {
+	if ctx.Identifier() != nil {
 		name = buildIdentifier(ctx.Identifier())
 	}
 	definition += name

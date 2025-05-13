@@ -246,7 +246,13 @@ classDeclarationPart
     | functionHeader
     | procedureHeader
     | propertyDeclaration SEMI (DEFAULT SEMI)?
+    | errorClassDeclarationPart SEMI
     ;
+
+errorClassDeclarationPart
+    : ~(PRIVATE | STRICTPRIVATE | PROTECTED | STRICTPROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    ;
+
 
 propertyDeclaration
     : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration? propertyIndexDeclaration?

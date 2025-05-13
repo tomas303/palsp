@@ -125,6 +125,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#classDeclarationPart.
 	VisitClassDeclarationPart(ctx *ClassDeclarationPartContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#errorClassDeclarationPart.
+	VisitErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#propertyDeclaration.
 	VisitPropertyDeclaration(ctx *PropertyDeclarationContext) interface{}
 
@@ -145,9 +148,6 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#propertyIndexParametersList.
 	VisitPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#methodIdentifier.
-	VisitMethodIdentifier(ctx *MethodIdentifierContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#genericTemplate.
 	VisitGenericTemplate(ctx *GenericTemplateContext) interface{}

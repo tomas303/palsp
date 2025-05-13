@@ -257,6 +257,12 @@ func (s *BasepascalListener) EnterClassDeclarationPart(ctx *ClassDeclarationPart
 // ExitClassDeclarationPart is called when production classDeclarationPart is exited.
 func (s *BasepascalListener) ExitClassDeclarationPart(ctx *ClassDeclarationPartContext) {}
 
+// EnterErrorClassDeclarationPart is called when production errorClassDeclarationPart is entered.
+func (s *BasepascalListener) EnterErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) {}
+
+// ExitErrorClassDeclarationPart is called when production errorClassDeclarationPart is exited.
+func (s *BasepascalListener) ExitErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) {}
+
 // EnterPropertyDeclaration is called when production propertyDeclaration is entered.
 func (s *BasepascalListener) EnterPropertyDeclaration(ctx *PropertyDeclarationContext) {}
 
@@ -302,12 +308,6 @@ func (s *BasepascalListener) EnterPropertyIndexParametersList(ctx *PropertyIndex
 // ExitPropertyIndexParametersList is called when production propertyIndexParametersList is exited.
 func (s *BasepascalListener) ExitPropertyIndexParametersList(ctx *PropertyIndexParametersListContext) {
 }
-
-// EnterMethodIdentifier is called when production methodIdentifier is entered.
-func (s *BasepascalListener) EnterMethodIdentifier(ctx *MethodIdentifierContext) {}
-
-// ExitMethodIdentifier is called when production methodIdentifier is exited.
-func (s *BasepascalListener) ExitMethodIdentifier(ctx *MethodIdentifierContext) {}
 
 // EnterGenericTemplate is called when production genericTemplate is entered.
 func (s *BasepascalListener) EnterGenericTemplate(ctx *GenericTemplateContext) {}

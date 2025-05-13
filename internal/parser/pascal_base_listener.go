@@ -505,6 +505,19 @@ func (s *BasepascalListener) EnterFunctionDeclaration(ctx *FunctionDeclarationCo
 // ExitFunctionDeclaration is called when production functionDeclaration is exited.
 func (s *BasepascalListener) ExitFunctionDeclaration(ctx *FunctionDeclarationContext) {}
 
+// EnterProcedureLambdaDeclaration is called when production procedureLambdaDeclaration is entered.
+func (s *BasepascalListener) EnterProcedureLambdaDeclaration(ctx *ProcedureLambdaDeclarationContext) {
+}
+
+// ExitProcedureLambdaDeclaration is called when production procedureLambdaDeclaration is exited.
+func (s *BasepascalListener) ExitProcedureLambdaDeclaration(ctx *ProcedureLambdaDeclarationContext) {}
+
+// EnterFunctionLambdaDeclaration is called when production functionLambdaDeclaration is entered.
+func (s *BasepascalListener) EnterFunctionLambdaDeclaration(ctx *FunctionLambdaDeclarationContext) {}
+
+// ExitFunctionLambdaDeclaration is called when production functionLambdaDeclaration is exited.
+func (s *BasepascalListener) ExitFunctionLambdaDeclaration(ctx *FunctionLambdaDeclarationContext) {}
+
 // EnterResultType is called when production resultType is entered.
 func (s *BasepascalListener) EnterResultType(ctx *ResultTypeContext) {}
 

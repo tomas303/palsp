@@ -245,6 +245,12 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#functionDeclaration.
 	VisitFunctionDeclaration(ctx *FunctionDeclarationContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#procedureLambdaDeclaration.
+	VisitProcedureLambdaDeclaration(ctx *ProcedureLambdaDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#functionLambdaDeclaration.
+	VisitFunctionLambdaDeclaration(ctx *FunctionLambdaDeclarationContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#resultType.
 	VisitResultType(ctx *ResultTypeContext) interface{}
 

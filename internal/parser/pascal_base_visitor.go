@@ -324,6 +324,14 @@ func (v *BasepascalVisitor) VisitFunctionDeclaration(ctx *FunctionDeclarationCon
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitProcedureLambdaDeclaration(ctx *ProcedureLambdaDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitFunctionLambdaDeclaration(ctx *FunctionLambdaDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitResultType(ctx *ResultTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

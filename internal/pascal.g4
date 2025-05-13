@@ -432,6 +432,14 @@ functionDeclaration
     : functionHeader procedureOrFunctionBody SEMI
     ;
 
+procedureLambdaDeclaration
+    : PROCEDURE (formalParameterList)? procedureOrFunctionBody
+    ;
+
+functionLambdaDeclaration
+    : FUNCTION (formalParameterList)? procedureOrFunctionBody COLON resultType
+    ;
+
 resultType
     : typeIdentifier
     ;
@@ -565,9 +573,9 @@ signedFactor
     ;
 
 factor
-    : variable (AS identifier)?
+    : INHERITED? functionDesignator
+    | variable (AS identifier)?
     | LPAREN expression RPAREN
-    | INHERITED? functionDesignator
     | unsignedConstant
     | set_
     | NOT factor
@@ -617,6 +625,8 @@ methodCallStatement
 
 actualParameter
     : expression parameterwidth*
+    | procedureLambdaDeclaration
+    | functionLambdaDeclaration
     ;
 
 parameterwidth

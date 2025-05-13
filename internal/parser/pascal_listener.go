@@ -245,6 +245,12 @@ type pascalListener interface {
 	// EnterFunctionDeclaration is called when entering the functionDeclaration production.
 	EnterFunctionDeclaration(c *FunctionDeclarationContext)
 
+	// EnterProcedureLambdaDeclaration is called when entering the procedureLambdaDeclaration production.
+	EnterProcedureLambdaDeclaration(c *ProcedureLambdaDeclarationContext)
+
+	// EnterFunctionLambdaDeclaration is called when entering the functionLambdaDeclaration production.
+	EnterFunctionLambdaDeclaration(c *FunctionLambdaDeclarationContext)
+
 	// EnterResultType is called when entering the resultType production.
 	EnterResultType(c *ResultTypeContext)
 
@@ -652,6 +658,12 @@ type pascalListener interface {
 
 	// ExitFunctionDeclaration is called when exiting the functionDeclaration production.
 	ExitFunctionDeclaration(c *FunctionDeclarationContext)
+
+	// ExitProcedureLambdaDeclaration is called when exiting the procedureLambdaDeclaration production.
+	ExitProcedureLambdaDeclaration(c *ProcedureLambdaDeclarationContext)
+
+	// ExitFunctionLambdaDeclaration is called when exiting the functionLambdaDeclaration production.
+	ExitFunctionLambdaDeclaration(c *FunctionLambdaDeclarationContext)
 
 	// ExitResultType is called when exiting the resultType production.
 	ExitResultType(c *ResultTypeContext)

@@ -95,21 +95,23 @@ func NewAntlrErrorLogger(level *string, file *string) zerolog.Logger {
 func NewAntlrTraceLogger(level *string, file *string) zerolog.Logger {
 	logLevel := logLevelToZerologLevel(level)
 	consoleWriter := newConsoleWriter(file)
-	consoleWriter.FieldsOrder = []string{"di", "line", "column", "msg"}
+	consoleWriter.FieldsOrder = []string{"di", "enter", "exit", "token", "rule", "consume"}
 	consoleWriter.FormatFieldName = func(i interface{}) string {
 		// return colorError + i.(string) + ":" + colorReset
 		fieldName := toString(i)
 		switch fieldName {
 		case "di":
-			return colorError + fieldName + ": " + colorCyan
-		case "line":
-			return colorError + fieldName + ": " + colorYellow
-		case "column":
-			return colorError + fieldName + ": " + colorYellow
-		case "msg":
-			return colorError + fieldName + ": " + colorLightOrange
+			return colorDebug + fieldName + ": " + colorCyan
+		case "enter", "exit":
+			return colorDebug + fieldName + ": " + colorGreen
+		case "token":
+			return colorDebug + fieldName + ": " + colorYellow
+		case "rule":
+			return colorDebug + fieldName + ": " + colorGreen
+		case "consume":
+			return colorDebug + fieldName + ": " + colorMagenta
 		default:
-			return colorError + fieldName + ": " + colorWhite
+			return colorDebug + fieldName + ": " + colorWhite
 		}
 	}
 	consoleWriter.FormatFieldValue = func(i interface{}) string {

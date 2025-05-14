@@ -45,12 +45,25 @@ func NewZerologTraceListener(parser antlr.Parser, debugInfo string) *ZerologTrac
 	tl.degubInfo = debugInfo
 	return tl
 }
+func (t *ZerologTraceListener) getEvent(ctx antlr.ParserRuleContext) *zerolog.Event {
+	ruleName := t.parser.GetRuleNames()[ctx.GetRuleIndex()]
+	if len(ruleName) >= 5 && ruleName[0:5] == "error" {
+		return log.AntlrTrace.Error()
+	}
+	return log.AntlrTrace.Debug()
+}
 
-func (t *ZerologTraceListener) VisitErrorNode(_ antlr.ErrorNode) {
+func (t *ZerologTraceListener) VisitErrorNode(node antlr.ErrorNode) {
+	log.AntlrTrace.Error().
+		Str("di", t.degubInfo).
+		Str("errorNode", node.GetText()).
+		Str("interval", fmt.Sprintf("%v", node.GetSourceInterval())).
+		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
+		Send()
 }
 
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTrace.Debug().
+	t.getEvent(ctx).
 		Str("di", t.degubInfo).
 		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
@@ -58,7 +71,7 @@ func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 }
 
 func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
-	log.AntlrTrace.Debug().
+	t.getEvent(t.parser.GetParserRuleContext()).
 		Str("di", t.degubInfo).
 		Str("consume", fmt.Sprint(node.GetSymbol())).
 		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
@@ -66,7 +79,7 @@ func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
 }
 
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTrace.Debug().
+	t.getEvent(ctx).
 		Str("di", t.degubInfo).
 		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
@@ -129,10 +142,7 @@ func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) 
 	p.AddErrorListener(NewZerologErrorListener(debugInfo))
 
 	p.SetErrorHandler(NewResilientErrorStrategy())
-
-	if log.AntlrTrace.GetLevel() == zerolog.DebugLevel {
-		p.AddParseListener(NewZerologTraceListener(p, debugInfo))
-	}
+	p.AddParseListener(NewZerologTraceListener(p, debugInfo))
 
 	// Return the AST by invoking the Source rule
 	return p.Source(), stream

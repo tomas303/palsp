@@ -27,9 +27,11 @@
             "args": ["--port", "8080", 
                 "--log-level-main", "none", 
                 "--log-level-antlr-error", "debug",
+                // "--log-file-antlr-error", "/tmp/palsp/error.log",
                 "--log-level-antlr-trace", "debug",
+                // "--log-file-antlr-trace", "/tmp/palsp/trace.log",
                 "--log-level-structure", "none",
-                "--log-file-structure", "/home/tomas/testsrcs/structures.log"
+                "--log-file-structure", "/tmp/palsp/structures.log"
             ],
             "env": {},
             "buildFlags": "",

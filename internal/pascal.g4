@@ -504,6 +504,7 @@ simpleStatement
     | procedureStatement
     | gotoStatement
     | inheritedStatement
+    | typeCast
     | emptyStatement_
     | raiseExceptionStatement
     ;
@@ -527,6 +528,7 @@ variable
 
 typeCast
     : typeIdentifier LPAREN expression RPAREN 
+    | LPAREN expression AS typeIdentifier  RPAREN 
     ;
 
 

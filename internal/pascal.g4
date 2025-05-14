@@ -639,7 +639,7 @@ gotoStatement
     ;
 
 inheritedStatement
-    : INHERITED (identifier) (LPAREN parameterList RPAREN)?
+    : INHERITED (identifier (LPAREN parameterList RPAREN)?)?
     ;
 
 emptyStatement_

@@ -393,14 +393,10 @@ func buildGenericTemplate(ctx parser.IGenericTemplateContext) string {
 		return ""
 	}
 	result := "<"
-	templateItems := ctx.GenericTemplateList().AllGenericTemplateItem()
-	for i, templateItem := range templateItems {
-		if templateItem.Identifier() != nil {
-			result += buildIdentifier(templateItem.Identifier())
-		} else if templateItem.GenericTemplate() != nil {
-			result += buildGenericTemplate(templateItem.GenericTemplate())
-		}
-		if i < len(templateItems)-1 {
+	typeidentifiers := ctx.GenericTemplateList().AllTypeIdentifier()
+	for i, typeidentifier := range typeidentifiers {
+		result += buildTypeIdentifier(typeidentifier)
+		if i < len(typeidentifiers)-1 {
 			result += ","
 		}
 	}

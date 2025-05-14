@@ -204,10 +204,6 @@ func (v *BasepascalVisitor) VisitGenericTemplateList(ctx *GenericTemplateListCon
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitGenericTemplateItem(ctx *GenericTemplateItemContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitType_(ctx *Type_Context) interface{} {
 	return v.VisitChildren(ctx)
 }

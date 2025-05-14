@@ -288,13 +288,14 @@ genericTemplate
     ;
 
 genericTemplateList
-    : genericTemplateItem (COMMA genericTemplateItem)*
+    // : genericTemplateItem (COMMA genericTemplateItem)*
+    : typeIdentifier (COMMA typeIdentifier)*
     ;
 
-genericTemplateItem
-    : identifier
-    | genericTemplate
-    ;
+// genericTemplateItem
+//     : identifier
+//     | genericTemplate
+//     ;
 
 type_
     : simpleType
@@ -403,11 +404,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) (identifier) (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : CLASS? FUNCTION (identifier) (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader

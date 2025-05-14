@@ -155,9 +155,6 @@ type pascalListener interface {
 	// EnterGenericTemplateList is called when entering the genericTemplateList production.
 	EnterGenericTemplateList(c *GenericTemplateListContext)
 
-	// EnterGenericTemplateItem is called when entering the genericTemplateItem production.
-	EnterGenericTemplateItem(c *GenericTemplateItemContext)
-
 	// EnterType_ is called when entering the type_ production.
 	EnterType_(c *Type_Context)
 
@@ -568,9 +565,6 @@ type pascalListener interface {
 
 	// ExitGenericTemplateList is called when exiting the genericTemplateList production.
 	ExitGenericTemplateList(c *GenericTemplateListContext)
-
-	// ExitGenericTemplateItem is called when exiting the genericTemplateItem production.
-	ExitGenericTemplateItem(c *GenericTemplateItemContext)
 
 	// ExitType_ is called when exiting the type_ production.
 	ExitType_(c *Type_Context)

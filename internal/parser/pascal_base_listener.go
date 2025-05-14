@@ -321,12 +321,6 @@ func (s *BasepascalListener) EnterGenericTemplateList(ctx *GenericTemplateListCo
 // ExitGenericTemplateList is called when production genericTemplateList is exited.
 func (s *BasepascalListener) ExitGenericTemplateList(ctx *GenericTemplateListContext) {}
 
-// EnterGenericTemplateItem is called when production genericTemplateItem is entered.
-func (s *BasepascalListener) EnterGenericTemplateItem(ctx *GenericTemplateItemContext) {}
-
-// ExitGenericTemplateItem is called when production genericTemplateItem is exited.
-func (s *BasepascalListener) ExitGenericTemplateItem(ctx *GenericTemplateItemContext) {}
-
 // EnterType_ is called when production type_ is entered.
 func (s *BasepascalListener) EnterType_(ctx *Type_Context) {}
 

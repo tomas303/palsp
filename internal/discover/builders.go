@@ -343,7 +343,7 @@ func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHead
 
 func getLastIdent(ctx parser.IIdentifierContext) string {
 	if ctx != nil {
-		identTokens := ctx.AllIDENT()
+		identTokens := ctx.AllIdentifierPart()
 		if len(identTokens) == 0 {
 			return ""
 		}
@@ -353,27 +353,33 @@ func getLastIdent(ctx parser.IIdentifierContext) string {
 	return ""
 }
 
-func buildIdentifier(ctx parser.IIdentifierContext) string {
-	if ctx != nil {
-		nodes := ctx.AllIDENT()
-		if len(nodes) > 0 {
-			var texts []string
-			for _, node := range nodes {
-				texts = append(texts, node.GetText())
-			}
-			return strings.Join(texts, ".")
-		}
-		if ctx.INDEX() != nil {
-			return ctx.INDEX().GetText()
-		}
-		if ctx.READ() != nil {
-			return ctx.READ().GetText()
-		}
-		if ctx.WRITE() != nil {
-			return ctx.WRITE().GetText()
-		}
+func buildIdentifierPart(ctx parser.IIdentifierPartContext) string {
+	if ctx.IDENT() != nil {
+		return ctx.IDENT().GetText()
+	}
+	if ctx.INDEX() != nil {
+		return ctx.INDEX().GetText()
+	}
+	if ctx.READ() != nil {
+		return ctx.READ().GetText()
+	}
+	if ctx.WRITE() != nil {
+		return ctx.WRITE().GetText()
 	}
 	return ""
+}
+
+func buildIdentifier(ctx parser.IIdentifierContext) string {
+	result := ""
+	if ctx != nil {
+		for i, part := range ctx.AllIdentifierPart() {
+			if i > 0 {
+				result += "."
+			}
+			result += buildIdentifierPart(part)
+		}
+	}
+	return result
 }
 
 func buildIdentifiers(ctx parser.IIdentifierListContext) string {

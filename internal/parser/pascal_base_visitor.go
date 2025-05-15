@@ -40,6 +40,10 @@ func (v *BasepascalVisitor) VisitIdentifier(ctx *IdentifierContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitIdentifierPart(ctx *IdentifierPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitInterfaceBlock(ctx *InterfaceBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }

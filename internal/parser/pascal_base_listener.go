@@ -69,6 +69,12 @@ func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}
 // ExitIdentifier is called when production identifier is exited.
 func (s *BasepascalListener) ExitIdentifier(ctx *IdentifierContext) {}
 
+// EnterIdentifierPart is called when production identifierPart is entered.
+func (s *BasepascalListener) EnterIdentifierPart(ctx *IdentifierPartContext) {}
+
+// ExitIdentifierPart is called when production identifierPart is exited.
+func (s *BasepascalListener) ExitIdentifierPart(ctx *IdentifierPartContext) {}
+
 // EnterInterfaceBlock is called when production interfaceBlock is entered.
 func (s *BasepascalListener) EnterInterfaceBlock(ctx *InterfaceBlockContext) {}
 

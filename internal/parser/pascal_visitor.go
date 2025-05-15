@@ -32,6 +32,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#identifier.
 	VisitIdentifier(ctx *IdentifierContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#identifierPart.
+	VisitIdentifierPart(ctx *IdentifierPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#interfaceBlock.
 	VisitInterfaceBlock(ctx *InterfaceBlockContext) interface{}
 

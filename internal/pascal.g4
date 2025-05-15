@@ -77,7 +77,11 @@ finalizationSection
     ;
 
 identifier
-    : IDENT (DOT IDENT)*
+    : identifierPart (DOT identifierPart)*
+    ;
+
+identifierPart
+    : IDENT
     | INDEX
     | READ
     | WRITE

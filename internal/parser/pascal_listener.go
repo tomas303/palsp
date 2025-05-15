@@ -32,6 +32,9 @@ type pascalListener interface {
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
 
+	// EnterIdentifierPart is called when entering the identifierPart production.
+	EnterIdentifierPart(c *IdentifierPartContext)
+
 	// EnterInterfaceBlock is called when entering the interfaceBlock production.
 	EnterInterfaceBlock(c *InterfaceBlockContext)
 
@@ -442,6 +445,9 @@ type pascalListener interface {
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)
+
+	// ExitIdentifierPart is called when exiting the identifierPart production.
+	ExitIdentifierPart(c *IdentifierPartContext)
 
 	// ExitInterfaceBlock is called when exiting the interfaceBlock production.
 	ExitInterfaceBlock(c *InterfaceBlockContext)

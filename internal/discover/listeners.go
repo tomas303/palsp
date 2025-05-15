@@ -268,6 +268,20 @@ func (s *scopesListener) ExitVariableDeclaration(ctx *parser.VariableDeclaration
 	}
 }
 
+func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDeclarationStatementContext) {
+	typedef := ""
+	if ctx.TypeDefinition() != nil {
+		typedef = buildUnderscoreTypeDef(ctx.TypeDefinition().Type_())
+	}
+	// todo - if there is no type definition then it should be taken from expression
+	if ctx.Expression() != nil {
+		typedef += " := " + ctx.Expression().GetText()
+	}
+	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
+		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, positionFromCtx(identifier))
+	}
+}
+
 func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
 	fieldtype := ""
 	if ctx.TypeIdentifier() != nil {

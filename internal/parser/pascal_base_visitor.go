@@ -563,3 +563,15 @@ func (v *BasepascalVisitor) VisitTryFinallyStatement(ctx *TryFinallyStatementCon
 func (v *BasepascalVisitor) VisitWithStatementVariableList(ctx *WithStatementVariableListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
+
+func (v *BasepascalVisitor) VisitAttributeSection(ctx *AttributeSectionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitAttributeList(ctx *AttributeListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitAttributeItem(ctx *AttributeItemContext) interface{} {
+	return v.VisitChildren(ctx)
+}

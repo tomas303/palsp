@@ -424,4 +424,13 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#withStatementVariableList.
 	VisitWithStatementVariableList(ctx *WithStatementVariableListContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#attributeSection.
+	VisitAttributeSection(ctx *AttributeSectionContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#attributeList.
+	VisitAttributeList(ctx *AttributeListContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#attributeItem.
+	VisitAttributeItem(ctx *AttributeItemContext) interface{}
 }

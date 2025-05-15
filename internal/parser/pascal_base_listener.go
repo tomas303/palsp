@@ -865,3 +865,21 @@ func (s *BasepascalListener) EnterWithStatementVariableList(ctx *WithStatementVa
 
 // ExitWithStatementVariableList is called when production withStatementVariableList is exited.
 func (s *BasepascalListener) ExitWithStatementVariableList(ctx *WithStatementVariableListContext) {}
+
+// EnterAttributeSection is called when production attributeSection is entered.
+func (s *BasepascalListener) EnterAttributeSection(ctx *AttributeSectionContext) {}
+
+// ExitAttributeSection is called when production attributeSection is exited.
+func (s *BasepascalListener) ExitAttributeSection(ctx *AttributeSectionContext) {}
+
+// EnterAttributeList is called when production attributeList is entered.
+func (s *BasepascalListener) EnterAttributeList(ctx *AttributeListContext) {}
+
+// ExitAttributeList is called when production attributeList is exited.
+func (s *BasepascalListener) ExitAttributeList(ctx *AttributeListContext) {}
+
+// EnterAttributeItem is called when production attributeItem is entered.
+func (s *BasepascalListener) EnterAttributeItem(ctx *AttributeItemContext) {}
+
+// ExitAttributeItem is called when production attributeItem is exited.
+func (s *BasepascalListener) ExitAttributeItem(ctx *AttributeItemContext) {}

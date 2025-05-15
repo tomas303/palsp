@@ -201,7 +201,7 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType)
+    : attributeSection? identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType)
     ;
 
 functionType
@@ -242,7 +242,7 @@ classImplicitPublishedDeclaration
     ;
 
 classDeclarationPart
-    : typedIdentifierList SEMI
+    : attributeSection? typedIdentifierList SEMI
     | typeDefinitionPart
     | constantDefinitionPart
     // | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
@@ -292,14 +292,8 @@ genericTemplate
     ;
 
 genericTemplateList
-    // : genericTemplateItem (COMMA genericTemplateItem)*
     : typeIdentifier (COMMA typeIdentifier)*
     ;
-
-// genericTemplateItem
-//     : identifier
-//     | genericTemplate
-//     ;
 
 type_
     : simpleType
@@ -404,15 +398,15 @@ variableDeclarationPart
     ;
 
 variableDeclaration
-    : typedIdentifierList (EQUAL simpleExpression)?
+    : attributeSection? typedIdentifierList (EQUAL simpleExpression)?
     ;
 
 procedureHeader
-    : CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader
@@ -458,12 +452,12 @@ formalParameterList
     ;
 
 formalParameterSection
-    : parameterGroup
-    | VAR parameterGroup
-    | CONST parameterGroup
-    | OUT parameterGroup
-    | FUNCTION parameterGroup
-    | PROCEDURE parameterGroup
+    : attributeSection? parameterGroup
+    | attributeSection? VAR parameterGroup
+    | attributeSection? CONST parameterGroup
+    | attributeSection? OUT parameterGroup
+    | attributeSection? FUNCTION parameterGroup
+    | attributeSection? PROCEDURE parameterGroup
     ;
 
 parameterGroup
@@ -740,6 +734,18 @@ tryFinallyStatement
 
 withStatementVariableList
     : variable (COMMA variable)*
+    ;
+
+attributeSection
+    : LBRACK attributeList RBRACK
+    ;
+
+attributeList
+    : attributeItem (COMMA attributeItem)*
+    ;
+
+attributeItem
+    : identifier (LPAREN parameterList RPAREN)?
     ;
 
 AND

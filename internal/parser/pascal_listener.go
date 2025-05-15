@@ -425,6 +425,15 @@ type pascalListener interface {
 	// EnterWithStatementVariableList is called when entering the withStatementVariableList production.
 	EnterWithStatementVariableList(c *WithStatementVariableListContext)
 
+	// EnterAttributeSection is called when entering the attributeSection production.
+	EnterAttributeSection(c *AttributeSectionContext)
+
+	// EnterAttributeList is called when entering the attributeList production.
+	EnterAttributeList(c *AttributeListContext)
+
+	// EnterAttributeItem is called when entering the attributeItem production.
+	EnterAttributeItem(c *AttributeItemContext)
+
 	// ExitSource is called when exiting the source production.
 	ExitSource(c *SourceContext)
 
@@ -841,4 +850,13 @@ type pascalListener interface {
 
 	// ExitWithStatementVariableList is called when exiting the withStatementVariableList production.
 	ExitWithStatementVariableList(c *WithStatementVariableListContext)
+
+	// ExitAttributeSection is called when exiting the attributeSection production.
+	ExitAttributeSection(c *AttributeSectionContext)
+
+	// ExitAttributeList is called when exiting the attributeList production.
+	ExitAttributeList(c *AttributeListContext)
+
+	// ExitAttributeItem is called when exiting the attributeItem production.
+	ExitAttributeItem(c *AttributeItemContext)
 }

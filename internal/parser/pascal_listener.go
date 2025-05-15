@@ -302,6 +302,9 @@ type pascalListener interface {
 	// EnterTypeCast is called when entering the typeCast production.
 	EnterTypeCast(c *TypeCastContext)
 
+	// EnterPropertyDesignator is called when entering the propertyDesignator production.
+	EnterPropertyDesignator(c *PropertyDesignatorContext)
+
 	// EnterExpression is called when entering the expression production.
 	EnterExpression(c *ExpressionContext)
 
@@ -715,6 +718,9 @@ type pascalListener interface {
 
 	// ExitTypeCast is called when exiting the typeCast production.
 	ExitTypeCast(c *TypeCastContext)
+
+	// ExitPropertyDesignator is called when exiting the propertyDesignator production.
+	ExitPropertyDesignator(c *PropertyDesignatorContext)
 
 	// ExitExpression is called when exiting the expression production.
 	ExitExpression(c *ExpressionContext)

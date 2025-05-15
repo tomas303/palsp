@@ -620,6 +620,12 @@ func (s *BasepascalListener) EnterTypeCast(ctx *TypeCastContext) {}
 // ExitTypeCast is called when production typeCast is exited.
 func (s *BasepascalListener) ExitTypeCast(ctx *TypeCastContext) {}
 
+// EnterPropertyDesignator is called when production propertyDesignator is entered.
+func (s *BasepascalListener) EnterPropertyDesignator(ctx *PropertyDesignatorContext) {}
+
+// ExitPropertyDesignator is called when production propertyDesignator is exited.
+func (s *BasepascalListener) ExitPropertyDesignator(ctx *PropertyDesignatorContext) {}
+
 // EnterExpression is called when production expression is entered.
 func (s *BasepascalListener) EnterExpression(ctx *ExpressionContext) {}
 

@@ -302,6 +302,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#typeCast.
 	VisitTypeCast(ctx *TypeCastContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#propertyDesignator.
+	VisitPropertyDesignator(ctx *PropertyDesignatorContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#expression.
 	VisitExpression(ctx *ExpressionContext) interface{}
 

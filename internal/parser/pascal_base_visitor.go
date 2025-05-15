@@ -400,6 +400,10 @@ func (v *BasepascalVisitor) VisitTypeCast(ctx *TypeCastContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitPropertyDesignator(ctx *PropertyDesignatorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitExpression(ctx *ExpressionContext) interface{} {
 	return v.VisitChildren(ctx)
 }

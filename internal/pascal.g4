@@ -515,6 +515,7 @@ simpleStatement
 
 assignmentStatement
     : variable ASSIGN expression
+    | propertyDesignator ASSIGN expression
     ;
 
 raiseExceptionStatement
@@ -535,6 +536,9 @@ typeCast
     | LPAREN expression AS typeIdentifier  RPAREN 
     ;
 
+propertyDesignator
+    : functionDesignator (DOT functionDesignator)* DOT identifier (LBRACK expression (COMMA expression)* RBRACK)?
+    ;
 
 expression
     : simpleExpression (relationaloperator expression)?

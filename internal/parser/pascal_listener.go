@@ -296,6 +296,9 @@ type pascalListener interface {
 	// EnterRaiseExceptionStatement is called when entering the raiseExceptionStatement production.
 	EnterRaiseExceptionStatement(c *RaiseExceptionStatementContext)
 
+	// EnterVariableDeclarationStatement is called when entering the variableDeclarationStatement production.
+	EnterVariableDeclarationStatement(c *VariableDeclarationStatementContext)
+
 	// EnterVariable is called when entering the variable production.
 	EnterVariable(c *VariableContext)
 
@@ -721,6 +724,9 @@ type pascalListener interface {
 
 	// ExitRaiseExceptionStatement is called when exiting the raiseExceptionStatement production.
 	ExitRaiseExceptionStatement(c *RaiseExceptionStatementContext)
+
+	// ExitVariableDeclarationStatement is called when exiting the variableDeclarationStatement production.
+	ExitVariableDeclarationStatement(c *VariableDeclarationStatementContext)
 
 	// ExitVariable is called when exiting the variable production.
 	ExitVariable(c *VariableContext)

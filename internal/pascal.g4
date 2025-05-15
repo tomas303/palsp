@@ -505,6 +505,7 @@ simpleStatement
     | typeCast
     | emptyStatement_
     | raiseExceptionStatement
+    | variableDeclarationStatement
     ;
 
 assignmentStatement
@@ -514,6 +515,10 @@ assignmentStatement
 
 raiseExceptionStatement
     : RAISE expression?
+    ;
+
+variableDeclarationStatement
+    : VAR identifierList (COLON typeDefinition)? (ASSIGN expression)?
     ;
 
 variable
@@ -529,7 +534,7 @@ typeCast
     : typeIdentifier LPAREN expression RPAREN 
     | LPAREN expression AS typeIdentifier  RPAREN 
     ;
-
+  
 propertyDesignator
     : functionDesignator (DOT functionDesignator)* DOT identifier (LBRACK expression (COMMA expression)* RBRACK)?
     ;

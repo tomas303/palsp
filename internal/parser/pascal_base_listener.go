@@ -608,6 +608,14 @@ func (s *BasepascalListener) EnterRaiseExceptionStatement(ctx *RaiseExceptionSta
 // ExitRaiseExceptionStatement is called when production raiseExceptionStatement is exited.
 func (s *BasepascalListener) ExitRaiseExceptionStatement(ctx *RaiseExceptionStatementContext) {}
 
+// EnterVariableDeclarationStatement is called when production variableDeclarationStatement is entered.
+func (s *BasepascalListener) EnterVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) {
+}
+
+// ExitVariableDeclarationStatement is called when production variableDeclarationStatement is exited.
+func (s *BasepascalListener) ExitVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) {
+}
+
 // EnterVariable is called when production variable is entered.
 func (s *BasepascalListener) EnterVariable(ctx *VariableContext) {}
 

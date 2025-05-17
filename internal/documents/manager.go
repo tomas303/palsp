@@ -120,8 +120,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 		return OpSuccessWith(hoverResp)
 	}
 
-	return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
-
+	return OpFailure(fmt.Sprintf("hover error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
 func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
@@ -153,11 +152,15 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	writer := discover.SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSymbolsByName(".*"+hoverText+".*", pos, writer)
 
-	cl := CompletionList{
-		IsIncomplete: false,
-		Items:        items,
+	if err == nil {
+		cl := CompletionList{
+			IsIncomplete: false,
+			Items:        items,
+		}
+		return OpSuccessWith(cl)
 	}
-	return OpSuccessWith(cl)
+
+	return OpFailure(fmt.Sprintf("completion error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
 func (mgr *Manager) Definition(uri string, text string, version int, line int, character int) OpResult {
@@ -198,12 +201,17 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 		return discover.ErrFirstSymbolWriten
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	f.scope.LocateSymbolsByName(hoverText, pos, writer)
+	err = f.scope.LocateSymbolsByName(hoverText, pos, writer)
 
-	if locations == nil {
-		locations = []interface{}{}
+	if err == discover.ErrFirstSymbolWriten {
+		return OpSuccessWith(locations)
 	}
-	return OpSuccessWith(locations)
+
+	if err == nil {
+		return OpSuccessWith([]interface{}{})
+	}
+
+	return OpFailure(fmt.Sprintf("definition error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
 func (mgr *Manager) locateFile(uri string, text string, version int) (*file, error) {

@@ -509,7 +509,7 @@ simpleStatement
     ;
 
 assignmentStatement
-    : variable ASSIGN expression
+    : variableDesignator ASSIGN expression
     | propertyDesignator ASSIGN expression
     ;
 
@@ -521,11 +521,11 @@ variableDeclarationStatement
     : VAR identifierList (COLON typeDefinition)? (ASSIGN expression)?
     ;
 
-variable
-    : (typeCast | AT identifier | identifier) (
+variableDesignator
+    : (typeCast | AT identifier | functionDesignator) (
         LBRACK expression (COMMA expression)* RBRACK
         | LBRACK2 expression (COMMA expression)* RBRACK2
-        | DOT identifier
+        | DOT functionDesignator
         | DEREFERENCE+
     )*
     ;
@@ -584,7 +584,7 @@ signedFactor
 
 factor
     : INHERITED? functionDesignator
-    | variable (AS identifier)?
+    | variableDesignator (AS identifier)?
     | LPAREN expression RPAREN
     | unsignedConstant
     | set_
@@ -630,7 +630,7 @@ procedureStatement
     ;
 
 methodCallStatement
-    : variable (DOT variable)* DOT identifier (LPAREN parameterList RPAREN)?
+    : variableDesignator (DOT variableDesignator)* DOT identifier (LPAREN parameterList RPAREN)?
     ;
 
 actualParameter
@@ -738,7 +738,7 @@ tryFinallyStatement
     ;
 
 withStatementVariableList
-    : variable (COMMA variable)*
+    : variableDesignator (COMMA variableDesignator)*
     ;
 
 attributeSection

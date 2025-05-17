@@ -299,8 +299,8 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#variableDeclarationStatement.
 	VisitVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#variable.
-	VisitVariable(ctx *VariableContext) interface{}
+	// Visit a parse tree produced by pascalParser#variableDesignator.
+	VisitVariableDesignator(ctx *VariableDesignatorContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#typeCast.
 	VisitTypeCast(ctx *TypeCastContext) interface{}

@@ -616,11 +616,11 @@ func (s *BasepascalListener) EnterVariableDeclarationStatement(ctx *VariableDecl
 func (s *BasepascalListener) ExitVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) {
 }
 
-// EnterVariable is called when production variable is entered.
-func (s *BasepascalListener) EnterVariable(ctx *VariableContext) {}
+// EnterVariableDesignator is called when production variableDesignator is entered.
+func (s *BasepascalListener) EnterVariableDesignator(ctx *VariableDesignatorContext) {}
 
-// ExitVariable is called when production variable is exited.
-func (s *BasepascalListener) ExitVariable(ctx *VariableContext) {}
+// ExitVariableDesignator is called when production variableDesignator is exited.
+func (s *BasepascalListener) ExitVariableDesignator(ctx *VariableDesignatorContext) {}
 
 // EnterTypeCast is called when production typeCast is entered.
 func (s *BasepascalListener) EnterTypeCast(ctx *TypeCastContext) {}

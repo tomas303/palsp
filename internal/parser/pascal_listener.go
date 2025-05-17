@@ -299,8 +299,8 @@ type pascalListener interface {
 	// EnterVariableDeclarationStatement is called when entering the variableDeclarationStatement production.
 	EnterVariableDeclarationStatement(c *VariableDeclarationStatementContext)
 
-	// EnterVariable is called when entering the variable production.
-	EnterVariable(c *VariableContext)
+	// EnterVariableDesignator is called when entering the variableDesignator production.
+	EnterVariableDesignator(c *VariableDesignatorContext)
 
 	// EnterTypeCast is called when entering the typeCast production.
 	EnterTypeCast(c *TypeCastContext)
@@ -728,8 +728,8 @@ type pascalListener interface {
 	// ExitVariableDeclarationStatement is called when exiting the variableDeclarationStatement production.
 	ExitVariableDeclarationStatement(c *VariableDeclarationStatementContext)
 
-	// ExitVariable is called when exiting the variable production.
-	ExitVariable(c *VariableContext)
+	// ExitVariableDesignator is called when exiting the variableDesignator production.
+	ExitVariableDesignator(c *VariableDesignatorContext)
 
 	// ExitTypeCast is called when exiting the typeCast production.
 	ExitTypeCast(c *TypeCastContext)

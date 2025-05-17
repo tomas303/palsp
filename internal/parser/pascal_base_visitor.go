@@ -396,7 +396,7 @@ func (v *BasepascalVisitor) VisitVariableDeclarationStatement(ctx *VariableDecla
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitVariable(ctx *VariableContext) interface{} {
+func (v *BasepascalVisitor) VisitVariableDesignator(ctx *VariableDesignatorContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

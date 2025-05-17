@@ -180,12 +180,12 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 
 	var locations []interface{}
 	writeSymbol := func(sym *discover.Symbol) error {
-		uri, err := discover.SymDB().GetUnitPath(sym.Unitname)
+		filePath, err := discover.SymDB().GetUnitPath(sym.Unitname)
 		if err != nil {
 			return err
 		}
 		location := map[string]interface{}{
-			"uri": uri,
+			"uri": "file://" + filePath,
 			"range": map[string]interface{}{
 				"start": map[string]interface{}{
 					"line":      sym.Position.Line - 1,

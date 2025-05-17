@@ -68,6 +68,13 @@ func handleRequest(request LSPRequest) (response edit.OpResult) {
 		}
 		return handleHover(params)
 
+	case "textDocument/definition":
+		var params DefinitionParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return edit.OpFailure("Invalid params", err)
+		}
+		return handleDefinition(params)
+
 	default:
 		return edit.OpFailure("Method not found", fmt.Errorf("Method %s not found", request.Method))
 	}
@@ -114,4 +121,9 @@ func handleCompletion(params CompletionParams) edit.OpResult {
 // Modified Handle textDocument/hover request
 func handleHover(params HoverParams) edit.OpResult {
 	return edit.Mgr.Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+}
+
+// Modified Handle textDocument/definition request
+func handleDefinition(params DefinitionParams) edit.OpResult {
+	return edit.Mgr.Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }

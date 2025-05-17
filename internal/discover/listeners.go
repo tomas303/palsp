@@ -82,11 +82,14 @@ func (dc *dbCollector) EnterImplementation(position Position) {
 }
 
 func (dc *dbCollector) AddUseUnit(unit string) {
-	dc.db.InsertSymbol(dc.unitID, unit, dc.currentInfo.path, int(UnitReference), unit)
+	// is added as symbol too
 }
 
 func (dc *dbCollector) AddSymbol(name string, kind SymbolKind, definition string, position Position) {
-	dc.db.InsertSymbol(dc.unitID, name, dc.currentInfo.path, int(kind), definition)
+	err := dc.db.InsertSymbol(dc.unitID, name, dc.currentInfo.path, int(kind), definition, position)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (dc *dbCollector) AccessSpecifier(as AccessSpec) {

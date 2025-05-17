@@ -31,10 +31,11 @@ type SymbolDatabase interface {
 	SetUnitScopeNames(unitScopeNames []string)
 	DropSymbolsFromPath(path string)
 	GetUnitContent(unit string) (int, string, error)
-	InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error
+	InsertSymbol(unitID int, symbol, scope string, kind int, definition string, position Position) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
 	SearchSymbolByKind(unit string, kind int) ([]Symbol, error)
 	RetriveUnit(unit string) (int, string, error)
+	GetUnitPath(unit string) (string, error)
 	LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error
 }
 
@@ -156,12 +157,12 @@ func (db *symDB) insertUnit(unitname, unitpath string) (int, error) {
 	return unitID, nil
 }
 
-func (db *symDB) InsertSymbol(unitID int, symbol, scope string, kind int, definition string) error {
+func (db *symDB) InsertSymbol(unitID int, symbol, scope string, kind int, definition string, position Position) error {
 	insertSymbolSQL := `
-	INSERT INTO symbols (unit_id, symbol, scope, kind, definition)
-	VALUES (?, ?, ?, ?, ?);`
+	INSERT INTO symbols (unit_id, symbol, scope, kind, definition, line, column)
+	VALUES (?, ?, ?, ?, ?, ?, ?);`
 	var err error
-	_, err = db.Exec(insertSymbolSQL, unitID, strings.ToLower(symbol), scope, kind, definition)
+	_, err = db.Exec(insertSymbolSQL, unitID, strings.ToLower(symbol), scope, kind, definition, position.Line, position.Character)
 	return err
 }
 
@@ -212,6 +213,14 @@ func (db *symDB) RetriveUnit(unit string) (int, string, error) {
 	return unitID, unitname, nil
 }
 
+func (db *symDB) GetUnitPath(unit string) (string, error) {
+	_, unitpath, _, _, _, err := db.findUnitInfo(unit)
+	if err != nil {
+		return "", err
+	}
+	return unitpath, nil
+}
+
 // SearchSymbol searches for symbols within a specific unit that match the search term.
 // It returns a slice of matching symbol information.
 func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
@@ -226,7 +235,7 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 	}
 
 	searchQuery := `
-	SELECT symbol, scope, kind, definition 
+	SELECT symbol, scope, kind, definition, line, column 
 	FROM symbols 
 	WHERE unit_id = ? AND symbol LIKE ? COLLATE NOCASE
 	ORDER BY symbol COLLATE NOCASE`
@@ -256,7 +265,7 @@ func (db *symDB) SearchSymbolByKind(unit string, kind int) ([]Symbol, error) {
 	}
 
 	searchQuery := `
-	SELECT symbol, scope, kind, definition
+	SELECT symbol, scope, kind, definition, line, column
 	FROM symbols
 	WHERE unit_id = ? AND kind = ?
 	ORDER BY symbol COLLATE NOCASE`
@@ -280,7 +289,7 @@ func (db *symDB) SearchSymbolByKind(unit string, kind int) ([]Symbol, error) {
 func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error {
 	// Prepare the query to search for symbols in a specific scope
 	query := `
-	SELECT s.symbol, s.scope, s.kind, s.definition
+	SELECT s.symbol, s.scope, s.kind, s.definition, s.line, s.column
 	FROM symbols s
 	JOIN units u ON s.unit_id = u.id
 	WHERE s.scope = ? AND u.unitname = ? AND s.symbol LIKE ? COLLATE NOCASE
@@ -297,7 +306,7 @@ func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string
 	defer rows.Close()
 
 	for rows.Next() {
-		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition); err != nil {
+		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition, &sym.Position.Line, &sym.Position.Character); err != nil {
 			return err
 		}
 		writer.WriteSymbol(&sym)
@@ -342,7 +351,7 @@ func (db *symDB) fetchSymbolsFromRows(rows *sql.Rows, unitname string) ([]Symbol
 	var results []Symbol
 	for rows.Next() {
 		sym := Symbol{Unitname: unitname}
-		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition); err != nil {
+		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition, &sym.Position.Line, &sym.Position.Character); err != nil {
 			return nil, err
 		}
 
@@ -605,6 +614,8 @@ func createTables(db *symDB) error {
 		scope TEXT,
 		kind INTEGER,
 		definition TEXT,
+		line INTEGER,
+		column INTEGER,
 		FOREIGN KEY(unit_id) REFERENCES units(id)
 	);`
 	_, err = db.Exec(createSymbolsTableSQL)

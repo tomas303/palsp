@@ -130,3 +130,21 @@ type MarkedString struct {
 	Language string `json:"language"`
 	Value    string `json:"value"`
 }
+
+// DefinitionParams structure
+type DefinitionParams struct {
+	TextDocument TextDocumentItem `json:"textDocument"`
+	Position     Position         `json:"position"`
+}
+
+// Location structure to return definition locations
+type Location struct {
+	URI   string    `json:"uri"`
+	Range TextRange `json:"range"`
+}
+
+// TextRange structure for text ranges
+type TextRange struct {
+	Start Position `json:"start"`
+	End   Position `json:"end"`
+}

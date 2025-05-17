@@ -47,8 +47,9 @@ func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResu
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
-			"textDocumentSync": 1, // Full document sync
-			"hoverProvider":    true,
+			"textDocumentSync":   1, // Full document sync
+			"hoverProvider":      true,
+			"definitionProvider": true, // Add support for the definition feature
 		},
 	}
 	return OpSuccessWith(resp)
@@ -98,17 +99,29 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
 	err = f.scope.LocateSymbolsByName(hoverText, pos, writer)
-	if err != discover.ErrFirstSymbolWriten {
-		info = "No information found for " + hoverText
+
+	if err == discover.ErrFirstSymbolWriten {
+		hoverResp := Hover{
+			Contents: MarkupContent{
+				Kind:  "plaintext",
+				Value: info,
+			},
+		}
+		return OpSuccessWith(hoverResp)
 	}
 
-	hoverResp := Hover{
-		Contents: MarkupContent{
-			Kind:  "plaintext",
-			Value: info,
-		},
+	if err == nil {
+		hoverResp := Hover{
+			Contents: MarkupContent{
+				Kind:  "plaintext",
+				Value: "No information found for " + hoverText,
+			},
+		}
+		return OpSuccessWith(hoverResp)
 	}
-	return OpSuccessWith(hoverResp)
+
+	return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
+
 }
 
 func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
@@ -145,6 +158,52 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 		Items:        items,
 	}
 	return OpSuccessWith(cl)
+}
+
+func (mgr *Manager) Definition(uri string, text string, version int, line int, character int) OpResult {
+	var err error
+	var f *file
+
+	if f, err = mgr.locateFile(uri, text, version); err != nil {
+		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
+	}
+
+	var hoverText string
+	var found bool
+	if hoverText, found = f.findText(line, character); !found {
+		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
+	}
+	pos := discover.NewPosition(line, character)
+
+	var locations []interface{}
+	writeSymbol := func(sym *discover.Symbol) error {
+		uri, err := discover.SymDB().GetUnitPath(sym.Unitname)
+		if err != nil {
+			return err
+		}
+		location := map[string]interface{}{
+			"uri": uri,
+			"range": map[string]interface{}{
+				"start": map[string]interface{}{
+					"line":      sym.Position.Line - 1,
+					"character": sym.Position.Character - 1,
+				},
+				"end": map[string]interface{}{
+					"line":      sym.Position.Line - 1,
+					"character": sym.Position.Character - 1 + len(sym.Name),
+				},
+			},
+		}
+		locations = append(locations, location)
+		return discover.ErrFirstSymbolWriten
+	}
+	writer := discover.SymbolWriterFunc(writeSymbol)
+	f.scope.LocateSymbolsByName(hoverText, pos, writer)
+
+	if locations == nil {
+		locations = []interface{}{}
+	}
+	return OpSuccessWith(locations)
 }
 
 func (mgr *Manager) locateFile(uri string, text string, version int) (*file, error) {

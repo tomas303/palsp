@@ -228,7 +228,6 @@ func (s *unitScope) locateSymbolsByNameInDB(name string, units []string, writer 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-
 			var unitName string
 			var ok bool
 			for {
@@ -244,7 +243,27 @@ func (s *unitScope) locateSymbolsByNameInDB(name string, units []string, writer 
 					return
 				}
 				// Process the unit
-				symbols, err := SymDB().SearchSymbol(unitName, name)
+				var symbols []Symbol
+				var err error
+
+				// Use defer/recover to catch any panic
+				func() {
+					defer func() {
+						if r := recover(); r != nil {
+							// Convert panic to error
+							switch x := r.(type) {
+							case string:
+								err = errors.New("panic: " + x)
+							case error:
+								err = fmt.Errorf("panic: %w", x)
+							default:
+								err = fmt.Errorf("panic: %v", r)
+							}
+						}
+					}()
+					symbols, err = SymDB().SearchSymbol(unitName, name)
+				}()
+
 				resultCh <- searchResult{unit: unitName, symbols: symbols, err: err}
 			}
 		}()

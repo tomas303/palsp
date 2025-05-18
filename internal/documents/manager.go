@@ -2,11 +2,7 @@ package edit
 
 import (
 	"fmt"
-	"os"
 	"palsp/internal/discover"
-	"strings"
-
-	"palsp/internal/log"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -14,30 +10,10 @@ import (
 var Mgr *Manager
 
 func init() {
-	// Create a new lsp instance.
-	Mgr = &Manager{
-		fls: &files{
-			fileDict: make(map[string]file),
-		},
-	}
-}
-
-type file struct {
-	uri     string
-	version int
-	text    string
-	scope   discover.TopScope
-	cst     antlr.Tree
-	stream  antlr.TokenStream
-}
-
-type files struct {
-	// Path to the file.
-	fileDict map[string]file
+	Mgr = &Manager{}
 }
 
 type Manager struct {
-	fls *files
 }
 
 func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResult {
@@ -56,37 +32,42 @@ func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResu
 }
 
 func (mgr *Manager) DidOpen(uri string, text string, version int) OpResult {
-	var err error
-	if _, err = mgr.locateFile(uri, text, version); err != nil {
-		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
+	if _, err := discover.EditFileCache().Open(uri, text, version); err != nil {
+		return OpFailure(fmt.Sprintf("unable to open file %s", uri), err)
+	} else {
+		mgr.addPath(uri)
+		return OpSuccess()
 	}
-	mgr.addPath(uri)
-	discover.SymDB().DropSymbolsFromPath(uri)
-	return OpSuccess()
 }
 
 func (mgr *Manager) DidChange(uri string, text string, version int) OpResult {
-	mgr.locateFile(uri, text, version)
-	return OpSuccess()
+	if _, err := discover.EditFileCache().Open(uri, text, version); err != nil {
+		return OpFailure(fmt.Sprintf("unable to open file %s", uri), err)
+	} else {
+		mgr.addPath(uri)
+		return OpSuccess()
+	}
 }
 
 func (mgr *Manager) DidClose(uri string) OpResult {
-	mgr.dropFile(uri)
-	return OpSuccess()
+	if _, err := discover.EditFileCache().Close(uri); err != nil {
+		return OpFailure(fmt.Sprintf("unable to close file %s", uri), err)
+	} else {
+		return OpSuccess()
+	}
 }
 
 func (mgr *Manager) Hover(uri string, text string, version int, line int, character int) OpResult {
 	var found bool
 	var err error
-	var f *file
+	var fci *discover.FileCacheItem
 
-	log.Main.Debug().Str("file", uri).Msg("Hover requested")
-	if f, err = mgr.locateFile(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
 	var hoverText string
-	if hoverText, found = f.findText(line, character); !found {
+	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 
@@ -98,7 +79,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 		return discover.ErrFirstSymbolWriten
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSymbolsByName(hoverText, pos, writer)
+	err = fci.LocateSymbolsByName(hoverText, pos, writer)
 
 	if err == discover.ErrFirstSymbolWriten {
 		hoverResp := Hover{
@@ -126,14 +107,14 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
 	var found bool
 	var err error
-	var f *file
+	var fci *discover.FileCacheItem
 
-	if f, err = mgr.locateFile(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
 	var hoverText string
-	if hoverText, found = f.findText(line, character); !found {
+	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	pos := discover.NewPosition(line, character)
@@ -150,7 +131,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 		return nil
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSymbolsByName(".*"+hoverText+".*", pos, writer)
+	err = fci.LocateSymbolsByName(".*"+hoverText+".*", pos, writer)
 
 	if err == nil {
 		cl := CompletionList{
@@ -165,15 +146,15 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 
 func (mgr *Manager) Definition(uri string, text string, version int, line int, character int) OpResult {
 	var err error
-	var f *file
+	var fci *discover.FileCacheItem
 
-	if f, err = mgr.locateFile(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
 	var hoverText string
 	var found bool
-	if hoverText, found = f.findText(line, character); !found {
+	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	pos := discover.NewPosition(line, character)
@@ -201,7 +182,7 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 		return discover.ErrFirstSymbolWriten
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
-	err = f.scope.LocateSymbolsByName(hoverText, pos, writer)
+	err = fci.LocateSymbolsByName(hoverText, pos, writer)
 
 	if err == discover.ErrFirstSymbolWriten {
 		return OpSuccessWith(locations)
@@ -214,45 +195,6 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 	return OpFailure(fmt.Sprintf("definition error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
-func (mgr *Manager) locateFile(uri string, text string, version int) (*file, error) {
-	var err error
-	pathElements := discover.DecodePath(uri)
-	if text == "" {
-		// Read file content from URI when text is not provided
-		var content []byte
-		if content, err = os.ReadFile(pathElements.Path()); err != nil {
-			return nil, err
-		}
-		text = string(content) // Assuming UTF-8 encoding
-	}
-	f, ok := mgr.fls.fileDict[uri]
-	if !ok {
-		cst, stream := discover.ParseCST(text, uri)
-		scope := newScope(cst, strings.ToLower(pathElements.Name()))
-		f = file{
-			uri:     uri,
-			version: version,
-			text:    text,
-			scope:   scope,
-			cst:     cst,
-			stream:  stream,
-		}
-		mgr.fls.fileDict[uri] = f
-	} else if f.version < version {
-		cst, stream := discover.ParseCST(text, uri)
-		f.text = text
-		f.version = version
-		f.scope = newScope(cst, strings.ToLower(pathElements.Name()))
-		f.cst = cst
-		f.stream = stream
-	}
-	return &f, nil
-}
-
-func (mgr *Manager) dropFile(uri string) {
-	delete(mgr.fls.fileDict, uri)
-}
-
 func (mgr *Manager) getDir(uri string) (string, error) {
 	pathElements := discover.DecodePath(uri)
 	return pathElements.Dir(), nil
@@ -263,22 +205,6 @@ func (mgr *Manager) addPath(uri string) {
 	if err == nil {
 		discover.SymDB().AddSearchPath(dir)
 	}
-}
-
-func (f *file) walk(l antlr.ParseTreeListener) {
-	antlr.ParseTreeWalkerDefault.Walk(l, f.cst)
-}
-
-func (f *file) findText(line int, character int) (string, bool) {
-	for i := 0; i < f.stream.Size(); i++ {
-		token := f.stream.Get(i)
-		if token.GetLine() == line &&
-			token.GetColumn() <= character &&
-			(token.GetColumn()+len(token.GetText()) >= character) {
-			return strings.ToLower(token.GetText()), true
-		}
-	}
-	return "", false
 }
 
 func newScope(cst antlr.Tree, unitName string) discover.TopScope {

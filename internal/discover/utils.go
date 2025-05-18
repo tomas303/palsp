@@ -1,8 +1,10 @@
 package discover
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -83,6 +85,19 @@ func SplitQualifiedName(qualifiedName string) ([]string, string) {
 	name := parts[len(parts)-1]
 
 	return prefix, name
+}
+
+func fileExists(filepath string) bool {
+	_, err := os.Stat(filepath)
+	return !errors.Is(err, os.ErrNotExist)
+}
+
+func getFileModTime(filepath string) (int64, error) {
+	fileInfo, err := os.Stat(filepath)
+	if err != nil {
+		return 0, err
+	}
+	return fileInfo.ModTime().Unix(), nil
 }
 
 // stack is a generic stack that holds values of any type.

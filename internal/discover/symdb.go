@@ -549,14 +549,6 @@ func (db *symDB) writeToLog(unitName string) {
 	}
 }
 
-func getFileModTime(filepath string) (int64, error) {
-	fileInfo, err := os.Stat(filepath)
-	if err != nil {
-		return 0, err
-	}
-	return fileInfo.ModTime().Unix(), nil
-}
-
 func newSymDB() (*symDB, error) {
 	var err error
 	var db *sql.DB

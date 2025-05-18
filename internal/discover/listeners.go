@@ -47,7 +47,7 @@ type scopeInfo struct {
 type SymbolCollector interface {
 	AddSymbol(name string, kind SymbolKind, definition string, position Position)
 	BeginScope(name string, info scopeInfo)
-	EndScope(name string)
+	EndScope(name string, info scopeInfo)
 	EnterImplementation(position Position)
 	AddUseUnit(unit string)
 	AccessSpecifier(as AccessSpec)
@@ -72,7 +72,8 @@ func (dc *dbCollector) BeginScope(name string, scopeInfo scopeInfo) {
 	dc.currentInfo = scopeInfo
 }
 
-func (dc *dbCollector) EndScope(name string) {
+func (dc *dbCollector) EndScope(name string, scopeInfo scopeInfo) {
+	dc.currentInfo = scopeInfo
 }
 
 func (dc *dbCollector) EnterImplementation(position Position) {
@@ -131,7 +132,7 @@ func (mc *memoryCollector) BeginScope(name string, scopeInfo scopeInfo) {
 	mc.scopeStack.push(&newScope)
 }
 
-func (mc *memoryCollector) EndScope(name string) {
+func (mc *memoryCollector) EndScope(name string, scopeInfo scopeInfo) {
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
 	scope.parentSWM = parentscope.symbolStack.length() - 1
@@ -227,30 +228,35 @@ type scopesListener struct {
 	collector     SymbolCollector
 	inDeclaration bool
 	scopePath     *stack[string]
+	infoStack     *stack[scopeInfo]
 }
 
 func NewScopesListener(collector SymbolCollector) *scopesListener {
 	return &scopesListener{
 		collector: collector,
 		scopePath: newStack[string](),
+		infoStack: newStack[scopeInfo](),
 	}
 }
 
 func (s *scopesListener) beginScope(idCtx parser.IIdentifierContext) {
 	id := strings.ToLower(buildIdentifier(idCtx))
 	s.scopePath.push(id)
-	s.collector.BeginScope(id, scopeInfo{position: positionFromCtx(idCtx), path: s.scopePath.joinByDot()})
+	s.infoStack.push(scopeInfo{position: positionFromCtx(idCtx), path: s.scopePath.joinByDot()})
+	s.collector.BeginScope(id, s.infoStack.peek())
 }
 
 func (s *scopesListener) beginClassScope(idCtx parser.IIdentifierContext, ancestor *string) {
 	id := strings.ToLower(buildIdentifier(idCtx))
 	s.scopePath.push(id)
-	s.collector.BeginScope(buildIdentifier(idCtx), scopeInfo{position: positionFromCtx(idCtx), ancestor: ancestor, path: s.scopePath.joinByDot()})
+	s.infoStack.push(scopeInfo{position: positionFromCtx(idCtx), ancestor: ancestor, path: s.scopePath.joinByDot()})
+	s.collector.BeginScope(buildIdentifier(idCtx), s.infoStack.peek())
 }
 
 func (s *scopesListener) endScope(idCtx parser.IIdentifierContext) {
 	s.scopePath.pop()
-	s.collector.EndScope(buildIdentifier(idCtx))
+	s.infoStack.pop()
+	s.collector.EndScope(buildIdentifier(idCtx), s.infoStack.peek())
 }
 
 func (s *scopesListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {

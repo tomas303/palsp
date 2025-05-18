@@ -36,7 +36,7 @@ type SymbolDatabase interface {
 	SearchSymbolByKind(unit string, kind int) ([]Symbol, error)
 	RetriveUnit(unit string) (int, string, error)
 	GetUnitPath(unit string) (string, error)
-	LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error
+	LocateSymbolsInScope(name string, unit string, scope string, writer SymbolWriter) error
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -286,17 +286,57 @@ func (db *symDB) SearchSymbolByKind(unit string, kind int) ([]Symbol, error) {
 
 }
 
-func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string, writer SymbolWriter) error {
+func (db *symDB) LocateSymbolsInScope(name string, unit string, scope string, writer SymbolWriter) error {
+
+	unitID, _, err := db.RetriveUnit(unit)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		return err
+	}
+
+	// if unit == "uPackageBusinessObjects" {
+	// 	q := `
+	// 	SELECT s.symbol, s.scope, s.kind, s.definition, s.line, s.column
+	// 	FROM symbols s
+	// 	WHERE s.unit_id = ? AND s.symbol LIKE ? COLLATE NOCASE
+	// 	ORDER BY s.symbol COLLATE NOCASE`
+	// 	rows, err := db.Query(q, unitID, name)
+	// 	if err != nil {
+	// 		if err == sql.ErrNoRows {
+	// 			return nil
+	// 		}
+	// 		return err
+	// 	}
+	// 	defer rows.Close()
+	// 	for rows.Next() {
+	// 		sym := Symbol{Unitname: unit}
+	// 		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition, &sym.Position.Line, &sym.Position.Character); err != nil {
+	// 			return err
+	// 		}
+	// 		log.Main.Debug().Msgf("Found symbol: %s", sym.Name)
+	// 	}
+
+	// }
+
 	// Prepare the query to search for symbols in a specific scope
+	// query := `
+	// SELECT s.symbol, s.scope, s.kind, s.definition, s.line, s.column
+	// FROM symbols s
+	// // JOIN units u ON s.unit_id = u.id
+	// // WHERE s.scope = ? AND u.unitname = ? AND s.symbol LIKE ? COLLATE NOCASE
+	// WHERE unit_id = ? and s.scope = ? AND s.symbol LIKE ? COLLATE NOCASE
+	// ORDER BY s.symbol COLLATE NOCASE`
 	query := `
 	SELECT s.symbol, s.scope, s.kind, s.definition, s.line, s.column
 	FROM symbols s
-	JOIN units u ON s.unit_id = u.id
-	WHERE s.scope = ? AND u.unitname = ? AND s.symbol LIKE ? COLLATE NOCASE
+	WHERE s.unit_id = ? and s.scope = ? AND s.symbol LIKE ? COLLATE NOCASE
 	ORDER BY s.symbol COLLATE NOCASE`
 
-	sym := Symbol{Unitname: unitName}
-	rows, err := db.Query(query, scope, unitName, name)
+	sym := Symbol{Unitname: unit}
+	// rows, err := db.Query(query, scope, unit, name)
+	rows, err := db.Query(query, unitID, scope, name)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -309,7 +349,9 @@ func (db *symDB) LocateSymbolsInScope(name string, unitName string, scope string
 		if err := rows.Scan(&sym.Name, &sym.Path, &sym.Kind, &sym.Definition, &sym.Position.Line, &sym.Position.Character); err != nil {
 			return err
 		}
-		writer.WriteSymbol(&sym)
+		if err = writer.WriteSymbol(&sym); err != nil {
+			return err
+		}
 	}
 
 	if err = rows.Err(); err != nil {

@@ -12,7 +12,7 @@ var editFileCache *FileCache
 
 func init() {
 	editFileCache = &FileCache{
-		fileDict: make(map[string]FileCacheItem),
+		fileDict: make(map[string]*FileCacheItem),
 	}
 }
 
@@ -21,14 +21,15 @@ func EditFileCache() *FileCache {
 }
 
 type FileCacheItem struct {
-	uri     string
-	version int
-	text    string
-	scope   TopScope
-	cst     antlr.Tree
-	stream  antlr.TokenStream
-	active  bool
-	modTime int64
+	uri      string
+	unitName string
+	version  int
+	text     string
+	scope    TopScope
+	cst      antlr.Tree
+	stream   antlr.TokenStream
+	active   bool
+	modTime  int64
 }
 
 func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
@@ -62,7 +63,7 @@ func (fci *FileCacheItem) isStale() bool {
 
 type FileCache struct {
 	// Path to the file.
-	fileDict map[string]FileCacheItem
+	fileDict map[string]*FileCacheItem
 }
 
 func (fc *FileCache) Open(uri string, text string, version int) (*FileCacheItem, error) {
@@ -78,9 +79,19 @@ func (fc *FileCache) Close(uri string) (*FileCacheItem, error) {
 	fcitem, ok := fc.fileDict[uri]
 	if ok {
 		fcitem.active = false
-		return &fcitem, nil
+		return fcitem, nil
 	}
 	return nil, fmt.Errorf("FileCache: file %s not found", uri)
+}
+
+func (fc *FileCache) FindByUnit(unit string) *FileCacheItem {
+	unit = strings.ToLower(unit)
+	for _, fcitem := range fc.fileDict {
+		if fcitem.unitName == unit {
+			return fcitem
+		}
+	}
+	return nil
 }
 
 func (fc *FileCache) locateFile(uri string, text string, version int) (*FileCacheItem, error) {
@@ -92,9 +103,9 @@ func (fc *FileCache) locateFile(uri string, text string, version int) (*FileCach
 			return nil, err
 		}
 		fc.fileDict[uri] = fcitem
-		return &fcitem, nil
+		return fcitem, nil
 	} else {
-		return &fcitem, nil
+		return fcitem, nil
 	}
 }
 
@@ -115,32 +126,34 @@ func getFileContent(uri string, text string) (string, error) {
 	}
 }
 
-func newFileCacheItem(uri string, text string, version int) (FileCacheItem, error) {
+func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, error) {
 	var err error
 	var content string
 	if content, err = getFileContent(uri, text); err != nil {
-		return FileCacheItem{}, err
+		return &FileCacheItem{}, err
 	} else {
 		pathElements := DecodePath(uri)
 		var modTime int64
 
 		modTime, err = getFileModTime(pathElements.Path())
 		if err != nil {
-			return FileCacheItem{}, err
+			return &FileCacheItem{}, err
 		}
 		cst, stream := ParseCST(content, uri)
-		scope := newScope(cst, strings.ToLower(pathElements.Name()))
+		unitName := strings.ToLower(pathElements.Name())
+		scope := newScope(cst, unitName)
 		fci := FileCacheItem{
-			uri:     uri,
-			version: version,
-			text:    text,
-			scope:   scope,
-			cst:     cst,
-			stream:  stream,
-			active:  true,
-			modTime: modTime,
+			uri:      uri,
+			unitName: unitName,
+			version:  version,
+			text:     text,
+			scope:    scope,
+			cst:      cst,
+			stream:   stream,
+			active:   true,
+			modTime:  modTime,
 		}
-		return fci, nil
+		return &fci, nil
 	}
 }
 

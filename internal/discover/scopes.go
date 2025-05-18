@@ -85,8 +85,9 @@ func (p Position) After(other Position) bool {
 type TopScope interface {
 	scope
 	WriteToLog()
-	FindSymbolOnPosition(position Position) *Symbol
+	// FindSymbolOnPosition(position Position) *Symbol
 	LocateSymbolsByName(name string, position Position, writer SymbolWriter) error
+	LocateSymbolsInScope(name string, scope string, writer SymbolWriter) error
 }
 
 // scope represents a scope in an hierarchy of scopes that can be searched
@@ -108,6 +109,7 @@ type scope interface {
 	writeToLog(prefix string)
 	findSymbolOnPosition(position Position) *Symbol
 	findAncestorScope(ancestorName string) (inheritenceScope, error)
+	locateSymbolsInScope(name string, scope string, writer SymbolWriter) error
 }
 
 // helper scope to be used to crawl up the scope by inheritance hierarchy
@@ -177,17 +179,59 @@ func (s *unitScope) FindSymbolOnPosition(position Position) *Symbol {
 	return s.scope.findSymbolOnPosition(position)
 }
 
+// todo - actually this looks globally without scope, but later manager must this way find only begining of dot expression and later via LocateSymbolsInScope
+// todo - this is special case without scope - is searched based on scope shadowing and uses units. With scope situation is a bit different
+// todo - so rename it appropriately ... this basically find info about symbol without scope on a position, some starting point
 func (s *unitScope) LocateSymbolsByName(name string, position Position, writer SymbolWriter) error {
 	if err := s.scope.locateSymbolsByName(name, position, writer); err != nil {
 		return err
 	}
 	if s.isInImplementation(position) {
-		if err := s.locateSymbolsByNameInDB(name, s.getImplementationUses(), writer); err != nil {
+		// if err := s.locateSymbolsByNameInDB(name, s.getImplementationUses(), writer); err != nil {
+		// 	return err
+		// }
+		if err := s.locateSymbolsByNameInUnits(name, s.getImplementationUses(), writer); err != nil {
 			return err
 		}
 	}
-	if err := s.locateSymbolsByNameInDB(name, s.getInterfaceUses(), writer); err != nil {
+	// if err := s.locateSymbolsByNameInDB(name, s.getInterfaceUses(), writer); err != nil {
+	// 	return err
+	// }
+	if err := s.locateSymbolsByNameInUnits(name, s.getInterfaceUses(), writer); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (s *unitScope) LocateSymbolsInScope(name string, scope string, writer SymbolWriter) error {
+	topScopeName := s.getName()
+	if scope == topScopeName {
+		scope = ""
+	} else if strings.HasPrefix(scope, topScopeName+".") {
+		scope = scope[len(topScopeName)+1:]
+	}
+	if err := s.scope.locateSymbolsInScope(name, scope, writer); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *unitScope) locateSymbolsByNameInUnits(name string, units []string, writer SymbolWriter) error {
+	var err error
+	for _, unit := range units {
+		// todo - add here suport for prefixed units. Actaully expand unit based on what is in database(unit or firs combination with scope units)
+		if fci := EditFileCache().FindByUnit(unit); fci != nil {
+			if fci.active {
+				err = fci.scope.LocateSymbolsInScope(name, strings.ToLower(unit), writer)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		err = SymDB().LocateSymbolsInScope(name, unit, strings.ToLower(unit), writer)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -520,6 +564,23 @@ func (s *commonScope) locateSymbolsByName(name string, position Position, writer
 		return err
 	}
 	return nil
+}
+
+func (s *commonScope) locateSymbolsInScope(name string, scope string, writer SymbolWriter) error {
+	if scope == "" {
+		return s.locateSymbolByName(name, writer)
+	}
+	var lscope *commonScope
+	dotIndex := strings.Index(scope, ".")
+	if dotIndex == -1 {
+		lscope = s.findLocalScope(scope)
+	} else {
+		lscope = s.findLocalScope(scope[:dotIndex])
+	}
+	if lscope == nil {
+		return nil
+	}
+	return lscope.locateSymbolsInScope(name, scope[dotIndex+1:], writer)
 }
 
 // dbInheritenceScope encapsulate scope stored in database which can locate symbols

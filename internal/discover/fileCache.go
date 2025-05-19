@@ -45,7 +45,7 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 }
 
 func (f *FileCacheItem) LocateSymbolsByName(name string, position Position, writer SymbolWriter) error {
-	return f.scope.LocateSymbolsByName(name, position, writer)
+	return f.scope.LocateSymbolsOnPos(name, position, writer)
 }
 
 func (fci *FileCacheItem) isStale() bool {

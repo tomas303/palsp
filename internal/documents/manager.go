@@ -3,17 +3,22 @@ package edit
 import (
 	"fmt"
 	"palsp/internal/discover"
+	"sync"
 
 	"github.com/antlr4-go/antlr/v4"
 )
 
-var Mgr *Manager
-
-func init() {
-	Mgr = &Manager{}
+type Manager struct {
 }
 
-type Manager struct {
+var mgr *Manager
+var mgrOnce sync.Once
+
+func GetManager() *Manager {
+	mgrOnce.Do(func() {
+		mgr = &Manager{}
+	})
+	return mgr
 }
 
 func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResult {
@@ -21,6 +26,7 @@ func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResu
 		discover.SymDB().AddSearchPath(folder)
 	}
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
+	discover.GetFetcher().Start()
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
 			"textDocumentSync":   1, // Full document sync

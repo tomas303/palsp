@@ -16,10 +16,11 @@ import (
 var db *symDB
 
 type symDB struct {
-	db             *sql.DB
-	con            *sql.Conn
-	searchPaths    []string
-	unitScopeNames []string
+	db               *sql.DB
+	con              *sql.Conn
+	searchPaths      []string
+	unitScopeNames   []string
+	retrieveUnitLock *KeyLock[int]
 }
 
 type UnitString string
@@ -36,6 +37,7 @@ type SymbolDatabase interface {
 	RetriveUnit(unit string) (int, string, error)
 	GetUnitPath(unit string) (string, error)
 	LocateSymbolsInScope(name string, unit string, scope string, writer SymbolWriter) error
+	UnscannedUnits() []string
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -182,12 +184,44 @@ func (db *symDB) GetUnitContent(unit string) (int, string, error) {
 	return unitID, string(data), nil
 }
 
+func (db *symDB) UnscannedUnits() []string {
+	var units []string
+	query := "SELECT unitname FROM units WHERE scanned = 0"
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Main.Warn().Err(err).Msg("UnscannedUnits error")
+		return units
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var unitname string
+		if err := rows.Scan(&unitname); err != nil {
+			log.Main.Warn().Err(err).Msg("UnscannedUnits error scanning")
+			continue
+		}
+		units = append(units, unitname)
+	}
+	if err := rows.Err(); err != nil {
+		log.Main.Warn().Err(err).Msg("UnscannedUnits error iterating")
+	}
+	if len(units) == 0 {
+		log.Main.Debug().Msg("No unscanned units found")
+	} else {
+		log.Main.Debug().Msgf("Unscanned units: %v", units)
+	}
+	return units
+}
+
 // RetriveUnit retrieves the unit ID for a given unit name. In case of changes it refreshes the unit content.
 func (db *symDB) RetriveUnit(unit string) (int, string, error) {
+
 	unitID, unitpath, lastModified, scanned, unitname, err := db.findUnitInfo(unit)
 	if err != nil {
 		return 0, "", err
 	}
+
+	db.retrieveUnitLock.Lock(unitID)
+	defer db.retrieveUnitLock.Unlock(unitID)
 
 	// Check the current file modification time
 	currentModTime, err := getFileModTime(unitpath)
@@ -569,7 +603,7 @@ func newSymDB() (*symDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	symdb := &symDB{db: db, con: con, searchPaths: []string{}, unitScopeNames: []string{}}
+	symdb := &symDB{db: db, con: con, searchPaths: []string{}, unitScopeNames: []string{}, retrieveUnitLock: NewKeyLock[int]()}
 	return symdb, err
 }
 

@@ -95,35 +95,35 @@ func handleInitialize(params InitializeParams) edit.OpResult {
 	searchFolders := params.InitializationOptions.SearchFolders
 	allFolders := append(workspaceFolderPaths, searchFolders...)
 
-	return edit.Mgr.Init(allFolders, params.InitializationOptions.UnitScopeNames)
+	return edit.GetManager().Init(allFolders, params.InitializationOptions.UnitScopeNames)
 }
 
 // Modified Handle textDocument/didOpen request
 func handleDidOpen(params DidOpenTextDocumentParams) edit.OpResult {
-	return edit.Mgr.DidOpen(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
+	return edit.GetManager().DidOpen(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 }
 
 // Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams) edit.OpResult {
-	return edit.Mgr.DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
+	return edit.GetManager().DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 }
 
 // Modified Handle textDocument/didClose request
 func handleDidClose(params DidCloseTextDocumentParams) edit.OpResult {
-	return edit.Mgr.DidClose(params.TextDocument.URI)
+	return edit.GetManager().DidClose(params.TextDocument.URI)
 }
 
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams) edit.OpResult {
-	return edit.Mgr.Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }
 
 // Modified Handle textDocument/hover request
 func handleHover(params HoverParams) edit.OpResult {
-	return edit.Mgr.Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }
 
 // Modified Handle textDocument/definition request
 func handleDefinition(params DefinitionParams) edit.OpResult {
-	return edit.Mgr.Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
 }

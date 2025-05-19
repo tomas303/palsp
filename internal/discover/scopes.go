@@ -88,6 +88,7 @@ type TopScope interface {
 	// FindSymbolOnPosition(position Position) *Symbol
 	LocateSymbolsOnPos(name string, position Position, writer SymbolWriter) error
 	LocateSymbols(name string, scope string, writer SymbolWriter) error
+	GetUnits() []string
 }
 
 // scope represents a scope in an hierarchy of scopes that can be searched
@@ -374,6 +375,13 @@ func (s *unitScope) findAncestorScope(name string) (inheritenceScope, error) {
 
 	result := NewdbInheritenceScope(nameSym.Unitname, nameSym.Name, nameSym.Definition)
 	return result, nil
+}
+
+func (s *unitScope) GetUnits() []string {
+	var units []string
+	units = append(units, s.implementationUses.reverse()...)
+	units = append(units, s.interfaceUses.reverse()...)
+	return units
 }
 
 // commonScope represents one scope inside other scopes(functions, structured types, etc.)

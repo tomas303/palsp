@@ -310,8 +310,10 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 
 func (s *scopesListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
 	for _, parSecCtx := range ctx.AllFormalParameterSection() {
-		for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-			s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, buildOneParameter(parSecCtx, id), positionFromCtx(id))
+		if parSecCtx.ParameterGroup() != nil {
+			for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
+				s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, buildOneParameter(parSecCtx, id), positionFromCtx(id))
+			}
 		}
 	}
 }

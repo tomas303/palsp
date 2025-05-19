@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 )
 
 type pathElements struct {
@@ -178,3 +179,62 @@ func newStack[T any]() *stack[T] {
 		data: make([]T, 0),
 	}
 }
+
+// KeyLock provides locking capabilities based on generic keys
+// K must be comparable (usable as a map key)
+type KeyLock[K comparable] struct {
+	mu    sync.RWMutex
+	locks map[K]*sync.Mutex
+}
+
+// NewKeyLock creates a new KeyLock instance
+func NewKeyLock[K comparable]() *KeyLock[K] {
+	return &KeyLock[K]{
+		locks: make(map[K]*sync.Mutex),
+	}
+}
+
+// Lock acquires a lock for the given key
+// Multiple goroutines trying to Lock the same key will block until Unlock is called
+// Different keys can be locked concurrently
+func (k *KeyLock[K]) Lock(key K) {
+	// First try to get the lock with a read lock (faster)
+	k.mu.RLock()
+	mutex, exists := k.locks[key]
+	k.mu.RUnlock()
+
+	if !exists {
+		// Need to create a lock - requires write lock
+		k.mu.Lock()
+		// Check again in case another goroutine created it
+		mutex, exists = k.locks[key]
+		if !exists {
+			mutex = &sync.Mutex{}
+			k.locks[key] = mutex
+		}
+		k.mu.Unlock()
+	}
+
+	// Acquire the mutex for this key
+	mutex.Lock()
+}
+
+// Unlock releases a lock for the given key
+// Must be called after Lock with the same key
+func (k *KeyLock[K]) Unlock(key K) {
+	k.mu.RLock()
+	mutex, exists := k.locks[key]
+	k.mu.RUnlock()
+
+	if exists {
+		mutex.Unlock()
+	}
+}
+
+// Example usage:
+// func Process(unitName string) {
+//     locker := NewKeyLock[string]()
+//     locker.Lock(unitName)
+//     defer locker.Unlock(unitName)
+//
+// }

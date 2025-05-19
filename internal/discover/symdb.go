@@ -29,7 +29,6 @@ type UnitID int
 type SymbolDatabase interface {
 	AddSearchPath(path string)
 	SetUnitScopeNames(unitScopeNames []string)
-	DropSymbolsFromPath(path string)
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string, position Position) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
@@ -460,40 +459,6 @@ func (db *symDB) AddSearchPath(path string) {
 func (db *symDB) SetUnitScopeNames(unitScopeNames []string) {
 	for _, name := range unitScopeNames {
 		db.unitScopeNames = append(db.unitScopeNames, strings.ToLower(name))
-	}
-}
-
-func (db *symDB) DropSymbolsFromPath(path string) {
-	// Extract filename from path (could be in URI format)
-	path = filepath.ToSlash(path) // Convert to forward slashes for consistency
-	fileName := filepath.Base(path)
-	ext := filepath.Ext(fileName)
-	unitName := strings.TrimSuffix(fileName, ext)
-	// Get all unit IDs matching this name
-	query := "SELECT id FROM units WHERE unitname = ? COLLATE NOCASE"
-	rows, err := db.Query(query, unitName)
-	if err != nil {
-		log.Main.Warn().Err(err).Msgf("DropSymbolsFromPath error: couldn't query units for %s", unitName)
-		return
-	}
-	defer rows.Close()
-
-	// Delete symbols for each matching unit
-	for rows.Next() {
-		var unitID int
-		if err := rows.Scan(&unitID); err != nil {
-			log.Main.Warn().Err(err).Msg("Error scanning unit ID")
-			continue
-		}
-
-		if err := db.dropSymbols(unitID); err != nil {
-			log.Main.Warn().Err(err).Msgf("Error dropping symbols for unit ID %d", unitID)
-		}
-		// Reset the scanned flag
-		_, err = db.Exec("UPDATE units SET scanned = 0 WHERE id = ?", unitID)
-		if err != nil {
-			log.Main.Warn().Err(err).Msgf("Error resetting scanned flag for unit ID %d", unitID)
-		}
 	}
 }
 

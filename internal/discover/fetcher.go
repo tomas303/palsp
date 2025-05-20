@@ -12,6 +12,7 @@ import (
 // Fetcher is responsible for scanning unscanned units in parallel
 type Fetcher struct {
 	jobChan      chan string    // Channel for units to process
+	normalChan   chan string    // Channel for priority units
 	priorityChan chan string    // Channel for priority units
 	running      atomic.Bool    // Atomic flag to indicate if fetcher is running
 	wg           sync.WaitGroup // WaitGroup to manage worker goroutines
@@ -25,15 +26,16 @@ var fetcherOnce sync.Once
 func GetFetcher() *Fetcher {
 	fetcherOnce.Do(func() {
 		// Use half the available CPU cores for workers
-		workers := runtime.NumCPU() / 2
+		workers := runtime.NumCPU() / 4
 		if workers < 1 {
 			workers = 1
 		}
 		log.Main.Debug().Int("workers", workers).Msg("Initializing Fetcher with workers")
 
 		fetcher = &Fetcher{
-			jobChan:      make(chan string, 100),
-			priorityChan: make(chan string, 10),
+			jobChan:      make(chan string),
+			normalChan:   make(chan string),
+			priorityChan: make(chan string),
 			maxWorkers:   workers,
 		}
 	})
@@ -65,17 +67,29 @@ func (f *Fetcher) Stop() {
 	}
 }
 
-// AddUnit adds a unit to be processed with high priority
-func (f *Fetcher) AddUnit(unitName string) {
+// AddPrioritized adds a unit to be processed with high priority
+func (f *Fetcher) AddPrioritized(unitName string) {
 	if !f.running.Load() {
 		f.Start()
 	}
-
 	select {
 	case f.priorityChan <- unitName:
 		log.Main.Debug().Str("unit", unitName).Msg("Added priority unit to fetch queue")
 	default:
 		log.Main.Warn().Str("unit", unitName).Msg("Priority queue full, unable to add unit")
+	}
+}
+
+// Add adds a unit to be processed with normal priority
+func (f *Fetcher) AddNormal(unitName string) {
+	if !f.running.Load() {
+		f.Start()
+	}
+	select {
+	case f.normalChan <- unitName:
+		log.Main.Debug().Str("unit", unitName).Msg("Added unit to fetch queue")
+	default:
+		log.Main.Warn().Str("unit", unitName).Msg("Normal queue full, unable to add unit")
 	}
 }
 
@@ -94,21 +108,20 @@ func (f *Fetcher) dispatcher() {
 	}()
 
 	for f.running.Load() {
-		// First check priority channel
 		select {
+		// Check high priority channel first (non-blocking)
 		case unit := <-f.priorityChan:
 			f.jobChan <- unit
 			continue
 		default:
-			// No priority units, continue to regular handling
-		}
-
-		// Then check regular job channel or wait a bit
-		select {
-		case unit := <-f.priorityChan:
-			f.jobChan <- unit
-		case <-time.After(100 * time.Millisecond):
-			// Just a small delay to prevent tight looping
+			// No items in priority channel, check normal channel
+			select {
+			case unit := <-f.normalChan:
+				f.jobChan <- unit
+				continue
+			case <-time.After(100 * time.Millisecond):
+				// Nothing in either channel, just wait
+			}
 		}
 	}
 }
@@ -134,25 +147,4 @@ func (f *Fetcher) worker(id int) {
 	}
 
 	log.Main.Debug().Int("worker", id).Msg("Fetcher worker stopped")
-}
-
-// queueUnscannedUnits gets all unscanned units and adds them to the job queue
-func (f *Fetcher) queueUnscannedUnits() {
-	units := SymDB().UnscannedUnits()
-	log.Main.Info().Int("count", len(units)).Msg("Queueing unscanned units")
-
-	for _, unit := range units {
-		if !f.running.Load() {
-			break
-		}
-
-		select {
-		case f.jobChan <- unit:
-			// Unit added to queue
-		default:
-			// Queue is full, wait a bit
-			time.Sleep(10 * time.Millisecond)
-			f.jobChan <- unit // Try again (this will block if still full)
-		}
-	}
 }

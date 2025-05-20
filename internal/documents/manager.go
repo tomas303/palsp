@@ -21,12 +21,17 @@ func GetManager() *Manager {
 	return mgr
 }
 
-func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string) OpResult {
+func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string, prefetchUnits bool) OpResult {
 	for _, folder := range searchFolders {
 		discover.SymDB().AddSearchPath(folder)
 	}
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
 	discover.GetFetcher().Start()
+	if prefetchUnits {
+		for _, unit := range unitScopeNames {
+			discover.GetFetcher().AddNormal(unit)
+		}
+	}
 	resp := InitializeResult{
 		Capabilities: map[string]interface{}{
 			"textDocumentSync":   1, // Full document sync

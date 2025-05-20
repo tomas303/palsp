@@ -73,7 +73,7 @@ func (fc *FileCache) Open(uri string, text string, version int) (*FileCacheItem,
 	}
 	fcitem.active = true
 	for _, unit := range fcitem.scope.GetUnits() {
-		GetFetcher().AddUnit(unit)
+		GetFetcher().AddPrioritized(unit)
 	}
 	return fcitem, nil
 }

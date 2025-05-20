@@ -238,3 +238,31 @@ func (k *KeyLock[K]) Unlock(key K) {
 //     defer locker.Unlock(unitName)
 //
 // }
+
+// formatFileURI converts a filesystem path to a properly formatted URI
+// Works for both Windows and Unix-like systems
+func FormatFileURI(path string) string {
+	// Normalize path separators to forward slashes (for Windows)
+	normalizedPath := strings.ReplaceAll(path, "\\", "/")
+
+	if runtime.GOOS == "windows" {
+		// Check if path has a drive letter (e.g. C:)
+		if len(normalizedPath) >= 2 && normalizedPath[1] == ':' {
+			// Windows path with drive letter needs three slashes: file:///C:/path
+			return "file:///" + normalizedPath
+		}
+
+		// Windows path without drive letter (e.g. network path)
+		// Should start with file:// and not have a leading slash
+		if strings.HasPrefix(normalizedPath, "/") {
+			return "file://" + normalizedPath
+		}
+		return "file:///" + normalizedPath
+	} else {
+		// Unix paths always start with /
+		if !strings.HasPrefix(normalizedPath, "/") {
+			normalizedPath = "/" + normalizedPath
+		}
+		return "file://" + normalizedPath
+	}
+}

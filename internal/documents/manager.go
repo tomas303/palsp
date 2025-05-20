@@ -172,7 +172,7 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 			return err
 		}
 		location := map[string]interface{}{
-			"uri": "file://" + filePath,
+			"uri": discover.FormatFileURI(filePath),
 			"range": map[string]interface{}{
 				"start": map[string]interface{}{
 					"line":      sym.Position.Line - 1,

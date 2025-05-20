@@ -28,7 +28,7 @@ func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string, prefet
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
 	discover.GetFetcher().Start()
 	if prefetchUnits {
-		for _, unit := range unitScopeNames {
+		for _, unit := range discover.SymDB().UnscannedUnits() {
 			discover.GetFetcher().AddNormal(unit)
 		}
 	}

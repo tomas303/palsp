@@ -33,9 +33,9 @@ func GetFetcher() *Fetcher {
 		log.Main.Debug().Int("workers", workers).Msg("Initializing Fetcher with workers")
 
 		fetcher = &Fetcher{
-			jobChan:      make(chan string),
-			normalChan:   make(chan string),
-			priorityChan: make(chan string),
+			jobChan:      make(chan string, 10000),
+			normalChan:   make(chan string, 10000),
+			priorityChan: make(chan string, 1000),
 			maxWorkers:   workers,
 		}
 	})
@@ -48,12 +48,8 @@ func (f *Fetcher) Start() {
 	// Only start if not already running
 	if f.running.CompareAndSwap(false, true) {
 		log.Main.Info().Msg("Starting symbol fetcher")
-
 		// Start the dispatcher
 		go f.dispatcher()
-
-		// // Queue unscanned units
-		// go f.queueUnscannedUnits()
 	}
 }
 
@@ -72,12 +68,14 @@ func (f *Fetcher) AddPrioritized(unitName string) {
 	if !f.running.Load() {
 		f.Start()
 	}
-	select {
-	case f.priorityChan <- unitName:
-		log.Main.Debug().Str("unit", unitName).Msg("Added priority unit to fetch queue")
-	default:
-		log.Main.Warn().Str("unit", unitName).Msg("Priority queue full, unable to add unit")
-	}
+	go func() {
+		select {
+		case f.priorityChan <- unitName:
+			log.Main.Debug().Str("unit", unitName).Msg("Added priority unit to fetch queue")
+		case <-time.After(10 * time.Second):
+			log.Main.Warn().Str("unit", unitName).Msg("Timed out trying to add unit to priority queue")
+		}
+	}()
 }
 
 // Add adds a unit to be processed with normal priority
@@ -85,12 +83,15 @@ func (f *Fetcher) AddNormal(unitName string) {
 	if !f.running.Load() {
 		f.Start()
 	}
-	select {
-	case f.normalChan <- unitName:
-		log.Main.Debug().Str("unit", unitName).Msg("Added unit to fetch queue")
-	default:
-		log.Main.Warn().Str("unit", unitName).Msg("Normal queue full, unable to add unit")
-	}
+	// Spawn goroutine to handle queuing - this returns immediately
+	go func() {
+		select {
+		case f.normalChan <- unitName:
+			log.Main.Debug().Str("unit", unitName).Msg("Added unit to fetch queue")
+		case <-time.After(10 * time.Second):
+			log.Main.Warn().Str("unit", unitName).Msg("Timed out trying to add unit to normal queue")
+		}
+	}()
 }
 
 // dispatcher manages the worker pool and distributes units to process

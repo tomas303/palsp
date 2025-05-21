@@ -41,13 +41,14 @@ type scopeInfo struct {
 	position Position
 	ancestor *string
 	path     string
+	kind     SymbolKind
 }
 
 // SymbolCollector defines an interface for collecting symbols
 type SymbolCollector interface {
 	AddSymbol(name string, kind SymbolKind, definition string, position Position)
-	BeginScope(name string, info scopeInfo)
-	EndScope(name string, info scopeInfo)
+	BeginScope(name string, info *scopeInfo)
+	EndScope(name string, info *scopeInfo)
 	EnterImplementation(position Position)
 	AddUseUnit(unit string)
 	AccessSpecifier(as AccessSpec)
@@ -68,12 +69,12 @@ func NewDBSymbolCollector(unitID int, db *symDB) *dbCollector {
 	}
 }
 
-func (dc *dbCollector) BeginScope(name string, scopeInfo scopeInfo) {
-	dc.currentInfo = scopeInfo
+func (dc *dbCollector) BeginScope(name string, scopeInfo *scopeInfo) {
+	dc.currentInfo = *scopeInfo
 }
 
-func (dc *dbCollector) EndScope(name string, scopeInfo scopeInfo) {
-	dc.currentInfo = scopeInfo
+func (dc *dbCollector) EndScope(name string, scopeInfo *scopeInfo) {
+	dc.currentInfo = *scopeInfo
 }
 
 func (dc *dbCollector) EnterImplementation(position Position) {
@@ -121,18 +122,18 @@ func NewMemorySymbolCollector(unitName string) *memoryCollector {
 	}
 }
 
-func (mc *memoryCollector) BeginScope(name string, scopeInfo scopeInfo) {
+func (mc *memoryCollector) BeginScope(name string, scopeInfo *scopeInfo) {
 	var parentScope *commonScope
 	if mc.scopeStack.length() == 0 {
 		parentScope = nil
 	} else {
 		parentScope = mc.scopeStack.peek()
 	}
-	newScope := commonScope{name: strings.ToLower(name), info: scopeInfo, parentScope: parentScope}
+	newScope := commonScope{name: strings.ToLower(name), info: *scopeInfo, parentScope: parentScope}
 	mc.scopeStack.push(&newScope)
 }
 
-func (mc *memoryCollector) EndScope(name string, scopeInfo scopeInfo) {
+func (mc *memoryCollector) EndScope(name string, scopeInfo *scopeInfo) {
 	scope := mc.scopeStack.pop()
 	parentscope := mc.scopeStack.peek()
 	scope.parentSWM = parentscope.symbolStack.length() - 1
@@ -228,35 +229,36 @@ type scopesListener struct {
 	collector     SymbolCollector
 	inDeclaration bool
 	scopePath     *stack[string]
-	infoStack     *stack[scopeInfo]
+	infoStack     *stack[*scopeInfo]
 }
 
 func NewScopesListener(collector SymbolCollector) *scopesListener {
 	return &scopesListener{
 		collector: collector,
 		scopePath: newStack[string](),
-		infoStack: newStack[scopeInfo](),
+		infoStack: newStack[*scopeInfo](),
 	}
 }
 
 func (s *scopesListener) beginScope(idCtx parser.IIdentifierContext) {
 	id := strings.ToLower(buildIdentifier(idCtx))
 	s.scopePath.push(id)
-	s.infoStack.push(scopeInfo{position: positionFromCtx(idCtx), path: s.scopePath.joinByDot()})
+	s.infoStack.push(&scopeInfo{position: positionFromCtx(idCtx), path: s.scopePath.joinByDot()})
 	s.collector.BeginScope(id, s.infoStack.peek())
 }
 
-func (s *scopesListener) beginClassScope(idCtx parser.IIdentifierContext, ancestor *string) {
+func (s *scopesListener) beginTypeScope(idCtx parser.IIdentifierContext, ancestor *string, kind SymbolKind) {
 	id := strings.ToLower(buildIdentifier(idCtx))
 	s.scopePath.push(id)
-	s.infoStack.push(scopeInfo{position: positionFromCtx(idCtx), ancestor: ancestor, path: s.scopePath.joinByDot()})
+	s.infoStack.push(&scopeInfo{position: positionFromCtx(idCtx), ancestor: ancestor, path: s.scopePath.joinByDot(), kind: kind})
 	s.collector.BeginScope(buildIdentifier(idCtx), s.infoStack.peek())
 }
 
-func (s *scopesListener) endScope(idCtx parser.IIdentifierContext) {
+func (s *scopesListener) endScope(idCtx parser.IIdentifierContext) *scopeInfo {
 	s.scopePath.pop()
-	s.infoStack.pop()
+	si := s.infoStack.pop()
 	s.collector.EndScope(buildIdentifier(idCtx), s.infoStack.peek())
+	return si
 }
 
 func (s *scopesListener) EnterImplementationSection(ctx *parser.ImplementationSectionContext) {
@@ -327,6 +329,10 @@ func (s *scopesListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPa
 	}
 }
 
+func (s *scopesListener) ExitPropertyDeclaration(ctx *parser.PropertyDeclarationContext) {
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), PropertySymbol, buildProperty(ctx), positionFromCtx(ctx.Identifier()))
+}
+
 func (s *scopesListener) EnterUnit(ctx *parser.UnitContext) {
 	s.beginScope(ctx.Identifier())
 }
@@ -395,16 +401,28 @@ func (s *scopesListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclaration
 
 func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	var ancestor *string
-	if ctx.Type_() != nil && ctx.Type_().StructuredType() != nil && ctx.Type_().StructuredType().ClassType() != nil {
-		tmp := buildIdentifier(ctx.Type_().StructuredType().ClassType().Identifier())
-		ancestor = &tmp
+	var kind SymbolKind
+	if ctx.Type_() != nil && ctx.Type_().StructuredType() != nil {
+		if ctx.Type_().StructuredType().ClassType() != nil {
+			tmp := buildIdentifier(ctx.Type_().StructuredType().ClassType().Identifier())
+			ancestor = &tmp
+			kind = ClassSymbol
+		} else if ctx.Type_().StructuredType().InterfaceType() != nil {
+			tmp := buildIdentifier(ctx.Type_().StructuredType().InterfaceType().Identifier())
+			ancestor = &tmp
+			kind = InterfaceSymbol
+		} else {
+			ancestor = nil
+			kind = TypeSymbol
+		}
 	} else {
 		ancestor = nil
+		kind = TypeSymbol
 	}
-	s.beginClassScope(ctx.Identifier(), ancestor)
+	s.beginTypeScope(ctx.Identifier(), ancestor, kind)
 }
 
 func (s *scopesListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
-	s.endScope(ctx.Identifier())
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), TypeSymbol, buildTypeDef(ctx), positionFromCtx(ctx.Identifier()))
+	si := s.endScope(ctx.Identifier())
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), si.kind, buildTypeDef(ctx), positionFromCtx(ctx.Identifier()))
 }

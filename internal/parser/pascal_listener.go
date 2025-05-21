@@ -128,6 +128,21 @@ type pascalListener interface {
 	// EnterClassDeclarationPart is called when entering the classDeclarationPart production.
 	EnterClassDeclarationPart(c *ClassDeclarationPartContext)
 
+	// EnterInterfaceGuidConst is called when entering the interfaceGuidConst production.
+	EnterInterfaceGuidConst(c *InterfaceGuidConstContext)
+
+	// EnterInterfaceType is called when entering the interfaceType production.
+	EnterInterfaceType(c *InterfaceTypeContext)
+
+	// EnterInterfaceDeclaration is called when entering the interfaceDeclaration production.
+	EnterInterfaceDeclaration(c *InterfaceDeclarationContext)
+
+	// EnterInterfaceDeclarationPart is called when entering the interfaceDeclarationPart production.
+	EnterInterfaceDeclarationPart(c *InterfaceDeclarationPartContext)
+
+	// EnterErrorInterfaceDeclarationPart is called when entering the errorInterfaceDeclarationPart production.
+	EnterErrorInterfaceDeclarationPart(c *ErrorInterfaceDeclarationPartContext)
+
 	// EnterErrorClassDeclarationPart is called when entering the errorClassDeclarationPart production.
 	EnterErrorClassDeclarationPart(c *ErrorClassDeclarationPartContext)
 
@@ -556,6 +571,21 @@ type pascalListener interface {
 
 	// ExitClassDeclarationPart is called when exiting the classDeclarationPart production.
 	ExitClassDeclarationPart(c *ClassDeclarationPartContext)
+
+	// ExitInterfaceGuidConst is called when exiting the interfaceGuidConst production.
+	ExitInterfaceGuidConst(c *InterfaceGuidConstContext)
+
+	// ExitInterfaceType is called when exiting the interfaceType production.
+	ExitInterfaceType(c *InterfaceTypeContext)
+
+	// ExitInterfaceDeclaration is called when exiting the interfaceDeclaration production.
+	ExitInterfaceDeclaration(c *InterfaceDeclarationContext)
+
+	// ExitInterfaceDeclarationPart is called when exiting the interfaceDeclarationPart production.
+	ExitInterfaceDeclarationPart(c *InterfaceDeclarationPartContext)
+
+	// ExitErrorInterfaceDeclarationPart is called when exiting the errorInterfaceDeclarationPart production.
+	ExitErrorInterfaceDeclarationPart(c *ErrorInterfaceDeclarationPartContext)
 
 	// ExitErrorClassDeclarationPart is called when exiting the errorClassDeclarationPart production.
 	ExitErrorClassDeclarationPart(c *ErrorClassDeclarationPartContext)

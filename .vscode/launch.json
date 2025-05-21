@@ -25,7 +25,7 @@
             "mode": "debug",
             "program": "${workspaceFolder}/cmd",
             "args": ["--port", "8080", 
-                "--log-level-main", "none", 
+                "--log-level-main", "debug", 
                 "--log-level-antlr-error", "debug",
                 // "--log-file-antlr-error", "/tmp/palsp/error.log",
                 "--log-level-antlr-trace", "debug",

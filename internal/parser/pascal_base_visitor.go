@@ -168,6 +168,26 @@ func (v *BasepascalVisitor) VisitClassDeclarationPart(ctx *ClassDeclarationPartC
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitInterfaceGuidConst(ctx *InterfaceGuidConstContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitInterfaceType(ctx *InterfaceTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitInterfaceDeclaration(ctx *InterfaceDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitInterfaceDeclarationPart(ctx *InterfaceDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitErrorInterfaceDeclarationPart(ctx *ErrorInterfaceDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }

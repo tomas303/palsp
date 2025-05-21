@@ -73,6 +73,9 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 	if ctx.ClassType() != nil {
 		result += buildClassTypeDef(ctx.ClassType())
 	}
+	if ctx.InterfaceType() != nil {
+		result += buildInterfaceTypeDef(ctx.InterfaceType())
+	}
 	return result
 }
 
@@ -141,6 +144,21 @@ func buildFileType(ctx parser.IFileTypeContext) string {
 		return "file of " + buildUnderscoreTypeDef(ctx.Type_())
 	}
 	return "file"
+}
+
+func buildInterfaceTypeDef(ctx parser.IInterfaceTypeContext) string {
+	result := "interface"
+	if ctx.LPAREN() != nil && ctx.RPAREN() != nil {
+		if ctx.Identifier() != nil {
+			result += "(" + buildIdentifier(ctx.Identifier()) + ")"
+		}
+	}
+	result += "\n"
+	if ctx.GUID_LITERAL() != nil {
+		result += ctx.GUID_LITERAL().GetText()
+	}
+	result += "end"
+	return result
 }
 
 func buildClassTypeDef(ctx parser.IClassTypeContext) string {
@@ -535,5 +553,16 @@ func buildFunctionHeader(ctx *parser.FunctionHeaderContext) string {
 		definition += ": " + buildTypeIdentifier(ctx.ResultType().TypeIdentifier())
 	}
 	definition += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	return definition
+}
+
+func buildProperty(ctx *parser.PropertyDeclarationContext) string {
+	definition := "property "
+	if ctx.Identifier() != nil {
+		definition += buildIdentifier(ctx.Identifier())
+	}
+	if ctx.TypeIdentifier() != nil {
+		definition += ": " + buildTypeIdentifier(ctx.TypeIdentifier())
+	}
 	return definition
 }

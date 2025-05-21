@@ -49,12 +49,14 @@ const (
 	ConstantSymbol                    // 2
 	VariableSymbol                    // 3
 	ClassSymbol                       // 4
-	TypeSymbol                        // 5
-	ParameterSymbol                   // 6
-	FunctionResult                    // 7
-	ClassVariable                     // 8
-	UnitReference                     // 9
-	TypeIdentifier                    // 10
+	InterfaceSymbol                   // 5
+	TypeSymbol                        // 6
+	ParameterSymbol                   // 7
+	FunctionResult                    // 8
+	ClassVariable                     // 9
+	UnitReference                     // 10
+	TypeIdentifier                    // 11
+	PropertySymbol                    // 12
 )
 
 func init() {
@@ -83,6 +85,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "variable"
 	case ClassSymbol:
 		return "class"
+	case InterfaceSymbol:
+		return "interface"
 	case TypeSymbol:
 		return "type"
 	case ParameterSymbol:
@@ -95,6 +99,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "unit"
 	case TypeIdentifier:
 		return "type ident"
+	case PropertySymbol:
+		return "property"
 	default:
 		return "unknown"
 	}

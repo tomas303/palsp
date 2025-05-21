@@ -253,6 +253,33 @@ classDeclarationPart
     | errorClassDeclarationPart SEMI
     ;
 
+GUID_LITERAL
+    : '[' '\'' '{' HEX_CHAR_SEQ8 '-' HEX_CHAR_SEQ4 '-' HEX_CHAR_SEQ4 '-' HEX_CHAR_SEQ4 '-' HEX_CHAR_SEQ12 '}' '\'' ']'
+    ;
+
+interfaceGuidConst
+    : GUID_LITERAL
+    ;
+   
+interfaceType
+    : INTERFACE (LPAREN identifier genericTemplate? RPAREN)? GUID_LITERAL? interfaceDeclaration END
+    ;
+
+interfaceDeclaration
+    : interfaceDeclarationPart*
+    ;
+
+interfaceDeclarationPart
+    : functionHeader
+    | procedureHeader
+    | propertyDeclaration SEMI
+    | errorInterfaceDeclarationPart SEMI
+    ;
+
+errorInterfaceDeclarationPart
+    : ~(END)+ // Consume tokens until a likely statement boundary
+    ;
+
 errorClassDeclarationPart
     : ~(PRIVATE | STRICTPRIVATE | PROTECTED | STRICTPROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
     ;
@@ -326,6 +353,7 @@ structuredType
     : PACKED unpackedStructuredType
     | unpackedStructuredType
     | classType
+    | interfaceType
     ;
 
 unpackedStructuredType
@@ -1228,8 +1256,12 @@ IDENT
     : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
     ;
 
+HEX_CHAR
+    : ('A' .. 'F' | '0' .. '9')
+    ;
+
 HEX_LITERAL
-    : '$' ('A' .. 'F' | '0' .. '9')+
+    : '$' HEX_CHAR+
     ;
 
 STRING_LITERAL
@@ -1254,4 +1286,16 @@ fragment EXPONENT
 
 UTF8BOM
     : '\uFEFF' -> skip
+    ;
+
+fragment HEX_CHAR_SEQ12
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
+    ;
+
+fragment HEX_CHAR_SEQ8
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
+    ;
+
+fragment HEX_CHAR_SEQ4
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
     ;

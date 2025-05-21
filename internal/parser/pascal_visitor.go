@@ -128,6 +128,21 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#classDeclarationPart.
 	VisitClassDeclarationPart(ctx *ClassDeclarationPartContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#interfaceGuidConst.
+	VisitInterfaceGuidConst(ctx *InterfaceGuidConstContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#interfaceType.
+	VisitInterfaceType(ctx *InterfaceTypeContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#interfaceDeclaration.
+	VisitInterfaceDeclaration(ctx *InterfaceDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#interfaceDeclarationPart.
+	VisitInterfaceDeclarationPart(ctx *InterfaceDeclarationPartContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#errorInterfaceDeclarationPart.
+	VisitErrorInterfaceDeclarationPart(ctx *ErrorInterfaceDeclarationPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#errorClassDeclarationPart.
 	VisitErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) interface{}
 

@@ -263,6 +263,38 @@ func (s *BasepascalListener) EnterClassDeclarationPart(ctx *ClassDeclarationPart
 // ExitClassDeclarationPart is called when production classDeclarationPart is exited.
 func (s *BasepascalListener) ExitClassDeclarationPart(ctx *ClassDeclarationPartContext) {}
 
+// EnterInterfaceGuidConst is called when production interfaceGuidConst is entered.
+func (s *BasepascalListener) EnterInterfaceGuidConst(ctx *InterfaceGuidConstContext) {}
+
+// ExitInterfaceGuidConst is called when production interfaceGuidConst is exited.
+func (s *BasepascalListener) ExitInterfaceGuidConst(ctx *InterfaceGuidConstContext) {}
+
+// EnterInterfaceType is called when production interfaceType is entered.
+func (s *BasepascalListener) EnterInterfaceType(ctx *InterfaceTypeContext) {}
+
+// ExitInterfaceType is called when production interfaceType is exited.
+func (s *BasepascalListener) ExitInterfaceType(ctx *InterfaceTypeContext) {}
+
+// EnterInterfaceDeclaration is called when production interfaceDeclaration is entered.
+func (s *BasepascalListener) EnterInterfaceDeclaration(ctx *InterfaceDeclarationContext) {}
+
+// ExitInterfaceDeclaration is called when production interfaceDeclaration is exited.
+func (s *BasepascalListener) ExitInterfaceDeclaration(ctx *InterfaceDeclarationContext) {}
+
+// EnterInterfaceDeclarationPart is called when production interfaceDeclarationPart is entered.
+func (s *BasepascalListener) EnterInterfaceDeclarationPart(ctx *InterfaceDeclarationPartContext) {}
+
+// ExitInterfaceDeclarationPart is called when production interfaceDeclarationPart is exited.
+func (s *BasepascalListener) ExitInterfaceDeclarationPart(ctx *InterfaceDeclarationPartContext) {}
+
+// EnterErrorInterfaceDeclarationPart is called when production errorInterfaceDeclarationPart is entered.
+func (s *BasepascalListener) EnterErrorInterfaceDeclarationPart(ctx *ErrorInterfaceDeclarationPartContext) {
+}
+
+// ExitErrorInterfaceDeclarationPart is called when production errorInterfaceDeclarationPart is exited.
+func (s *BasepascalListener) ExitErrorInterfaceDeclarationPart(ctx *ErrorInterfaceDeclarationPartContext) {
+}
+
 // EnterErrorClassDeclarationPart is called when production errorClassDeclarationPart is entered.
 func (s *BasepascalListener) EnterErrorClassDeclarationPart(ctx *ErrorClassDeclarationPartContext) {}
 

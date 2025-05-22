@@ -407,7 +407,7 @@ func (s *commonScope) getName() string {
 }
 
 func (s *commonScope) getPosition() Position {
-	return s.info.position
+	return s.info.startPos
 }
 
 func (s *commonScope) getParentSWM() int {
@@ -541,11 +541,11 @@ func (s *commonScope) locateSymbolsOnPos(name string, position Position, writer 
 	var hitScope scope
 	for i := s.scopeStack.length() - 1; i >= 0; i-- {
 		scope := s.scopeStack.get(i)
-		scopeLine := scope.getPosition().Line
-		if scopeLine > 0 && scopeLine <= position.Line {
+		if scope.info.startPos.Compare(position) <= 0 && scope.info.stopPos.Compare(position) >= 0 {
 			hitScope = scope
 			break
 		}
+
 	}
 
 	var watermark int

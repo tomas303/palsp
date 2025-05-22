@@ -137,6 +137,7 @@ constantDefinitionPart
 
 constantDefinition
     : identifier (COLON typeIdentifier)? EQUAL constant
+    | identifier COLON arrayType EQUAL constant
     ;
 
 constantChr
@@ -154,6 +155,7 @@ constant
     | sign identifier
     | string
     | constantChr
+    | scalarType
     | arrayConstant (PLUS (arrayConstant|identifier))*
     ;
 
@@ -349,7 +351,7 @@ subrangeType
 typeIdentifier
     : identifier genericTemplate?
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
-    | arrayType
+    // | arrayType
     ;
 
 structuredType
@@ -371,8 +373,8 @@ stringtype
     ;
 
 arrayType
-    : ARRAY LBRACK typeList RBRACK OF type_
-    | ARRAY LBRACK2 typeList RBRACK2 OF type_
+    : ARRAY LBRACK typeList RBRACK OF type_ (EQUAL scalarType)?
+    | ARRAY LBRACK2 typeList RBRACK2 OF type_ (EQUAL scalarType)?
     | ARRAY OF CONST
     | ARRAY OF type_
     ;

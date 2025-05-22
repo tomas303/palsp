@@ -464,9 +464,9 @@ func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
 	if ctx.LONGINT() != nil {
 		return "longint"
 	}
-	if ctx.ArrayType() != nil {
-		return buildArrayType(ctx.ArrayType())
-	}
+	// if ctx.ArrayType() != nil {
+	// 	return buildArrayType(ctx.ArrayType())
+	// }
 	return ""
 }
 

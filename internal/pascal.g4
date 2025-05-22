@@ -351,7 +351,7 @@ subrangeType
 typeIdentifier
     : identifier genericTemplate?
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
-    // | arrayType
+    | arrayType
     ;
 
 structuredType

@@ -225,6 +225,12 @@ func (s *BasepascalListener) EnterForwardClassType(ctx *ForwardClassTypeContext)
 // ExitForwardClassType is called when production forwardClassType is exited.
 func (s *BasepascalListener) ExitForwardClassType(ctx *ForwardClassTypeContext) {}
 
+// EnterForwardInterfaceType is called when production forwardInterfaceType is entered.
+func (s *BasepascalListener) EnterForwardInterfaceType(ctx *ForwardInterfaceTypeContext) {}
+
+// ExitForwardInterfaceType is called when production forwardInterfaceType is exited.
+func (s *BasepascalListener) ExitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) {}
+
 // EnterClassType is called when production classType is entered.
 func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}
 

@@ -83,12 +83,17 @@ func NewDBSymbolCollector(unitID int, db *symDB) *dbCollector {
 	}
 }
 
-func (dc *dbCollector) BeginScope(name string, scopeInfo *scopeInfo) {
-	dc.currentInfo = *scopeInfo
+func (dc *dbCollector) BeginScope(name string, si *scopeInfo) {
+	dc.currentInfo = *si
 }
 
-func (dc *dbCollector) EndScope(name string, scopeInfo *scopeInfo) {
-	dc.currentInfo = *scopeInfo
+func (dc *dbCollector) EndScope(name string, si *scopeInfo) {
+	if si == nil {
+		// in case of error and difference in scope stack
+		dc.currentInfo = scopeInfo{}
+		return
+	}
+	dc.currentInfo = *si
 }
 
 func (dc *dbCollector) EnterImplementation(position Position) {

@@ -110,6 +110,9 @@ type pascalListener interface {
 	// EnterForwardClassType is called when entering the forwardClassType production.
 	EnterForwardClassType(c *ForwardClassTypeContext)
 
+	// EnterForwardInterfaceType is called when entering the forwardInterfaceType production.
+	EnterForwardInterfaceType(c *ForwardInterfaceTypeContext)
+
 	// EnterClassType is called when entering the classType production.
 	EnterClassType(c *ClassTypeContext)
 
@@ -553,6 +556,9 @@ type pascalListener interface {
 
 	// ExitForwardClassType is called when exiting the forwardClassType production.
 	ExitForwardClassType(c *ForwardClassTypeContext)
+
+	// ExitForwardInterfaceType is called when exiting the forwardInterfaceType production.
+	ExitForwardInterfaceType(c *ForwardInterfaceTypeContext)
 
 	// ExitClassType is called when exiting the classType production.
 	ExitClassType(c *ClassTypeContext)

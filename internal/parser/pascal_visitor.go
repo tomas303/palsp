@@ -110,6 +110,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#forwardClassType.
 	VisitForwardClassType(ctx *ForwardClassTypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#forwardInterfaceType.
+	VisitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#classType.
 	VisitClassType(ctx *ClassTypeContext) interface{}
 

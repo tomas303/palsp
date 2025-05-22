@@ -201,7 +201,7 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType)
+    : attributeSection? identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType | forwardInterfaceType)
     ;
 
 functionType
@@ -214,6 +214,10 @@ procedureType
 
 forwardClassType
     : CLASS SEMI
+    ;
+
+forwardInterfaceType
+    : INTERFACE SEMI
     ;
 
 classType
@@ -284,9 +288,8 @@ errorClassDeclarationPart
     : ~(PRIVATE | STRICTPRIVATE | PROTECTED | STRICTPROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
     ;
 
-
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration? propertyIndexDeclaration?
+    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration? propertyIndexDeclaration? (SEMI DEFAULT)?
     | PROPERTY identifier propertyDefaultValueDeclaration?
     ;
 
@@ -307,7 +310,7 @@ propertyIndexDeclaration
     ;
 
 propertyIndexParameters
-    : LBRACK propertyIndexParametersList RBRACK
+    : LBRACK formalParameterSection (COMMA formalParameterSection)* RBRACK
     ;
 
 propertyIndexParametersList

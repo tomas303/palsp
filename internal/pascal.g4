@@ -1242,7 +1242,7 @@ LONGINT
 fragment WHITESPACE : [ \t\r\n]+ ;
 
 WS
-    : [ \t\r\n] -> skip
+    : [ \t\r\n]+ -> skip
     ;
 
 COMMENT_1

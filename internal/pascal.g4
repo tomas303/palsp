@@ -207,11 +207,11 @@ typeDefinition
     ;
 
 functionType
-    : FUNCTION (formalParameterList)? COLON resultType OFOBJECT? procedureOrFunctionHeaderModifiers
+    : FUNCTION (formalParameterList)? COLON resultType (OF OBJECT)? procedureOrFunctionHeaderModifiers
     ;
 
 procedureType
-    : PROCEDURE (formalParameterList)? OFOBJECT? procedureOrFunctionHeaderModifiers
+    : PROCEDURE (formalParameterList)? (OF OBJECT)? procedureOrFunctionHeaderModifiers
     ;
 
 forwardClassType
@@ -231,10 +231,8 @@ classImplementsInterfaces
     ;
 
 accessSpecifier
-    : PRIVATE
-    | STRICTPRIVATE
-    | PROTECTED
-    | STRICTPROTECTED
+    : STRICT? PRIVATE
+    | STRICT? PROTECTED
     | PUBLIC
     | PUBLISHED
     ;
@@ -287,7 +285,7 @@ errorInterfaceDeclarationPart
     ;
 
 errorClassDeclarationPart
-    : ~(PRIVATE | STRICTPRIVATE | PROTECTED | STRICTPROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
     ;
 
 propertyDeclaration
@@ -1098,12 +1096,8 @@ PUBLISHED
     : 'PUBLISHED'
     ;
 
-STRICTPRIVATE
-    : 'STRICT' WHITESPACE 'PRIVATE'
-    ;
-
-STRICTPROTECTED
-    : 'STRICT' WHITESPACE 'PROTECTED'
+STRICT
+    : 'STRICT'
     ;
 
 OUT
@@ -1154,8 +1148,8 @@ FINALIZATION
     : 'FINALIZATION'
     ;
 
-OFOBJECT
-    : 'OF' WHITESPACE 'OBJECT'
+OBJECT
+    : 'OBJECT'
     ;
 
 INHERITED
@@ -1261,12 +1255,8 @@ IDENT
     : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
     ;
 
-HEX_CHAR
-    : ('A' .. 'F' | '0' .. '9')
-    ;
-
 HEX_LITERAL
-    : '$' HEX_CHAR+
+    : '$' ('A' .. 'F' | '0' .. '9')+
     ;
 
 STRING_LITERAL
@@ -1291,6 +1281,10 @@ fragment EXPONENT
 
 UTF8BOM
     : '\uFEFF' -> skip
+    ;
+
+fragment HEX_CHAR
+    : ('A' .. 'F' | '0' .. '9')
     ;
 
 fragment HEX_CHAR_SEQ12

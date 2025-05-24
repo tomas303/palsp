@@ -81,10 +81,12 @@ identifier
     ;
 
 identifierPart
-    : IDENT
-    | INDEX
-    | READ
-    | WRITE
+    : (
+        IDENT
+        | INDEX
+        | READ
+        | WRITE
+    ) genericTemplate?
     ;
 
 interfaceBlock
@@ -205,7 +207,7 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? identifier genericTemplate? EQUAL (type_ | functionType | procedureType | forwardClassType | forwardInterfaceType)
+    : attributeSection? identifier EQUAL (type_ | functionType | procedureType | forwardClassType | forwardInterfaceType)
     ;
 
 functionType
@@ -227,7 +229,7 @@ forwardInterfaceType
     ;
 
 classType
-    : CLASS (LPAREN identifier genericTemplate? classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
     ;
 
 classImplementsInterfaces
@@ -268,7 +270,7 @@ interfaceGuidConst
     ;
    
 interfaceType
-    : INTERFACE (LPAREN identifier genericTemplate? RPAREN)? GUID_LITERAL? interfaceDeclaration END
+    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclaration END
     ;
 
 interfaceDeclaration
@@ -336,7 +338,7 @@ type_
 simpleType
     : scalarType
     | subrangeType
-    | typeIdentifier genericTemplate?
+    | typeIdentifier
     | stringtype
     ;
 
@@ -358,7 +360,7 @@ subrangeType
     ;
 
 typeIdentifier
-    : identifier genericTemplate?
+    : identifier
     | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
     | arrayType
     ;
@@ -468,11 +470,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier genericTemplate? (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : attributeSection? CLASS? FUNCTION identifier genericTemplate? (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader
@@ -514,7 +516,7 @@ procedureOrFunctionBody
     ;
 
 classOperatorHeader
-    : CLASS OPERATOR identifier genericTemplate? (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : CLASS OPERATOR identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 classOperatorDeclaration

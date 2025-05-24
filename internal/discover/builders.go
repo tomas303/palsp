@@ -399,19 +399,23 @@ func getLastIdent(ctx parser.IIdentifierContext) string {
 }
 
 func buildIdentifierPart(ctx parser.IIdentifierPartContext) string {
+	result := ""
 	if ctx.IDENT() != nil {
-		return ctx.IDENT().GetText()
+		result += ctx.IDENT().GetText()
 	}
 	if ctx.INDEX() != nil {
-		return ctx.INDEX().GetText()
+		result += ctx.INDEX().GetText()
 	}
 	if ctx.READ() != nil {
-		return ctx.READ().GetText()
+		result += ctx.READ().GetText()
 	}
 	if ctx.WRITE() != nil {
-		return ctx.WRITE().GetText()
+		result += ctx.WRITE().GetText()
 	}
-	return ""
+	if ctx.GenericTemplate() != nil {
+		result += buildGenericTemplate(ctx.GenericTemplate())
+	}
+	return result
 }
 
 func buildIdentifier(ctx parser.IIdentifierContext) string {
@@ -462,9 +466,6 @@ func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
 
 	if ctx.Identifier() != nil {
 		result := buildIdentifier(ctx.Identifier())
-		if ctx.GenericTemplate() != nil {
-			result += buildGenericTemplate(ctx.GenericTemplate())
-		}
 		return result
 	}
 	if ctx.CHAR() != nil {

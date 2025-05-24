@@ -444,11 +444,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier genericTemplate? (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
-    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? FUNCTION identifier genericTemplate? (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
     ;
 
 procedureOrFunctionHeader

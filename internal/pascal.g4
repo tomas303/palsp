@@ -713,6 +713,7 @@ signedFactor
 
 factor
     : INHERITED? functionDesignator
+    | defaultDesignator
     | variableDesignator (AS identifier)?
     | LPAREN expression RPAREN
     | unsignedConstant
@@ -733,7 +734,11 @@ unsignedConstant
     ;
 
 functionDesignator
-    : (identifier) (LT typeIdentifier GT)? (LPAREN parameterList RPAREN)?
+    : (identifier) (LPAREN parameterList RPAREN)?
+    ;
+
+defaultDesignator
+    : DEFAULT LPAREN parameterList RPAREN
     ;
 
 parameterList

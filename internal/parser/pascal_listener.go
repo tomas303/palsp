@@ -407,6 +407,9 @@ type pascalListener interface {
 	// EnterFunctionDesignator is called when entering the functionDesignator production.
 	EnterFunctionDesignator(c *FunctionDesignatorContext)
 
+	// EnterDefaultDesignator is called when entering the defaultDesignator production.
+	EnterDefaultDesignator(c *DefaultDesignatorContext)
+
 	// EnterParameterList is called when entering the parameterList production.
 	EnterParameterList(c *ParameterListContext)
 
@@ -904,6 +907,9 @@ type pascalListener interface {
 
 	// ExitFunctionDesignator is called when exiting the functionDesignator production.
 	ExitFunctionDesignator(c *FunctionDesignatorContext)
+
+	// ExitDefaultDesignator is called when exiting the defaultDesignator production.
+	ExitDefaultDesignator(c *DefaultDesignatorContext)
 
 	// ExitParameterList is called when exiting the parameterList production.
 	ExitParameterList(c *ParameterListContext)

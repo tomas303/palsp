@@ -645,7 +645,7 @@ raiseExceptionStatement
     ;
 
 variableDeclarationStatement
-    : VAR typedIdentifierList (ASSIGN expression)?
+    : VAR identifierList (COLON type_)? (ASSIGN expression)?
     ;
 
 variableDesignator
@@ -723,6 +723,7 @@ factor
     | factor LBRACK expression (COMMA expression)* RBRACK
     | AT? typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
     | factor (DOT expression)+
+    | identifier
     ;
 
 unsignedConstant

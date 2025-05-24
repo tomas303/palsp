@@ -298,12 +298,15 @@ func (s *scopesListener) ExitVariableDeclaration(ctx *parser.VariableDeclaration
 }
 
 func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDeclarationStatementContext) {
-	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
+	typedef := ""
+	if ctx.Type_() == nil {
+		typedef = buildUnderscoreTypeDef(ctx.Type_())
+	}
 	if ctx.Expression() != nil {
 		// todo - if there is no type definition then it should be taken from expression
 		typedef += " := " + ctx.Expression().GetText()
 	}
-	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
+	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
 		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, ctxStartPos(identifier))
 	}
 }

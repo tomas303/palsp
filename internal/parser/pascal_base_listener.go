@@ -365,6 +365,24 @@ func (s *BasepascalListener) EnterGenericTemplateList(ctx *GenericTemplateListCo
 // ExitGenericTemplateList is called when production genericTemplateList is exited.
 func (s *BasepascalListener) ExitGenericTemplateList(ctx *GenericTemplateListContext) {}
 
+// EnterGenericTypeParameter is called when production genericTypeParameter is entered.
+func (s *BasepascalListener) EnterGenericTypeParameter(ctx *GenericTypeParameterContext) {}
+
+// ExitGenericTypeParameter is called when production genericTypeParameter is exited.
+func (s *BasepascalListener) ExitGenericTypeParameter(ctx *GenericTypeParameterContext) {}
+
+// EnterGenericConstraints is called when production genericConstraints is entered.
+func (s *BasepascalListener) EnterGenericConstraints(ctx *GenericConstraintsContext) {}
+
+// ExitGenericConstraints is called when production genericConstraints is exited.
+func (s *BasepascalListener) ExitGenericConstraints(ctx *GenericConstraintsContext) {}
+
+// EnterGenericConstraint is called when production genericConstraint is entered.
+func (s *BasepascalListener) EnterGenericConstraint(ctx *GenericConstraintContext) {}
+
+// ExitGenericConstraint is called when production genericConstraint is exited.
+func (s *BasepascalListener) ExitGenericConstraint(ctx *GenericConstraintContext) {}
+
 // EnterType_ is called when production type_ is entered.
 func (s *BasepascalListener) EnterType_(ctx *Type_Context) {}
 

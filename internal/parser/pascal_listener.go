@@ -176,6 +176,15 @@ type pascalListener interface {
 	// EnterGenericTemplateList is called when entering the genericTemplateList production.
 	EnterGenericTemplateList(c *GenericTemplateListContext)
 
+	// EnterGenericTypeParameter is called when entering the genericTypeParameter production.
+	EnterGenericTypeParameter(c *GenericTypeParameterContext)
+
+	// EnterGenericConstraints is called when entering the genericConstraints production.
+	EnterGenericConstraints(c *GenericConstraintsContext)
+
+	// EnterGenericConstraint is called when entering the genericConstraint production.
+	EnterGenericConstraint(c *GenericConstraintContext)
+
 	// EnterType_ is called when entering the type_ production.
 	EnterType_(c *Type_Context)
 
@@ -661,6 +670,15 @@ type pascalListener interface {
 
 	// ExitGenericTemplateList is called when exiting the genericTemplateList production.
 	ExitGenericTemplateList(c *GenericTemplateListContext)
+
+	// ExitGenericTypeParameter is called when exiting the genericTypeParameter production.
+	ExitGenericTypeParameter(c *GenericTypeParameterContext)
+
+	// ExitGenericConstraints is called when exiting the genericConstraints production.
+	ExitGenericConstraints(c *GenericConstraintsContext)
+
+	// ExitGenericConstraint is called when exiting the genericConstraint production.
+	ExitGenericConstraint(c *GenericConstraintContext)
 
 	// ExitType_ is called when exiting the type_ production.
 	ExitType_(c *Type_Context)

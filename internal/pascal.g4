@@ -318,7 +318,23 @@ genericTemplate
     ;
 
 genericTemplateList
-    : typeIdentifier (COMMA typeIdentifier)*
+    : genericTypeParameter (COMMA genericTypeParameter)*
+    ;
+
+genericTypeParameter
+    : typeIdentifier (COLON genericConstraints)?
+    ;
+
+genericConstraints
+    : genericConstraint (COMMA genericConstraint)*
+    ;
+
+genericConstraint
+    : CONSTRUCTOR
+    | CLASS
+    | RECORD
+    | CLASS OF typeIdentifier
+    | typeIdentifier
     ;
 
 type_

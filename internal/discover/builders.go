@@ -457,9 +457,9 @@ func buildGenericTemplate(ctx parser.IGenericTemplateContext) string {
 		return ""
 	}
 	result := "<"
-	typeidentifiers := ctx.GenericTemplateList().AllTypeIdentifier()
-	for i, typeidentifier := range typeidentifiers {
-		result += buildTypeIdentifier(typeidentifier)
+	typeidentifiers := ctx.GenericTemplateList().AllGenericTypeParameter()
+	for i, typeParam := range typeidentifiers {
+		result += buildTypeIdentifier(typeParam.TypeIdentifier())
 		if i < len(typeidentifiers)-1 {
 			result += ","
 		}

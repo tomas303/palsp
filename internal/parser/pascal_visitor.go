@@ -176,6 +176,15 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#genericTemplateList.
 	VisitGenericTemplateList(ctx *GenericTemplateListContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#genericTypeParameter.
+	VisitGenericTypeParameter(ctx *GenericTypeParameterContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#genericConstraints.
+	VisitGenericConstraints(ctx *GenericConstraintsContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#genericConstraint.
+	VisitGenericConstraint(ctx *GenericConstraintContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#type_.
 	VisitType_(ctx *Type_Context) interface{}
 

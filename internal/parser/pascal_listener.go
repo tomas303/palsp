@@ -218,6 +218,18 @@ type pascalListener interface {
 	// EnterRecordType is called when entering the recordType production.
 	EnterRecordType(c *RecordTypeContext)
 
+	// EnterRecordDeclaration is called when entering the recordDeclaration production.
+	EnterRecordDeclaration(c *RecordDeclarationContext)
+
+	// EnterRecordImplicitPublishedDeclaration is called when entering the recordImplicitPublishedDeclaration production.
+	EnterRecordImplicitPublishedDeclaration(c *RecordImplicitPublishedDeclarationContext)
+
+	// EnterRecordDeclarationPart is called when entering the recordDeclarationPart production.
+	EnterRecordDeclarationPart(c *RecordDeclarationPartContext)
+
+	// EnterErrorRecordDeclarationPart is called when entering the errorRecordDeclarationPart production.
+	EnterErrorRecordDeclarationPart(c *ErrorRecordDeclarationPartContext)
+
 	// EnterRecordParts is called when entering the recordParts production.
 	EnterRecordParts(c *RecordPartsContext)
 
@@ -280,6 +292,12 @@ type pascalListener interface {
 
 	// EnterProcedureOrFunctionBody is called when entering the procedureOrFunctionBody production.
 	EnterProcedureOrFunctionBody(c *ProcedureOrFunctionBodyContext)
+
+	// EnterClassOperatorHeader is called when entering the classOperatorHeader production.
+	EnterClassOperatorHeader(c *ClassOperatorHeaderContext)
+
+	// EnterClassOperatorDeclaration is called when entering the classOperatorDeclaration production.
+	EnterClassOperatorDeclaration(c *ClassOperatorDeclarationContext)
 
 	// EnterFormalParameterList is called when entering the formalParameterList production.
 	EnterFormalParameterList(c *FormalParameterListContext)
@@ -671,6 +689,18 @@ type pascalListener interface {
 	// ExitRecordType is called when exiting the recordType production.
 	ExitRecordType(c *RecordTypeContext)
 
+	// ExitRecordDeclaration is called when exiting the recordDeclaration production.
+	ExitRecordDeclaration(c *RecordDeclarationContext)
+
+	// ExitRecordImplicitPublishedDeclaration is called when exiting the recordImplicitPublishedDeclaration production.
+	ExitRecordImplicitPublishedDeclaration(c *RecordImplicitPublishedDeclarationContext)
+
+	// ExitRecordDeclarationPart is called when exiting the recordDeclarationPart production.
+	ExitRecordDeclarationPart(c *RecordDeclarationPartContext)
+
+	// ExitErrorRecordDeclarationPart is called when exiting the errorRecordDeclarationPart production.
+	ExitErrorRecordDeclarationPart(c *ErrorRecordDeclarationPartContext)
+
 	// ExitRecordParts is called when exiting the recordParts production.
 	ExitRecordParts(c *RecordPartsContext)
 
@@ -733,6 +763,12 @@ type pascalListener interface {
 
 	// ExitProcedureOrFunctionBody is called when exiting the procedureOrFunctionBody production.
 	ExitProcedureOrFunctionBody(c *ProcedureOrFunctionBodyContext)
+
+	// ExitClassOperatorHeader is called when exiting the classOperatorHeader production.
+	ExitClassOperatorHeader(c *ClassOperatorHeaderContext)
+
+	// ExitClassOperatorDeclaration is called when exiting the classOperatorDeclaration production.
+	ExitClassOperatorDeclaration(c *ClassOperatorDeclarationContext)
 
 	// ExitFormalParameterList is called when exiting the formalParameterList production.
 	ExitFormalParameterList(c *FormalParameterListContext)

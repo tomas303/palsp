@@ -449,6 +449,33 @@ func (s *BasepascalListener) EnterRecordType(ctx *RecordTypeContext) {}
 // ExitRecordType is called when production recordType is exited.
 func (s *BasepascalListener) ExitRecordType(ctx *RecordTypeContext) {}
 
+// EnterRecordDeclaration is called when production recordDeclaration is entered.
+func (s *BasepascalListener) EnterRecordDeclaration(ctx *RecordDeclarationContext) {}
+
+// ExitRecordDeclaration is called when production recordDeclaration is exited.
+func (s *BasepascalListener) ExitRecordDeclaration(ctx *RecordDeclarationContext) {}
+
+// EnterRecordImplicitPublishedDeclaration is called when production recordImplicitPublishedDeclaration is entered.
+func (s *BasepascalListener) EnterRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) {
+}
+
+// ExitRecordImplicitPublishedDeclaration is called when production recordImplicitPublishedDeclaration is exited.
+func (s *BasepascalListener) ExitRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) {
+}
+
+// EnterRecordDeclarationPart is called when production recordDeclarationPart is entered.
+func (s *BasepascalListener) EnterRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
+
+// ExitRecordDeclarationPart is called when production recordDeclarationPart is exited.
+func (s *BasepascalListener) ExitRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
+
+// EnterErrorRecordDeclarationPart is called when production errorRecordDeclarationPart is entered.
+func (s *BasepascalListener) EnterErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) {
+}
+
+// ExitErrorRecordDeclarationPart is called when production errorRecordDeclarationPart is exited.
+func (s *BasepascalListener) ExitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) {}
+
 // EnterRecordParts is called when production recordParts is entered.
 func (s *BasepascalListener) EnterRecordParts(ctx *RecordPartsContext) {}
 
@@ -579,6 +606,18 @@ func (s *BasepascalListener) EnterProcedureOrFunctionBody(ctx *ProcedureOrFuncti
 
 // ExitProcedureOrFunctionBody is called when production procedureOrFunctionBody is exited.
 func (s *BasepascalListener) ExitProcedureOrFunctionBody(ctx *ProcedureOrFunctionBodyContext) {}
+
+// EnterClassOperatorHeader is called when production classOperatorHeader is entered.
+func (s *BasepascalListener) EnterClassOperatorHeader(ctx *ClassOperatorHeaderContext) {}
+
+// ExitClassOperatorHeader is called when production classOperatorHeader is exited.
+func (s *BasepascalListener) ExitClassOperatorHeader(ctx *ClassOperatorHeaderContext) {}
+
+// EnterClassOperatorDeclaration is called when production classOperatorDeclaration is entered.
+func (s *BasepascalListener) EnterClassOperatorDeclaration(ctx *ClassOperatorDeclarationContext) {}
+
+// ExitClassOperatorDeclaration is called when production classOperatorDeclaration is exited.
+func (s *BasepascalListener) ExitClassOperatorDeclaration(ctx *ClassOperatorDeclarationContext) {}
 
 // EnterFormalParameterList is called when production formalParameterList is entered.
 func (s *BasepascalListener) EnterFormalParameterList(ctx *FormalParameterListContext) {}

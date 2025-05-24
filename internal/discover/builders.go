@@ -73,9 +73,6 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 		result += "packed "
 	}
 	if ctx.UnpackedStructuredType() != nil {
-		if ctx.UnpackedStructuredType().RecordType() != nil {
-			result += buildRecordTypeDef(ctx.UnpackedStructuredType().RecordType())
-		}
 		if ctx.UnpackedStructuredType().SetType() != nil {
 			result += buildSetTypeDef(ctx.UnpackedStructuredType().SetType())
 		}
@@ -85,6 +82,9 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 	}
 	if ctx.ClassType() != nil {
 		result += buildClassTypeDef(ctx.ClassType())
+	}
+	if ctx.RecordType() != nil {
+		result += buildRecordTypeDef(ctx.RecordType())
 	}
 	if ctx.InterfaceType() != nil {
 		result += buildInterfaceTypeDef(ctx.InterfaceType())

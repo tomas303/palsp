@@ -288,6 +288,22 @@ func (v *BasepascalVisitor) VisitRecordType(ctx *RecordTypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitRecordDeclaration(ctx *RecordDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitRecordDeclarationPart(ctx *RecordDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitRecordParts(ctx *RecordPartsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -369,6 +385,14 @@ func (v *BasepascalVisitor) VisitResultType(ctx *ResultTypeContext) interface{} 
 }
 
 func (v *BasepascalVisitor) VisitProcedureOrFunctionBody(ctx *ProcedureOrFunctionBodyContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitClassOperatorHeader(ctx *ClassOperatorHeaderContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitClassOperatorDeclaration(ctx *ClassOperatorDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

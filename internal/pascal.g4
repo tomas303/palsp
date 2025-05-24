@@ -107,6 +107,7 @@ implementationBlock
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
         | procedureOrFunctionHeader FORWARD SEMI
+        | classOperatorDeclaration
     )*
     ;
 
@@ -116,6 +117,7 @@ block
         | constantDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
+        | classOperatorDeclaration
     )*
     ;
 
@@ -251,8 +253,6 @@ classDeclarationPart
     : attributeSection? typedIdentifierList SEMI
     | typeDefinitionPart
     | constantDefinitionPart
-    // | CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
-    // | CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
     | functionHeader
     | procedureHeader
     | propertyDeclaration SEMI (DEFAULT SEMI)?
@@ -367,12 +367,12 @@ structuredType
     : PACKED unpackedStructuredType
     | unpackedStructuredType
     | classType
+    | recordType
     | interfaceType
     ;
 
 unpackedStructuredType
     : arrayType
-    | recordType
     | setType
     | fileType
     ;
@@ -397,7 +397,31 @@ indexType
     ;
 
 recordType
-    : RECORD recordParts? END
+    : RECORD recordImplicitPublishedDeclaration (recordDeclaration)* END
+    | RECORD recordParts? END
+    ;
+
+recordDeclaration
+    : accessSpecifier recordDeclarationPart*
+    ;
+
+recordImplicitPublishedDeclaration
+    : recordDeclarationPart*
+    ;
+
+recordDeclarationPart
+    : attributeSection? typedIdentifierList SEMI
+    | typeDefinitionPart
+    | constantDefinitionPart
+    | functionHeader
+    | procedureHeader
+    | classOperatorHeader
+    | propertyDeclaration SEMI (DEFAULT SEMI)?
+    | errorRecordDeclarationPart SEMI
+    ;
+
+errorRecordDeclarationPart
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
     ;
 
 recordParts
@@ -457,7 +481,7 @@ procedureOrFunctionHeader
     ;
 
 procedureOrFunctionHeaderModifiers: (
-		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | REINTRODUCE | OVERLOAD | INLINE | STDCALL | CDECL)
+		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | REINTRODUCE | OVERLOAD | INLINE | STDCALL | CDECL| STATIC)
 	)*;
 
 procedureOrFunctionDeclaration
@@ -487,6 +511,14 @@ resultType
 
 procedureOrFunctionBody
     : block compoundStatement
+    ;
+
+classOperatorHeader
+    : CLASS OPERATOR identifier genericTemplate? (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    ;
+
+classOperatorDeclaration
+    : classOperatorHeader procedureOrFunctionBody SEMI
     ;
 
 formalParameterList
@@ -1203,6 +1235,10 @@ STDCALL
     : 'stdcall'
     ;  
 
+STATIC
+    : 'STATIC'
+    ;
+
 CONSTRUCTOR
     : 'CONSTRUCTOR'
     ;
@@ -1247,6 +1283,9 @@ LONGINT
     : 'LONGINT'
     ;
 
+OPERATOR
+    : 'operator'
+    ;
 
 fragment WHITESPACE : [ \t\r\n]+ ;
 

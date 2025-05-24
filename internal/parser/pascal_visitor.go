@@ -218,6 +218,18 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#recordType.
 	VisitRecordType(ctx *RecordTypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#recordDeclaration.
+	VisitRecordDeclaration(ctx *RecordDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#recordImplicitPublishedDeclaration.
+	VisitRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#recordDeclarationPart.
+	VisitRecordDeclarationPart(ctx *RecordDeclarationPartContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#errorRecordDeclarationPart.
+	VisitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#recordParts.
 	VisitRecordParts(ctx *RecordPartsContext) interface{}
 
@@ -280,6 +292,12 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#procedureOrFunctionBody.
 	VisitProcedureOrFunctionBody(ctx *ProcedureOrFunctionBodyContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#classOperatorHeader.
+	VisitClassOperatorHeader(ctx *ClassOperatorHeaderContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#classOperatorDeclaration.
+	VisitClassOperatorDeclaration(ctx *ClassOperatorDeclarationContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#formalParameterList.
 	VisitFormalParameterList(ctx *FormalParameterListContext) interface{}

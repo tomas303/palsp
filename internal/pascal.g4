@@ -737,7 +737,7 @@ unsignedConstant
     ;
 
 functionDesignator
-    : (identifier) (LPAREN parameterList RPAREN)?
+    : (identifier) (LPAREN parameterList? RPAREN)?
     ;
 
 defaultDesignator
@@ -847,6 +847,7 @@ repeatStatement
 
 forStatement
     : FOR VAR? identifier ASSIGN forList DO statement
+    | FOR VAR? identifier IN expression DO statement
     ;
 
 forList

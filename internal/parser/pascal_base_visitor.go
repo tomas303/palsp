@@ -116,6 +116,10 @@ func (v *BasepascalVisitor) VisitString(ctx *StringContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitStringExpression(ctx *StringExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitResourceDefinitionPart(ctx *ResourceDefinitionPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }

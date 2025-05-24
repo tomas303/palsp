@@ -89,6 +89,9 @@ type pascalListener interface {
 	// EnterString is called when entering the string production.
 	EnterString(c *StringContext)
 
+	// EnterStringExpression is called when entering the stringExpression production.
+	EnterStringExpression(c *StringExpressionContext)
+
 	// EnterResourceDefinitionPart is called when entering the resourceDefinitionPart production.
 	EnterResourceDefinitionPart(c *ResourceDefinitionPartContext)
 
@@ -583,6 +586,9 @@ type pascalListener interface {
 
 	// ExitString is called when exiting the string production.
 	ExitString(c *StringContext)
+
+	// ExitStringExpression is called when exiting the stringExpression production.
+	ExitStringExpression(c *StringExpressionContext)
 
 	// ExitResourceDefinitionPart is called when exiting the resourceDefinitionPart production.
 	ExitResourceDefinitionPart(c *ResourceDefinitionPartContext)

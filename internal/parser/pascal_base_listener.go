@@ -183,6 +183,12 @@ func (s *BasepascalListener) EnterString(ctx *StringContext) {}
 // ExitString is called when production string is exited.
 func (s *BasepascalListener) ExitString(ctx *StringContext) {}
 
+// EnterStringExpression is called when production stringExpression is entered.
+func (s *BasepascalListener) EnterStringExpression(ctx *StringExpressionContext) {}
+
+// ExitStringExpression is called when production stringExpression is exited.
+func (s *BasepascalListener) ExitStringExpression(ctx *StringExpressionContext) {}
+
 // EnterResourceDefinitionPart is called when production resourceDefinitionPart is entered.
 func (s *BasepascalListener) EnterResourceDefinitionPart(ctx *ResourceDefinitionPartContext) {}
 

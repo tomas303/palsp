@@ -89,6 +89,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#string.
 	VisitString(ctx *StringContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#stringExpression.
+	VisitStringExpression(ctx *StringExpressionContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#resourceDefinitionPart.
 	VisitResourceDefinitionPart(ctx *ResourceDefinitionPartContext) interface{}
 

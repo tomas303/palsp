@@ -177,12 +177,16 @@ string
     : (STRING_LITERAL | STRING_CROSSHATCH_LITERAL)+
     ;
 
+stringExpression
+    : string (PLUS string)*
+    ;
+
 resourceDefinitionPart
     : RESOURCESTRING (resourceDefinition)+
     ;
 
 resourceDefinition
-    : identifier EQUAL string SEMI
+    : identifier EQUAL stringExpression SEMI
     ;
 
 typeDefinitionPart

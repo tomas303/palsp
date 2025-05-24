@@ -79,9 +79,9 @@ func processRequest(reader *bufio.Reader, writer *bufio.Writer) {
 		// Log the raw content (safely handling UTF-8)
 		contentStr := string(content)
 		if len(contentStr) > 1000 {
-			log.Main.Info().Str("content", contentStr[:1000]+"...").Msg("Request content (truncated)")
+			log.Main.Info().Str("content", contentStr[:1000]+"...").Msg("REQUEST (truncated)")
 		} else {
-			log.Main.Info().Str("content", contentStr).Msg("Request content")
+			log.Main.Info().Str("content", contentStr).Msg("REQUEST")
 		}
 
 		var request LSPRequest

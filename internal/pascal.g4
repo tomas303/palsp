@@ -724,6 +724,8 @@ factor
     | AT? typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
     | factor (DOT expression)+
     | identifier
+    | functionLambdaDeclaration
+    | procedureLambdaDeclaration
     ;
 
 unsignedConstant

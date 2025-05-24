@@ -208,10 +208,12 @@ typeDefinition
 
 functionType
     : FUNCTION (formalParameterList)? COLON resultType (OF OBJECT)? procedureOrFunctionHeaderModifiers
+    | REFERENCE TO FUNCTION (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers
     ;
 
 procedureType
     : PROCEDURE (formalParameterList)? (OF OBJECT)? procedureOrFunctionHeaderModifiers
+    | REFERENCE TO PROCEDURE (formalParameterList)? procedureOrFunctionHeaderModifiers
     ;
 
 forwardClassType
@@ -915,6 +917,10 @@ REAL
 
 RECORD
     : 'RECORD'
+    ;
+
+REFERENCE
+    : 'REFERENCE'
     ;
 
 REPEAT

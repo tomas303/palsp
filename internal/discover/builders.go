@@ -222,6 +222,9 @@ func buildClassDeclarationPart(ctx parser.IClassDeclarationPartContext) string {
 
 func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
 	result := ""
+	if ctx.REFERENCE() != nil {
+		result += "reference to "
+	}
 	params := buildParameterList(ctx.FormalParameterList())
 	if ctx.ResultType() != nil {
 		result = ctx.ResultType().TypeIdentifier().GetText()
@@ -231,13 +234,24 @@ func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
 	} else {
 		result += fmt.Sprintf("function(%s)", params)
 	}
+	if ctx.OF() != nil {
+		result += " of object "
+	}
 	result += buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
 	return result
 }
 
 func buildProcedureTypeDef(ctx parser.IProcedureTypeContext) string {
+	result := ""
+	if ctx.REFERENCE() != nil {
+		result += "reference to "
+	}
 	params := buildParameterList(ctx.FormalParameterList())
-	return fmt.Sprintf("procedure(%s)", params) + buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	result += fmt.Sprintf("procedure(%s)", params) + buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers())
+	if ctx.OF() != nil {
+		result += " of object "
+	}
+	return result
 }
 
 func buildTypeDef(ctx *parser.TypeDefinitionContext) string {

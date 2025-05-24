@@ -245,6 +245,21 @@ type pascalListener interface {
 	// EnterRecordVariant is called when entering the recordVariant production.
 	EnterRecordVariant(c *RecordVariantContext)
 
+	// EnterHelperType is called when entering the helperType production.
+	EnterHelperType(c *HelperTypeContext)
+
+	// EnterHelperDeclaration is called when entering the helperDeclaration production.
+	EnterHelperDeclaration(c *HelperDeclarationContext)
+
+	// EnterHelperImplicitPublishedDeclaration is called when entering the helperImplicitPublishedDeclaration production.
+	EnterHelperImplicitPublishedDeclaration(c *HelperImplicitPublishedDeclarationContext)
+
+	// EnterHelperDeclarationPart is called when entering the helperDeclarationPart production.
+	EnterHelperDeclarationPart(c *HelperDeclarationPartContext)
+
+	// EnterErrorHelperDeclarationPart is called when entering the errorHelperDeclarationPart production.
+	EnterErrorHelperDeclarationPart(c *ErrorHelperDeclarationPartContext)
+
 	// EnterSetType is called when entering the setType production.
 	EnterSetType(c *SetTypeContext)
 
@@ -715,6 +730,21 @@ type pascalListener interface {
 
 	// ExitRecordVariant is called when exiting the recordVariant production.
 	ExitRecordVariant(c *RecordVariantContext)
+
+	// ExitHelperType is called when exiting the helperType production.
+	ExitHelperType(c *HelperTypeContext)
+
+	// ExitHelperDeclaration is called when exiting the helperDeclaration production.
+	ExitHelperDeclaration(c *HelperDeclarationContext)
+
+	// ExitHelperImplicitPublishedDeclaration is called when exiting the helperImplicitPublishedDeclaration production.
+	ExitHelperImplicitPublishedDeclaration(c *HelperImplicitPublishedDeclarationContext)
+
+	// ExitHelperDeclarationPart is called when exiting the helperDeclarationPart production.
+	ExitHelperDeclarationPart(c *HelperDeclarationPartContext)
+
+	// ExitErrorHelperDeclarationPart is called when exiting the errorHelperDeclarationPart production.
+	ExitErrorHelperDeclarationPart(c *ErrorHelperDeclarationPartContext)
 
 	// ExitSetType is called when exiting the setType production.
 	ExitSetType(c *SetTypeContext)

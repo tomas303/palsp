@@ -89,6 +89,9 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 	if ctx.InterfaceType() != nil {
 		result += buildInterfaceTypeDef(ctx.InterfaceType())
 	}
+	if ctx.HelperType() != nil {
+		result += buildHelperTypeDef(ctx.HelperType())
+	}
 	return result
 }
 
@@ -141,6 +144,12 @@ func buildRecordVariant(ctx parser.IRecordVariantContext) string {
 	if parts != "" {
 		result += "(\n" + parts + ");\n"
 	}
+	return result
+}
+
+func buildHelperTypeDef(ctx parser.IHelperTypeContext) string {
+	result := "class helper for " + buildTypeIdentifier(ctx.TypeIdentifier())
+	result += " end"
 	return result
 }
 

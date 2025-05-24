@@ -421,7 +421,11 @@ func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) 
 	var ancestor *string
 	var kind SymbolKind
 	if ctx.Type_() != nil && ctx.Type_().StructuredType() != nil {
-		if ctx.Type_().StructuredType().ClassType() != nil {
+		if ctx.Type_().StructuredType().HelperType() != nil {
+			tmp := buildTypeIdentifier(ctx.Type_().StructuredType().HelperType().TypeIdentifier())
+			ancestor = &tmp
+			kind = HelperSymbol
+		} else if ctx.Type_().StructuredType().ClassType() != nil {
 			tmp := buildIdentifier(ctx.Type_().StructuredType().ClassType().Identifier())
 			ancestor = &tmp
 			kind = ClassSymbol

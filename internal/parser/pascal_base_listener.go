@@ -506,6 +506,39 @@ func (s *BasepascalListener) EnterRecordVariant(ctx *RecordVariantContext) {}
 // ExitRecordVariant is called when production recordVariant is exited.
 func (s *BasepascalListener) ExitRecordVariant(ctx *RecordVariantContext) {}
 
+// EnterHelperType is called when production helperType is entered.
+func (s *BasepascalListener) EnterHelperType(ctx *HelperTypeContext) {}
+
+// ExitHelperType is called when production helperType is exited.
+func (s *BasepascalListener) ExitHelperType(ctx *HelperTypeContext) {}
+
+// EnterHelperDeclaration is called when production helperDeclaration is entered.
+func (s *BasepascalListener) EnterHelperDeclaration(ctx *HelperDeclarationContext) {}
+
+// ExitHelperDeclaration is called when production helperDeclaration is exited.
+func (s *BasepascalListener) ExitHelperDeclaration(ctx *HelperDeclarationContext) {}
+
+// EnterHelperImplicitPublishedDeclaration is called when production helperImplicitPublishedDeclaration is entered.
+func (s *BasepascalListener) EnterHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) {
+}
+
+// ExitHelperImplicitPublishedDeclaration is called when production helperImplicitPublishedDeclaration is exited.
+func (s *BasepascalListener) ExitHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) {
+}
+
+// EnterHelperDeclarationPart is called when production helperDeclarationPart is entered.
+func (s *BasepascalListener) EnterHelperDeclarationPart(ctx *HelperDeclarationPartContext) {}
+
+// ExitHelperDeclarationPart is called when production helperDeclarationPart is exited.
+func (s *BasepascalListener) ExitHelperDeclarationPart(ctx *HelperDeclarationPartContext) {}
+
+// EnterErrorHelperDeclarationPart is called when production errorHelperDeclarationPart is entered.
+func (s *BasepascalListener) EnterErrorHelperDeclarationPart(ctx *ErrorHelperDeclarationPartContext) {
+}
+
+// ExitErrorHelperDeclarationPart is called when production errorHelperDeclarationPart is exited.
+func (s *BasepascalListener) ExitErrorHelperDeclarationPart(ctx *ErrorHelperDeclarationPartContext) {}
+
 // EnterSetType is called when production setType is entered.
 func (s *BasepascalListener) EnterSetType(ctx *SetTypeContext) {}
 

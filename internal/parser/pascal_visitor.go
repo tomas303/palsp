@@ -245,6 +245,21 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#recordVariant.
 	VisitRecordVariant(ctx *RecordVariantContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#helperType.
+	VisitHelperType(ctx *HelperTypeContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#helperDeclaration.
+	VisitHelperDeclaration(ctx *HelperDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#helperImplicitPublishedDeclaration.
+	VisitHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#helperDeclarationPart.
+	VisitHelperDeclarationPart(ctx *HelperDeclarationPartContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#errorHelperDeclarationPart.
+	VisitErrorHelperDeclarationPart(ctx *ErrorHelperDeclarationPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#setType.
 	VisitSetType(ctx *SetTypeContext) interface{}
 

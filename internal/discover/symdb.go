@@ -57,6 +57,7 @@ const (
 	UnitReference                     // 10
 	TypeIdentifier                    // 11
 	PropertySymbol                    // 12
+	HelperSymbol                      // 13
 )
 
 func init() {
@@ -101,6 +102,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "type ident"
 	case PropertySymbol:
 		return "property"
+	case HelperSymbol:
+		return "class helper"
 	default:
 		return "unknown"
 	}

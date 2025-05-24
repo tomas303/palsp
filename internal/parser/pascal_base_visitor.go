@@ -324,6 +324,26 @@ func (v *BasepascalVisitor) VisitRecordVariant(ctx *RecordVariantContext) interf
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitHelperType(ctx *HelperTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitHelperDeclaration(ctx *HelperDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitHelperDeclarationPart(ctx *HelperDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitErrorHelperDeclarationPart(ctx *ErrorHelperDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitSetType(ctx *SetTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

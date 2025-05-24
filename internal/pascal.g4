@@ -1,37 +1,30 @@
 /*
-BSD License
-
-Copyright (c) 2013, Tom Everett
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the name of Tom Everett nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ BSD License
+ 
+ Copyright (c) 2013, Tom Everett All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, are permitted
+ provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ and the following disclaimer. 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in the documentation and/or other
+ materials provided with the distribution. 3. Neither the name of Tom Everett nor the names of its
+ contributors may be used to endorse or promote products derived from this software without specific
+ prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 /*
-Adapted from pascal.g by  Hakki Dogusan, Piet Schoutteten and Marton Papp
-*/
+ Adapted from pascal.g by Hakki Dogusan, Piet Schoutteten and Marton Papp
+ */
 
 // $antlr-format alignTrailingComments true, columnLimit 150, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments false, useTab false
 // $antlr-format allowShortRulesOnASingleLine false, allowShortBlocksOnASingleLine true, alignSemicolons hanging, alignColons hanging
@@ -52,12 +45,7 @@ program
     ;
 
 unit
-    : UNIT identifier SEMI 
-      interfaceSection
-      implementationSection?
-      initializationSection?
-      finalizationSection?
-      END DOT EOF
+    : UNIT identifier SEMI interfaceSection implementationSection? initializationSection? finalizationSection? END DOT EOF
     ;
 
 interfaceSection
@@ -81,12 +69,7 @@ identifier
     ;
 
 identifierPart
-    : (
-        IDENT
-        | INDEX
-        | READ
-        | WRITE
-    ) genericTemplate?
+    : (IDENT | INDEX | READ | WRITE) genericTemplate?
     ;
 
 interfaceBlock
@@ -160,7 +143,7 @@ constant
     | string
     | constantChr
     | scalarType
-    | arrayConstant (PLUS (arrayConstant|identifier))*
+    | arrayConstant (PLUS (arrayConstant | identifier))*
     ;
 
 arrayConstant
@@ -200,14 +183,20 @@ resourceDefinitionPart
 
 resourceDefinition
     : identifier EQUAL string SEMI
-    ;    
+    ;
 
 typeDefinitionPart
     : TYPE (typeDefinition SEMI)+
     ;
 
 typeDefinition
-    : attributeSection? identifier EQUAL (type_ | functionType | procedureType | forwardClassType | forwardInterfaceType)
+    : attributeSection? identifier EQUAL (
+        type_
+        | functionType
+        | procedureType
+        | forwardClassType
+        | forwardInterfaceType
+    )
     ;
 
 functionType
@@ -229,7 +218,9 @@ forwardInterfaceType
     ;
 
 classType
-    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (
+        classDeclaration
+    )* END
     ;
 
 classImplementsInterfaces
@@ -268,7 +259,7 @@ GUID_LITERAL
 interfaceGuidConst
     : GUID_LITERAL
     ;
-   
+
 interfaceType
     : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclaration END
     ;
@@ -293,7 +284,8 @@ errorClassDeclarationPart
     ;
 
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration? propertyIndexDeclaration? (SEMI DEFAULT)?
+    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration?
+        propertyDefaultValueDeclaration? propertyIndexDeclaration? (SEMI DEFAULT)?
     | PROPERTY identifier propertyDefaultValueDeclaration?
     ;
 
@@ -305,11 +297,11 @@ propertyWriteDeclaration
     : WRITE identifier
     ;
 
-propertyDefaultValueDeclaration 
+propertyDefaultValueDeclaration
     : DEFAULT expression
     ;
 
-propertyIndexDeclaration 
+propertyIndexDeclaration
     : INDEX unsignedNumber
     ;
 
@@ -352,8 +344,7 @@ scalerList
 
 scalerMember
     : identifier (EQUAL expression)?
-    ;    
-
+    ;
 
 subrangeType
     : simpleExpression DOTDOT simpleExpression
@@ -368,6 +359,7 @@ typeIdentifier
 structuredType
     : PACKED unpackedStructuredType
     | unpackedStructuredType
+    | helperType
     | classType
     | recordType
     | interfaceType
@@ -448,6 +440,31 @@ recordVariant
     : constList COLON LPAREN recordParts RPAREN
     ;
 
+helperType
+    : CLASS HELPER FOR typeIdentifier helperImplicitPublishedDeclaration (helperDeclaration)* END
+    ;
+
+helperDeclaration
+    : accessSpecifier helperDeclarationPart*
+    ;
+
+helperImplicitPublishedDeclaration
+    : helperDeclarationPart*
+    ;
+
+helperDeclarationPart
+    : typeDefinitionPart
+    | constantDefinitionPart
+    | functionHeader
+    | procedureHeader
+    | propertyDeclaration SEMI (DEFAULT SEMI)?
+    | errorHelperDeclarationPart SEMI
+    ;
+
+errorHelperDeclarationPart
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    ;
+
 setType
     : SET OF simpleType
     ;
@@ -470,7 +487,9 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE| CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)? procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (
+        formalParameterList
+    )? procedureOrFunctionHeaderModifiers SEMI
     ;
 
 functionHeader
@@ -482,9 +501,21 @@ procedureOrFunctionHeader
     | functionHeader
     ;
 
-procedureOrFunctionHeaderModifiers: (
-		SEMI (ABSTRACT | VIRTUAL | OVERRIDE | REINTRODUCE | OVERLOAD | INLINE | STDCALL | CDECL| STATIC)
-	)*;
+procedureOrFunctionHeaderModifiers
+    : (
+        SEMI (
+            ABSTRACT
+            | VIRTUAL
+            | OVERRIDE
+            | REINTRODUCE
+            | OVERLOAD
+            | INLINE
+            | STDCALL
+            | CDECL
+            | STATIC
+        )
+    )*
+    ;
 
 procedureOrFunctionDeclaration
     : procedureDeclaration
@@ -538,7 +569,7 @@ formalParameterSection
 
 parameterGroup
     : identifierList (COLON typeIdentifier)? defaultValue?
-	// | (VAR | CONST) identifierList
+    // | (VAR | CONST) identifierList
     ;
 
 identifierList
@@ -607,12 +638,14 @@ variableDesignator
     ;
 
 typeCast
-    : typeIdentifier LPAREN expression RPAREN 
-    | LPAREN expression AS typeIdentifier  RPAREN 
+    : typeIdentifier LPAREN expression RPAREN
+    | LPAREN expression AS typeIdentifier RPAREN
     ;
-  
+
 propertyDesignator
-    : functionDesignator (DOT functionDesignator)* DOT identifier (LBRACK expression (COMMA expression)* RBRACK)?
+    : functionDesignator (DOT functionDesignator)* DOT identifier (
+        LBRACK expression (COMMA expression)* RBRACK
+    )?
     ;
 
 expression
@@ -895,6 +928,10 @@ FUNCTION
 
 GOTO
     : 'GOTO'
+    ;
+
+HELPER
+    : 'HELPER'
     ;
 
 IF
@@ -1219,7 +1256,7 @@ VIRTUAL
 
 OVERRIDE
     : 'OVERRIDE'
-    ;    
+    ;
 
 OVERLOAD
     : 'OVERLOAD'
@@ -1235,7 +1272,7 @@ CDECL
 
 STDCALL
     : 'stdcall'
-    ;  
+    ;
 
 STATIC
     : 'STATIC'
@@ -1289,7 +1326,9 @@ OPERATOR
     : 'operator'
     ;
 
-fragment WHITESPACE : [ \t\r\n]+ ;
+fragment WHITESPACE
+    : [ \t\r\n]+
+    ;
 
 WS
     : [ \t\r\n]+ -> skip

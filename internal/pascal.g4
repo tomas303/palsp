@@ -555,7 +555,7 @@ procedureLambdaDeclaration
     ;
 
 functionLambdaDeclaration
-    : FUNCTION (formalParameterList)? procedureOrFunctionBody COLON resultType
+    : FUNCTION (formalParameterList)? COLON resultType procedureOrFunctionBody
     ;
 
 resultType
@@ -645,7 +645,7 @@ raiseExceptionStatement
     ;
 
 variableDeclarationStatement
-    : VAR identifierList (COLON typeDefinition)? (ASSIGN expression)?
+    : VAR typedIdentifierList (ASSIGN expression)?
     ;
 
 variableDesignator
@@ -843,7 +843,7 @@ repeatStatement
     ;
 
 forStatement
-    : FOR identifier ASSIGN forList DO statement
+    : FOR VAR? identifier ASSIGN forList DO statement
     ;
 
 forList

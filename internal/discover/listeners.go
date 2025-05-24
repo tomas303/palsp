@@ -298,15 +298,12 @@ func (s *scopesListener) ExitVariableDeclaration(ctx *parser.VariableDeclaration
 }
 
 func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDeclarationStatementContext) {
-	typedef := ""
-	if ctx.TypeDefinition() != nil {
-		typedef = buildUnderscoreTypeDef(ctx.TypeDefinition().Type_())
-	}
-	// todo - if there is no type definition then it should be taken from expression
+	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	if ctx.Expression() != nil {
+		// todo - if there is no type definition then it should be taken from expression
 		typedef += " := " + ctx.Expression().GetText()
 	}
-	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
+	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
 		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, ctxStartPos(identifier))
 	}
 }
@@ -349,6 +346,12 @@ func (s *scopesListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPa
 
 func (s *scopesListener) ExitPropertyDeclaration(ctx *parser.PropertyDeclarationContext) {
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), PropertySymbol, buildProperty(ctx), ctxStartPos(ctx.Identifier()))
+}
+
+func (s *scopesListener) ExitForStatement(ctx *parser.ForStatementContext) {
+	if ctx.VAR() != nil && ctx.Identifier() != nil {
+		s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), VariableSymbol, "(for loop inferred)", ctxStartPos(ctx.Identifier()))
+	}
 }
 
 func (s *scopesListener) EnterUnit(ctx *parser.UnitContext) {

@@ -25,7 +25,20 @@ func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
 func buildSimpleTypeDef(ctx parser.ISimpleTypeContext) string {
 	result := ""
 	if ctx.ScalarType() != nil {
-		result = "(" + buildIdentifiers(ctx.ScalarType().IdentifierList()) + ")"
+		// result = "(" + buildIdentifiers(ctx.ScalarType().IdentifierList()) + ")"
+		result = "("
+		for i, scalarMember := range ctx.ScalarType().ScalerList().AllScalerMember() {
+			// if scalarMember.Identifier() != nil {
+			// 	result += buildIdentifier(scalarMember.Identifier())
+			result += scalarMember.Identifier().GetText()
+			if scalarMember.Expression() != nil {
+				result += " = " + scalarMember.Expression().GetText()
+				if i < len(ctx.ScalarType().ScalerList().AllScalerMember())-1 {
+					result += ", "
+				}
+			}
+		}
+		result += ")"
 	}
 	if ctx.SubrangeType() != nil {
 		if len(ctx.SubrangeType().AllSimpleExpression()) > 0 {

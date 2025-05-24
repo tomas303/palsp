@@ -185,6 +185,12 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#scalarType.
 	VisitScalarType(ctx *ScalarTypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#scalerList.
+	VisitScalerList(ctx *ScalerListContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#scalerMember.
+	VisitScalerMember(ctx *ScalerMemberContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#subrangeType.
 	VisitSubrangeType(ctx *SubrangeTypeContext) interface{}
 

@@ -383,6 +383,18 @@ func (s *BasepascalListener) EnterScalarType(ctx *ScalarTypeContext) {}
 // ExitScalarType is called when production scalarType is exited.
 func (s *BasepascalListener) ExitScalarType(ctx *ScalarTypeContext) {}
 
+// EnterScalerList is called when production scalerList is entered.
+func (s *BasepascalListener) EnterScalerList(ctx *ScalerListContext) {}
+
+// ExitScalerList is called when production scalerList is exited.
+func (s *BasepascalListener) ExitScalerList(ctx *ScalerListContext) {}
+
+// EnterScalerMember is called when production scalerMember is entered.
+func (s *BasepascalListener) EnterScalerMember(ctx *ScalerMemberContext) {}
+
+// ExitScalerMember is called when production scalerMember is exited.
+func (s *BasepascalListener) ExitScalerMember(ctx *ScalerMemberContext) {}
+
 // EnterSubrangeType is called when production subrangeType is entered.
 func (s *BasepascalListener) EnterSubrangeType(ctx *SubrangeTypeContext) {}
 

@@ -185,6 +185,12 @@ type pascalListener interface {
 	// EnterScalarType is called when entering the scalarType production.
 	EnterScalarType(c *ScalarTypeContext)
 
+	// EnterScalerList is called when entering the scalerList production.
+	EnterScalerList(c *ScalerListContext)
+
+	// EnterScalerMember is called when entering the scalerMember production.
+	EnterScalerMember(c *ScalerMemberContext)
+
 	// EnterSubrangeType is called when entering the subrangeType production.
 	EnterSubrangeType(c *SubrangeTypeContext)
 
@@ -631,6 +637,12 @@ type pascalListener interface {
 
 	// ExitScalarType is called when exiting the scalarType production.
 	ExitScalarType(c *ScalarTypeContext)
+
+	// ExitScalerList is called when exiting the scalerList production.
+	ExitScalerList(c *ScalerListContext)
+
+	// ExitScalerMember is called when exiting the scalerMember production.
+	ExitScalerMember(c *ScalerMemberContext)
 
 	// ExitSubrangeType is called when exiting the subrangeType production.
 	ExitSubrangeType(c *SubrangeTypeContext)

@@ -244,6 +244,14 @@ func (v *BasepascalVisitor) VisitScalarType(ctx *ScalarTypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitScalerList(ctx *ScalerListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitScalerMember(ctx *ScalerMemberContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitSubrangeType(ctx *SubrangeTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

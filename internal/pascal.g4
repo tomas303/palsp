@@ -339,8 +339,17 @@ simpleType
     ;
 
 scalarType
-    : LPAREN identifierList RPAREN
+    : LPAREN scalerList RPAREN
     ;
+
+scalerList
+    : scalerMember (COMMA scalerMember)*
+    ;
+
+scalerMember
+    : identifier (EQUAL expression)?
+    ;    
+
 
 subrangeType
     : simpleExpression DOTDOT simpleExpression

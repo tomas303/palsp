@@ -75,7 +75,9 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 				return pattern
 			}
 		case ",":
-			pattern += ",.*"
+			if depth > 0 {
+				pattern += ",.*"
+			}
 		}
 		if depth == 0 {
 			// parsing is complete

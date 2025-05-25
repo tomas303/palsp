@@ -28,10 +28,8 @@
                 "--log-level-main", "debug", 
                 "--log-level-antlr-error", "debug",
                 // "--log-file-antlr-error", "/tmp/palsp/error.log",
-                "--log-level-antlr-trace", "debug",
-                // "--log-file-antlr-trace", "/tmp/palsp/trace.log",
-                "--log-level-structure", "none",
-                "--log-file-structure", "/tmp/palsp/structures.log"
+                "--log-level-antlr-trace", "debug"
+                // "--log-file-antlr-trace", "/tmp/palsp/trace.log"
             ],
             "env": {},
             "buildFlags": "",

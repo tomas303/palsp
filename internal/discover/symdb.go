@@ -43,20 +43,22 @@ type SymbolDatabase interface {
 type SymbolKind int
 
 const (
-	ProcedureSymbol SymbolKind = iota // 0
-	FunctionSymbol                    // 1
-	ConstantSymbol                    // 2
-	VariableSymbol                    // 3
-	ClassSymbol                       // 4
-	InterfaceSymbol                   // 5
-	TypeSymbol                        // 6
-	ParameterSymbol                   // 7
-	FunctionResult                    // 8
-	ClassVariable                     // 9
-	UnitReference                     // 10
-	TypeIdentifier                    // 11
-	PropertySymbol                    // 12
-	HelperSymbol                      // 13
+	UnknownSymbol   SymbolKind = iota // 0
+	ProcedureSymbol                   // 1
+	FunctionSymbol                    // 2
+	ConstantSymbol                    // 3
+	VariableSymbol                    // 4
+	ClassSymbol                       // 5
+	InterfaceSymbol                   // 6
+	TypeSymbol                        // 7
+	ParameterSymbol                   // 8
+	FunctionResult                    // 9
+	ClassVariable                     // 10
+	UnitReference                     // 11
+	TypeIdentifier                    // 12
+	PropertySymbol                    // 13
+	HelperSymbol                      // 14
+	Unit                              // 15
 )
 
 func init() {
@@ -96,13 +98,15 @@ func SymbolKindToString(kind SymbolKind) string {
 	case ClassVariable:
 		return "field"
 	case UnitReference:
-		return "unit"
+		return "use unit"
 	case TypeIdentifier:
 		return "type ident"
 	case PropertySymbol:
 		return "property"
 	case HelperSymbol:
 		return "class helper"
+	case Unit:
+		return "unit"
 	default:
 		return "unknown"
 	}

@@ -258,10 +258,10 @@ func NewScopesListener(collector SymbolCollector) *scopesListener {
 	}
 }
 
-func (s *scopesListener) beginScope(ctxScope positionable, ctxIdentifier identfiable) {
+func (s *scopesListener) beginScope(ctxScope positionable, ctxIdentifier identfiable, kind SymbolKind) {
 	id := strings.ToLower(buildIdentifier(ctxIdentifier.Identifier()))
 	s.scopePath.push(id)
-	s.infoStack.push(&scopeInfo{startPos: ctxStartPos(ctxScope), stopPos: ctxStopPos(ctxScope), path: s.scopePath.joinByDot()})
+	s.infoStack.push(&scopeInfo{startPos: ctxStartPos(ctxScope), stopPos: ctxStopPos(ctxScope), path: s.scopePath.joinByDot(), kind: kind})
 	s.collector.BeginScope(id, s.infoStack.peek())
 }
 
@@ -358,7 +358,7 @@ func (s *scopesListener) ExitForStatement(ctx *parser.ForStatementContext) {
 }
 
 func (s *scopesListener) EnterUnit(ctx *parser.UnitContext) {
-	s.beginScope(ctx, ctx)
+	s.beginScope(ctx, ctx, Unit)
 }
 
 func (s *scopesListener) ExitUnit(ctx *parser.UnitContext) {
@@ -369,7 +369,7 @@ func (s *scopesListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext
 	if s.inDeclaration {
 		return
 	}
-	s.beginScope(ctx, ctx)
+	s.beginScope(ctx, ctx, ProcedureSymbol)
 }
 
 func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
@@ -383,7 +383,7 @@ func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext)
 
 func (s *scopesListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
-	s.beginScope(ctx, ctx.ProcedureHeader())
+	s.beginScope(ctx, ctx.ProcedureHeader(), ProcedureSymbol)
 }
 
 func (s *scopesListener) ExitProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
@@ -395,7 +395,7 @@ func (s *scopesListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) 
 	if s.inDeclaration {
 		return
 	}
-	s.beginScope(ctx, ctx)
+	s.beginScope(ctx, ctx, FunctionSymbol)
 }
 
 func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
@@ -415,7 +415,7 @@ func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 
 func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
-	s.beginScope(ctx, ctx.FunctionHeader())
+	s.beginScope(ctx, ctx.FunctionHeader(), FunctionSymbol)
 }
 
 func (s *scopesListener) ExitFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {

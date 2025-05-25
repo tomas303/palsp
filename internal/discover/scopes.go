@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"palsp/internal/log"
 	"regexp"
 	"runtime"
 	"strings"
@@ -84,7 +83,6 @@ func (p Position) After(other Position) bool {
 // locating symbols early.
 type TopScope interface {
 	scope
-	WriteToLog()
 	Dump(sb *strings.Builder)
 	// FindSymbolOnPosition(position Position) *Symbol
 	LocateSymbolsOnPos(name string, position Position, writer SymbolWriter) error
@@ -108,7 +106,6 @@ type scope interface {
 	getName() string
 	getParentSWM() int
 	locateSymbolsOnPos(name string, position Position, writer SymbolWriter) error
-	writeToLog(prefix string)
 	dump(sb *strings.Builder, prefix string)
 	findSymbolOnPosition(position Position) *Symbol
 	findAncestorScope(ancestorName string) (inheritenceScope, error)
@@ -164,18 +161,6 @@ type unitScope struct {
 	interfaceUses      stack[string]
 	implementationUses stack[string]
 	implementationPos  Position
-}
-
-func (s *unitScope) WriteToLog() {
-	log.Structure.Debug().Msgf("Top scope: %s", s.getName())
-	log.Structure.Debug().Msg("uses: ")
-	for _, unit := range s.interfaceUses.all() {
-		log.Structure.Debug().Msg(unit)
-	}
-	for _, unit := range s.implementationUses.all() {
-		log.Structure.Debug().Msg(unit)
-	}
-	s.scope.writeToLog("  ")
 }
 
 func (s *unitScope) Dump(sb *strings.Builder) {
@@ -430,18 +415,6 @@ func (s *commonScope) getParentSWM() int {
 
 func (s *commonScope) setParentSWM(swm int) {
 	s.parentSWM = swm
-}
-
-func (s *commonScope) writeToLog(prefix string) {
-	log.Structure.Debug().Msgf(prefix+"scope name: %s", s.getName())
-	log.Structure.Debug().Msg(prefix + "--symbols:")
-	for _, symbol := range s.symbolStack.all() {
-		log.Structure.Debug().Msg(prefix + "----" + symbol.Name)
-	}
-	log.Structure.Debug().Msg(prefix + "--scopes:")
-	for _, scope := range s.scopeStack.all() {
-		scope.writeToLog(prefix + "----")
-	}
 }
 
 func (s *commonScope) dump(sb *strings.Builder, prefix string) {

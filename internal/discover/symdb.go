@@ -7,7 +7,6 @@ import (
 	"palsp/internal/log"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/antlr4-go/antlr/v4"
 	_ "github.com/glebarez/go-sqlite" // Registers the sqlite driver under "sqlite"
@@ -486,7 +485,6 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 	sl := NewScopesListener(collector)
 	cst, _ := ParseCST(content, fileName)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
-	db.writeToLog(strings.ToLower(DecodePath(fileName).name))
 }
 
 func (db *symDB) AddSearchPath(path string) {
@@ -516,88 +514,89 @@ func (db *symDB) searchUnits(folder string) {
 		})
 }
 
+// todo: rewrite to custom command
 // Mutex to synchronize access to the writeToLog function
-var writeToLogMutex sync.Mutex
+// var writeToLogMutex sync.Mutex
 
-func (db *symDB) writeToLog(unitName string) {
-	// Acquire lock to ensure only one goroutine can execute this method at a time
-	writeToLogMutex.Lock()
-	defer writeToLogMutex.Unlock()
+// func (db *symDB) writeToLog(unitName string) {
+// 	// Acquire lock to ensure only one goroutine can execute this method at a time
+// 	writeToLogMutex.Lock()
+// 	defer writeToLogMutex.Unlock()
 
-	if !log.Structure.Debug().Enabled() {
-		return
-	}
+// 	if !log.Structure.Debug().Enabled() {
+// 		return
+// 	}
 
-	// Get the unit file path from the database
-	var unitPath string
-	pathQuery := `
-	SELECT unitpath 
-	FROM units 
-	WHERE unitname = ? COLLATE NOCASE 
-	LIMIT 1`
+// 	// Get the unit file path from the database
+// 	var unitPath string
+// 	pathQuery := `
+// 	SELECT unitpath
+// 	FROM units
+// 	WHERE unitname = ? COLLATE NOCASE
+// 	LIMIT 1`
 
-	err := db.QueryRow(pathQuery, unitName).Scan(&unitPath)
-	if err != nil {
-		log.Main.Warn().Err(err).Msgf("Error retrieving unit path for logging: %s", unitName)
-		// Continue execution even if we couldn't get the path
-	}
+// 	err := db.QueryRow(pathQuery, unitName).Scan(&unitPath)
+// 	if err != nil {
+// 		log.Main.Warn().Err(err).Msgf("Error retrieving unit path for logging: %s", unitName)
+// 		// Continue execution even if we couldn't get the path
+// 	}
 
-	// Query to get all symbols for the unit, grouped by path
-	query := `
-	SELECT s.symbol, s.scope, s.kind
-	FROM symbols s
-	JOIN units u ON s.unit_id = u.id
-	WHERE u.unitname = ? COLLATE NOCASE
-	ORDER BY s.scope, s.symbol COLLATE NOCASE`
+// 	// Query to get all symbols for the unit, grouped by path
+// 	query := `
+// 	SELECT s.symbol, s.scope, s.kind
+// 	FROM symbols s
+// 	JOIN units u ON s.unit_id = u.id
+// 	WHERE u.unitname = ? COLLATE NOCASE
+// 	ORDER BY s.scope, s.symbol COLLATE NOCASE`
 
-	rows, err := db.Query(query, unitName)
-	if err != nil {
-		log.Main.Warn().Err(err).Msgf("Error retrieving symbols for logging: %s", unitName)
-		return
-	}
-	defer rows.Close()
+// 	rows, err := db.Query(query, unitName)
+// 	if err != nil {
+// 		log.Main.Warn().Err(err).Msgf("Error retrieving symbols for logging: %s", unitName)
+// 		return
+// 	}
+// 	defer rows.Close()
 
-	// Track the current path to create appropriate indentation
-	currentPath := ""
+// 	// Track the current path to create appropriate indentation
+// 	currentPath := ""
 
-	// Log the header with unit name and file path
-	if unitPath != "" {
-		log.Structure.Debug().Msgf("Symbol structure for unit: %s (%s)", unitName, unitPath)
-	} else {
-		log.Structure.Debug().Msgf("Symbol structure for unit: %s", unitName)
-	}
+// 	// Log the header with unit name and file path
+// 	if unitPath != "" {
+// 		log.Structure.Debug().Msgf("Symbol structure for unit: %s (%s)", unitName, unitPath)
+// 	} else {
+// 		log.Structure.Debug().Msgf("Symbol structure for unit: %s", unitName)
+// 	}
 
-	for rows.Next() {
-		var name, path string
-		var kind int
+// 	for rows.Next() {
+// 		var name, path string
+// 		var kind int
 
-		if err := rows.Scan(&name, &path, &kind); err != nil {
-			log.Main.Warn().Err(err).Msg("Error scanning symbol row for logging")
-			continue
-		}
+// 		if err := rows.Scan(&name, &path, &kind); err != nil {
+// 			log.Main.Warn().Err(err).Msg("Error scanning symbol row for logging")
+// 			continue
+// 		}
 
-		// If the path changed, print the new path
-		if path != currentPath {
-			currentPath = path
-			// Calculate indentation based on path nesting
-			indent := strings.Repeat("  ", strings.Count(path, "."))
-			if path == "" {
-				log.Structure.Debug().Msgf("└── Unit level symbols:")
-			} else {
-				log.Structure.Debug().Msgf("%s├── %s:", indent, path)
-			}
-		}
+// 		// If the path changed, print the new path
+// 		if path != currentPath {
+// 			currentPath = path
+// 			// Calculate indentation based on path nesting
+// 			indent := strings.Repeat("  ", strings.Count(path, "."))
+// 			if path == "" {
+// 				log.Structure.Debug().Msgf("└── Unit level symbols:")
+// 			} else {
+// 				log.Structure.Debug().Msgf("%s├── %s:", indent, path)
+// 			}
+// 		}
 
-		// Print the symbol with indentation
-		kindStr := SymbolKindToString(SymbolKind(kind))
-		indent := strings.Repeat("  ", strings.Count(path, ".")+1)
-		log.Structure.Debug().Msgf("   %s├── %s (%s)", indent, name, kindStr)
-	}
+// 		// Print the symbol with indentation
+// 		kindStr := SymbolKindToString(SymbolKind(kind))
+// 		indent := strings.Repeat("  ", strings.Count(path, ".")+1)
+// 		log.Structure.Debug().Msgf("   %s├── %s (%s)", indent, name, kindStr)
+// 	}
 
-	if err = rows.Err(); err != nil {
-		log.Main.Warn().Err(err).Msg("Error iterating symbol rows for logging")
-	}
-}
+// 	if err = rows.Err(); err != nil {
+// 		log.Main.Warn().Err(err).Msg("Error iterating symbol rows for logging")
+// 	}
+// }
 
 func newSymDB() (*symDB, error) {
 	var err error

@@ -236,6 +236,5 @@ func newScope(cst antlr.Tree, unitName string) TopScope {
 	sl := NewScopesListener(collector)
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	scope := collector.GetScope()
-	scope.WriteToLog()
 	return scope
 }

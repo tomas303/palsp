@@ -37,7 +37,7 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 	depth := 0
 	for i := fromIndex; i < f.stream.Size(); i++ {
 		token := f.stream.Get(i)
-		text := token.GetText()
+		text := strings.ToLower(token.GetText())
 		switch text {
 		case " ", "\t", "\n", "\r":
 			// Skip whitespace characters
@@ -54,7 +54,7 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 			}
 		case ",":
 			pattern += ",.*"
-		case "END", "BEGIN", ";":
+		case "end", "begin", ";":
 			//unexpected end of template, invalid template
 			return pattern
 		}
@@ -74,7 +74,10 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 		if token.GetLine() == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
-			//return strings.ToLower(token.GetText()), true
+			if token.GetTokenType() != 122 {
+				// ident token
+				return "", true
+			}
 			text := token.GetText()
 			text += f.parseGenericTemplate(i + 1)
 			return text, true

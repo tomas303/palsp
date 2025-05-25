@@ -81,6 +81,14 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
+	if hoverText == "" {
+		return OpSuccessWith(Hover{
+			Contents: MarkupContent{
+				Kind:  "plaintext",
+				Value: "",
+			},
+		})
+	}
 
 	pos := discover.NewPosition(line, character)
 
@@ -128,6 +136,13 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
+	if hoverText == "" {
+		return OpSuccessWith(CompletionList{
+			IsIncomplete: false,
+			Items:        []CompletionItem{},
+		},
+		)
+	}
 	pos := discover.NewPosition(line, character)
 
 	items := make([]CompletionItem, 0, 100)
@@ -167,6 +182,9 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 	var found bool
 	if hoverText, found = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
+	}
+	if hoverText == "" {
+		return OpSuccessWith(map[string]interface{}{})
 	}
 	pos := discover.NewPosition(line, character)
 

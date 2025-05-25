@@ -741,7 +741,7 @@ functionDesignator
     ;
 
 defaultDesignator
-    : DEFAULT LPAREN parameterList RPAREN
+    : DEFAULT (LPAREN parameterList RPAREN)?
     ;
 
 parameterList

@@ -149,3 +149,8 @@ type TextRange struct {
 	Start Position `json:"start"`
 	End   Position `json:"end"`
 }
+
+// DumpScopesParams structure for the dump definition command
+type DumpScopesParams struct {
+	TextDocument TextDocumentItem `json:"textDocument"`
+}

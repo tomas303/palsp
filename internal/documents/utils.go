@@ -65,3 +65,8 @@ func PtrLogVal[T any](p *T, defaultVal T) string {
 	}
 	return fmt.Sprintf("%v", *p)
 }
+
+// DumpScopesResult structure for the result of dump definition command
+type DumpScopesResult struct {
+	Dump string `json:"dump"`
+}

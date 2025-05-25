@@ -75,6 +75,13 @@ func handleRequest(request LSPRequest) (response edit.OpResult) {
 		}
 		return handleDefinition(params)
 
+	case "pascal/dumpScopes":
+		var params DumpScopesParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return edit.OpFailure("Invalid params", err)
+		}
+		return handleDumpScopes(params)
+
 	default:
 		return edit.OpFailure("Method not found", fmt.Errorf("Method %s not found", request.Method))
 	}
@@ -126,4 +133,9 @@ func handleHover(params HoverParams) edit.OpResult {
 // Modified Handle textDocument/definition request
 func handleDefinition(params DefinitionParams) edit.OpResult {
 	return edit.GetManager().Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+}
+
+// Handle dump definition request
+func handleDumpScopes(params DumpScopesParams) edit.OpResult {
+	return edit.GetManager().DumpScopes(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
 }

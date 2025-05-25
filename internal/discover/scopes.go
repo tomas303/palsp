@@ -85,6 +85,7 @@ func (p Position) After(other Position) bool {
 type TopScope interface {
 	scope
 	WriteToLog()
+	Dump(sb *strings.Builder)
 	// FindSymbolOnPosition(position Position) *Symbol
 	LocateSymbolsOnPos(name string, position Position, writer SymbolWriter) error
 	LocateSymbols(name string, scope string, writer SymbolWriter) error
@@ -108,6 +109,7 @@ type scope interface {
 	getParentSWM() int
 	locateSymbolsOnPos(name string, position Position, writer SymbolWriter) error
 	writeToLog(prefix string)
+	dump(sb *strings.Builder, prefix string)
 	findSymbolOnPosition(position Position) *Symbol
 	findAncestorScope(ancestorName string) (inheritenceScope, error)
 	locateSymbols(name string, scope string, writer SymbolWriter) error
@@ -174,6 +176,18 @@ func (s *unitScope) WriteToLog() {
 		log.Structure.Debug().Msg(unit)
 	}
 	s.scope.writeToLog("  ")
+}
+
+func (s *unitScope) Dump(sb *strings.Builder) {
+	sb.WriteString(fmt.Sprintf("Top scope: %s\n", s.getName()))
+	sb.WriteString("uses:\n")
+	for _, unit := range s.interfaceUses.all() {
+		sb.WriteString(fmt.Sprintf("  %s\n", unit))
+	}
+	for _, unit := range s.implementationUses.all() {
+		sb.WriteString(fmt.Sprintf("  %s\n", unit))
+	}
+	s.scope.dump(sb, "  ")
 }
 
 func (s *unitScope) FindSymbolOnPosition(position Position) *Symbol {
@@ -429,6 +443,19 @@ func (s *commonScope) writeToLog(prefix string) {
 		scope.writeToLog(prefix + "----")
 	}
 }
+
+func (s *commonScope) dump(sb *strings.Builder, prefix string) {
+	sb.WriteString(fmt.Sprintf("%sscope name: %s\n", prefix, s.getName()))
+	sb.WriteString(prefix + "--symbols:\n")
+	for _, symbol := range s.symbolStack.all() {
+		sb.WriteString(prefix + "----" + symbol.Name + "\n")
+	}
+	sb.WriteString(prefix + "--scopes:\n")
+	for _, scope := range s.scopeStack.all() {
+		scope.dump(sb, prefix+"----")
+	}
+}
+
 func (s *commonScope) findSymbolOnPosition(position Position) *Symbol {
 	for i := s.symbolStack.length() - 1; i >= 0; i-- {
 		sym := s.symbolStack.get(i)

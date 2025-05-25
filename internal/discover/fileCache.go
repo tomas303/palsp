@@ -115,6 +115,10 @@ func (f *FileCacheItem) LocateSymbolsByName(name string, position Position, writ
 	return f.scope.LocateSymbolsOnPos(name, position, writer)
 }
 
+func (f *FileCacheItem) DumpScopes(sb *strings.Builder) {
+	f.scope.Dump(sb)
+}
+
 func (fci *FileCacheItem) isStale() bool {
 	if fileExists(fci.uri) {
 		pathElements := DecodePath(fci.uri)

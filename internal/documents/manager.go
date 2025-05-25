@@ -3,6 +3,7 @@ package edit
 import (
 	"fmt"
 	"palsp/internal/discover"
+	"strings"
 	"sync"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -222,6 +223,19 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 	}
 
 	return OpFailure(fmt.Sprintf("definition error - URI: %s, line: %d, chr: %d", uri, line, character), err)
+}
+
+func (mgr *Manager) DumpScopes(uri string, text string, version int) OpResult {
+	var err error
+	var fci *discover.FileCacheItem
+
+	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
+		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
+	}
+	var sb strings.Builder
+	fci.DumpScopes(&sb)
+
+	return OpSuccessWith(DumpScopesResult{Dump: sb.String()})
 }
 
 func (mgr *Manager) getDir(uri string) (string, error) {

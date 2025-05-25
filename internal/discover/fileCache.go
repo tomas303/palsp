@@ -32,13 +32,52 @@ type FileCacheItem struct {
 	modTime  int64
 }
 
+func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
+	pattern := ""
+	depth := 0
+	for i := fromIndex; i < f.stream.Size(); i++ {
+		token := f.stream.Get(i)
+		text := token.GetText()
+		switch text {
+		case " ", "\t", "\n", "\r":
+			// Skip whitespace characters
+		case "<":
+			depth++
+			pattern += "<.*" // for now just placeholde to match all
+		case ">":
+			if depth > 0 {
+				depth--
+				pattern += ">"
+			} else {
+				// Mismatched closing bracket, invalid template
+				return pattern
+			}
+		case ",":
+			pattern += ",.*"
+		case "END", "BEGIN", ";":
+			//unexpected end of template, invalid template
+			return pattern
+		}
+
+		if depth == 0 {
+			// parsing is complete
+			break
+		}
+	}
+
+	return pattern
+}
+
 func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 	for i := 0; i < f.stream.Size(); i++ {
 		token := f.stream.Get(i)
 		if token.GetLine() == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
-			return strings.ToLower(token.GetText()), true
+			//return strings.ToLower(token.GetText()), true
+			text := token.GetText()
+			text += f.parseGenericTemplate(i + 1)
+			return text, true
 		}
 	}
 	return "", false

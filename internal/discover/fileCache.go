@@ -33,11 +33,33 @@ type FileCacheItem struct {
 }
 
 func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
+
+	var beginSymbolID int
+	var endSymbolID int
+	var semicolonSymbolID int
+	var found bool
+	if beginSymbolID, found = findParserSymbolicNameID("BEGIN"); !found {
+		return ""
+	}
+	if endSymbolID, found = findParserSymbolicNameID("BEGIN"); !found {
+		return ""
+	}
+	if semicolonSymbolID, found = findParserSymbolicNameID("BEGIN"); !found {
+		return ""
+	}
+
 	pattern := ""
 	depth := 0
 	for i := fromIndex; i < f.stream.Size(); i++ {
 		token := f.stream.Get(i)
-		text := strings.ToLower(token.GetText())
+
+		if token.GetTokenType() == beginSymbolID || token.GetTokenType() == endSymbolID ||
+			token.GetTokenType() == semicolonSymbolID {
+			//unexpected end of template, invalid template
+			return pattern
+		}
+
+		text := token.GetText()
 		switch text {
 		case " ", "\t", "\n", "\r":
 			// Skip whitespace characters
@@ -54,11 +76,7 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 			}
 		case ",":
 			pattern += ",.*"
-		case "end", "begin", ";":
-			//unexpected end of template, invalid template
-			return pattern
 		}
-
 		if depth == 0 {
 			// parsing is complete
 			break
@@ -69,13 +87,18 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 }
 
 func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
+	var identSymbolID int
+	var found bool
+	if identSymbolID, found = findParserSymbolicNameID("IDENT"); !found {
+		return "", false
+	}
+
 	for i := 0; i < f.stream.Size(); i++ {
 		token := f.stream.Get(i)
 		if token.GetLine() == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
-			if token.GetTokenType() != 122 {
-				// ident token
+			if token.GetTokenType() != identSymbolID {
 				return "", true
 			}
 			text := token.GetText()

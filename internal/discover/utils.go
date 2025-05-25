@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"palsp/internal/parser"
 	"runtime"
 	"strings"
 	"sync"
@@ -265,4 +266,14 @@ func FormatFileURI(path string) string {
 		}
 		return "file://" + normalizedPath
 	}
+}
+
+// todo : later make dictionary of symbolic names on startup
+func findParserSymbolicNameID(target string) (int, bool) {
+	for i, str := range parser.PascalLexerLexerStaticData.SymbolicNames {
+		if str == target {
+			return i, true
+		}
+	}
+	return -1, false
 }

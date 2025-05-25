@@ -164,15 +164,27 @@ type unitScope struct {
 }
 
 func (s *unitScope) Dump(sb *strings.Builder) {
-	sb.WriteString(fmt.Sprintf("Top scope: %s\n", s.getName()))
-	sb.WriteString("uses:\n")
-	for _, unit := range s.interfaceUses.all() {
-		sb.WriteString(fmt.Sprintf("  %s\n", unit))
+	sb.WriteString(fmt.Sprintf("Unit: %s\n", s.getName()))
+	sb.WriteString("Uses:\n")
+
+	// Interface uses
+	if len(s.interfaceUses.all()) > 0 {
+		sb.WriteString("  Interface:\n")
+		for _, unit := range s.interfaceUses.all() {
+			sb.WriteString(fmt.Sprintf("    %s\n", unit))
+		}
 	}
-	for _, unit := range s.implementationUses.all() {
-		sb.WriteString(fmt.Sprintf("  %s\n", unit))
+
+	// Implementation uses
+	if len(s.implementationUses.all()) > 0 {
+		sb.WriteString("  Implementation:\n")
+		for _, unit := range s.implementationUses.all() {
+			sb.WriteString(fmt.Sprintf("    %s\n", unit))
+		}
 	}
-	s.scope.dump(sb, "  ")
+
+	sb.WriteString("\nScope Structure:\n")
+	s.scope.dump(sb, "")
 }
 
 func (s *unitScope) FindSymbolOnPosition(position Position) *Symbol {
@@ -418,14 +430,29 @@ func (s *commonScope) setParentSWM(swm int) {
 }
 
 func (s *commonScope) dump(sb *strings.Builder, prefix string) {
-	sb.WriteString(fmt.Sprintf("%sscope name: %s\n", prefix, s.getName()))
-	sb.WriteString(prefix + "--symbols:\n")
-	for _, symbol := range s.symbolStack.all() {
-		sb.WriteString(prefix + "----" + symbol.Name + "\n")
+	scopeKindStr := SymbolKindToString(s.info.kind)
+	sb.WriteString(fmt.Sprintf("%s├─ %s (%s) (pos: %d:%d)\n", prefix, s.getName(), scopeKindStr, s.info.startPos.Line, s.info.startPos.Character))
+
+	// Write symbols if any exist
+	if s.symbolStack.length() > 0 {
+		sb.WriteString(fmt.Sprintf("%s│  symbols:\n", prefix))
+		for _, symbol := range s.symbolStack.all() {
+			kindStr := SymbolKindToString(SymbolKind(symbol.Kind))
+			sb.WriteString(fmt.Sprintf("%s│    • %s (%s) (pos: %d:%d)\n", prefix, symbol.Name, kindStr, symbol.Position.Line, symbol.Position.Character))
+		}
 	}
-	sb.WriteString(prefix + "--scopes:\n")
-	for _, scope := range s.scopeStack.all() {
-		scope.dump(sb, prefix+"----")
+
+	// Write nested scopes if any exist
+	if s.scopeStack.length() > 0 {
+		sb.WriteString(fmt.Sprintf("%s│  scopes:\n", prefix))
+		for i, scope := range s.scopeStack.all() {
+			isLast := i == s.scopeStack.length()-1
+			if isLast {
+				scope.dump(sb, prefix+"│    ")
+			} else {
+				scope.dump(sb, prefix+"│    ")
+			}
+		}
 	}
 }
 

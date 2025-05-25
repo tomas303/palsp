@@ -119,7 +119,7 @@ func pascalParserInit() {
 	}
 	staticData.PredictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 128, 1766, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4,
+		4, 1, 128, 1767, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4,
 		7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10,
 		7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7,
 		15, 2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20,
@@ -293,50 +293,50 @@ func pascalParserInit() {
 		1, 135, 1, 135, 1, 135, 1, 135, 3, 135, 1538, 8, 135, 1, 136, 1, 136, 1,
 		136, 5, 136, 1543, 8, 136, 10, 136, 12, 136, 1546, 9, 136, 1, 136, 3, 136,
 		1549, 8, 136, 1, 137, 1, 137, 1, 137, 3, 137, 1554, 8, 137, 1, 138, 1,
-		138, 1, 138, 1, 138, 1, 138, 3, 138, 1561, 8, 138, 1, 139, 1, 139, 1, 139,
-		5, 139, 1566, 8, 139, 10, 139, 12, 139, 1569, 9, 139, 1, 139, 1, 139, 1,
-		139, 1, 139, 1, 139, 1, 139, 3, 139, 1577, 8, 139, 1, 140, 1, 140, 5, 140,
-		1581, 8, 140, 10, 140, 12, 140, 1584, 9, 140, 1, 140, 1, 140, 3, 140, 1588,
-		8, 140, 1, 141, 1, 141, 1, 141, 1, 142, 1, 142, 1, 142, 1, 143, 1, 143,
-		1, 143, 1, 143, 1, 143, 1, 143, 3, 143, 1602, 8, 143, 3, 143, 1604, 8,
-		143, 1, 144, 1, 144, 1, 145, 1, 145, 1, 146, 1, 146, 1, 146, 1, 146, 1,
-		146, 1, 146, 3, 146, 1616, 8, 146, 1, 147, 1, 147, 1, 147, 1, 147, 1, 148,
-		1, 148, 1, 148, 5, 148, 1625, 8, 148, 10, 148, 12, 148, 1628, 9, 148, 1,
-		149, 1, 149, 3, 149, 1632, 8, 149, 1, 150, 1, 150, 1, 150, 1, 150, 1, 150,
-		1, 150, 3, 150, 1640, 8, 150, 1, 150, 3, 150, 1643, 8, 150, 1, 151, 1,
-		151, 1, 151, 1, 151, 1, 151, 1, 151, 5, 151, 1651, 8, 151, 10, 151, 12,
-		151, 1654, 9, 151, 1, 151, 1, 151, 1, 151, 3, 151, 1659, 8, 151, 1, 151,
-		3, 151, 1662, 8, 151, 1, 151, 1, 151, 1, 152, 1, 152, 1, 152, 1, 152, 1,
-		153, 1, 153, 1, 153, 3, 153, 1673, 8, 153, 1, 154, 1, 154, 1, 154, 1, 154,
-		1, 154, 1, 155, 1, 155, 1, 155, 1, 155, 1, 155, 1, 156, 1, 156, 3, 156,
-		1687, 8, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1,
-		156, 3, 156, 1697, 8, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156,
-		3, 156, 1705, 8, 156, 1, 157, 1, 157, 1, 157, 1, 157, 1, 158, 1, 158, 1,
-		159, 1, 159, 1, 160, 1, 160, 1, 160, 1, 160, 1, 160, 1, 160, 1, 160, 1,
-		160, 1, 160, 1, 160, 3, 160, 1725, 8, 160, 1, 161, 1, 161, 1, 161, 1, 161,
-		1, 161, 1, 161, 1, 162, 1, 162, 1, 162, 1, 162, 1, 162, 1, 162, 1, 163,
-		1, 163, 1, 163, 5, 163, 1742, 8, 163, 10, 163, 12, 163, 1745, 9, 163, 1,
-		164, 1, 164, 1, 164, 1, 164, 1, 165, 1, 165, 1, 165, 5, 165, 1754, 8, 165,
-		10, 165, 12, 165, 1757, 9, 165, 1, 166, 1, 166, 1, 166, 1, 166, 1, 166,
-		3, 166, 1764, 8, 166, 1, 166, 0, 1, 260, 167, 0, 2, 4, 6, 8, 10, 12, 14,
-		16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50,
-		52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86,
-		88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118,
-		120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140, 142, 144, 146, 148,
-		150, 152, 154, 156, 158, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178,
-		180, 182, 184, 186, 188, 190, 192, 194, 196, 198, 200, 202, 204, 206, 208,
-		210, 212, 214, 216, 218, 220, 222, 224, 226, 228, 230, 232, 234, 236, 238,
-		240, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264, 266, 268,
-		270, 272, 274, 276, 278, 280, 282, 284, 286, 288, 290, 292, 294, 296, 298,
-		300, 302, 304, 306, 308, 310, 312, 314, 316, 318, 320, 322, 324, 326, 328,
-		330, 332, 0, 14, 3, 0, 85, 86, 88, 88, 122, 122, 1, 0, 44, 45, 1, 0, 75,
-		76, 1, 0, 124, 125, 1, 0, 14, 14, 2, 0, 14, 14, 78, 82, 6, 0, 5, 5, 7,
-		7, 22, 22, 32, 32, 73, 73, 114, 116, 2, 0, 30, 30, 106, 107, 1, 0, 97,
-		105, 2, 0, 14, 14, 50, 50, 2, 0, 21, 21, 52, 57, 2, 0, 28, 28, 44, 45,
-		5, 0, 2, 2, 10, 10, 24, 24, 46, 47, 111, 113, 2, 0, 12, 12, 38, 38, 1883,
-		0, 336, 1, 0, 0, 0, 2, 338, 1, 0, 0, 0, 4, 357, 1, 0, 0, 0, 6, 374, 1,
-		0, 0, 0, 8, 380, 1, 0, 0, 0, 10, 386, 1, 0, 0, 0, 12, 389, 1, 0, 0, 0,
-		14, 392, 1, 0, 0, 0, 16, 400, 1, 0, 0, 0, 18, 412, 1, 0, 0, 0, 20, 428,
+		138, 1, 138, 3, 138, 1559, 8, 138, 1, 138, 3, 138, 1562, 8, 138, 1, 139,
+		1, 139, 1, 139, 5, 139, 1567, 8, 139, 10, 139, 12, 139, 1570, 9, 139, 1,
+		139, 1, 139, 1, 139, 1, 139, 1, 139, 1, 139, 3, 139, 1578, 8, 139, 1, 140,
+		1, 140, 5, 140, 1582, 8, 140, 10, 140, 12, 140, 1585, 9, 140, 1, 140, 1,
+		140, 3, 140, 1589, 8, 140, 1, 141, 1, 141, 1, 141, 1, 142, 1, 142, 1, 142,
+		1, 143, 1, 143, 1, 143, 1, 143, 1, 143, 1, 143, 3, 143, 1603, 8, 143, 3,
+		143, 1605, 8, 143, 1, 144, 1, 144, 1, 145, 1, 145, 1, 146, 1, 146, 1, 146,
+		1, 146, 1, 146, 1, 146, 3, 146, 1617, 8, 146, 1, 147, 1, 147, 1, 147, 1,
+		147, 1, 148, 1, 148, 1, 148, 5, 148, 1626, 8, 148, 10, 148, 12, 148, 1629,
+		9, 148, 1, 149, 1, 149, 3, 149, 1633, 8, 149, 1, 150, 1, 150, 1, 150, 1,
+		150, 1, 150, 1, 150, 3, 150, 1641, 8, 150, 1, 150, 3, 150, 1644, 8, 150,
+		1, 151, 1, 151, 1, 151, 1, 151, 1, 151, 1, 151, 5, 151, 1652, 8, 151, 10,
+		151, 12, 151, 1655, 9, 151, 1, 151, 1, 151, 1, 151, 3, 151, 1660, 8, 151,
+		1, 151, 3, 151, 1663, 8, 151, 1, 151, 1, 151, 1, 152, 1, 152, 1, 152, 1,
+		152, 1, 153, 1, 153, 1, 153, 3, 153, 1674, 8, 153, 1, 154, 1, 154, 1, 154,
+		1, 154, 1, 154, 1, 155, 1, 155, 1, 155, 1, 155, 1, 155, 1, 156, 1, 156,
+		3, 156, 1688, 8, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1,
+		156, 1, 156, 3, 156, 1698, 8, 156, 1, 156, 1, 156, 1, 156, 1, 156, 1, 156,
+		1, 156, 3, 156, 1706, 8, 156, 1, 157, 1, 157, 1, 157, 1, 157, 1, 158, 1,
+		158, 1, 159, 1, 159, 1, 160, 1, 160, 1, 160, 1, 160, 1, 160, 1, 160, 1,
+		160, 1, 160, 1, 160, 1, 160, 3, 160, 1726, 8, 160, 1, 161, 1, 161, 1, 161,
+		1, 161, 1, 161, 1, 161, 1, 162, 1, 162, 1, 162, 1, 162, 1, 162, 1, 162,
+		1, 163, 1, 163, 1, 163, 5, 163, 1743, 8, 163, 10, 163, 12, 163, 1746, 9,
+		163, 1, 164, 1, 164, 1, 164, 1, 164, 1, 165, 1, 165, 1, 165, 5, 165, 1755,
+		8, 165, 10, 165, 12, 165, 1758, 9, 165, 1, 166, 1, 166, 1, 166, 1, 166,
+		1, 166, 3, 166, 1765, 8, 166, 1, 166, 0, 1, 260, 167, 0, 2, 4, 6, 8, 10,
+		12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46,
+		48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82,
+		84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114,
+		116, 118, 120, 122, 124, 126, 128, 130, 132, 134, 136, 138, 140, 142, 144,
+		146, 148, 150, 152, 154, 156, 158, 160, 162, 164, 166, 168, 170, 172, 174,
+		176, 178, 180, 182, 184, 186, 188, 190, 192, 194, 196, 198, 200, 202, 204,
+		206, 208, 210, 212, 214, 216, 218, 220, 222, 224, 226, 228, 230, 232, 234,
+		236, 238, 240, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264,
+		266, 268, 270, 272, 274, 276, 278, 280, 282, 284, 286, 288, 290, 292, 294,
+		296, 298, 300, 302, 304, 306, 308, 310, 312, 314, 316, 318, 320, 322, 324,
+		326, 328, 330, 332, 0, 14, 3, 0, 85, 86, 88, 88, 122, 122, 1, 0, 44, 45,
+		1, 0, 75, 76, 1, 0, 124, 125, 1, 0, 14, 14, 2, 0, 14, 14, 78, 82, 6, 0,
+		5, 5, 7, 7, 22, 22, 32, 32, 73, 73, 114, 116, 2, 0, 30, 30, 106, 107, 1,
+		0, 97, 105, 2, 0, 14, 14, 50, 50, 2, 0, 21, 21, 52, 57, 2, 0, 28, 28, 44,
+		45, 5, 0, 2, 2, 10, 10, 24, 24, 46, 47, 111, 113, 2, 0, 12, 12, 38, 38,
+		1885, 0, 336, 1, 0, 0, 0, 2, 338, 1, 0, 0, 0, 4, 357, 1, 0, 0, 0, 6, 374,
+		1, 0, 0, 0, 8, 380, 1, 0, 0, 0, 10, 386, 1, 0, 0, 0, 12, 389, 1, 0, 0,
+		0, 14, 392, 1, 0, 0, 0, 16, 400, 1, 0, 0, 0, 18, 412, 1, 0, 0, 0, 20, 428,
 		1, 0, 0, 0, 22, 438, 1, 0, 0, 0, 24, 441, 1, 0, 0, 0, 26, 445, 1, 0, 0,
 		0, 28, 456, 1, 0, 0, 0, 30, 458, 1, 0, 0, 0, 32, 480, 1, 0, 0, 0, 34, 482,
 		1, 0, 0, 0, 36, 487, 1, 0, 0, 0, 38, 511, 1, 0, 0, 0, 40, 513, 1, 0, 0,
@@ -376,15 +376,15 @@ func pascalParserInit() {
 		0, 258, 1430, 1, 0, 0, 0, 260, 1473, 1, 0, 0, 0, 262, 1504, 1, 0, 0, 0,
 		264, 1506, 1, 0, 0, 0, 266, 1514, 1, 0, 0, 0, 268, 1521, 1, 0, 0, 0, 270,
 		1537, 1, 0, 0, 0, 272, 1548, 1, 0, 0, 0, 274, 1550, 1, 0, 0, 0, 276, 1555,
-		1, 0, 0, 0, 278, 1562, 1, 0, 0, 0, 280, 1587, 1, 0, 0, 0, 282, 1589, 1,
-		0, 0, 0, 284, 1592, 1, 0, 0, 0, 286, 1595, 1, 0, 0, 0, 288, 1605, 1, 0,
-		0, 0, 290, 1607, 1, 0, 0, 0, 292, 1615, 1, 0, 0, 0, 294, 1617, 1, 0, 0,
-		0, 296, 1621, 1, 0, 0, 0, 298, 1631, 1, 0, 0, 0, 300, 1633, 1, 0, 0, 0,
-		302, 1644, 1, 0, 0, 0, 304, 1665, 1, 0, 0, 0, 306, 1672, 1, 0, 0, 0, 308,
-		1674, 1, 0, 0, 0, 310, 1679, 1, 0, 0, 0, 312, 1704, 1, 0, 0, 0, 314, 1706,
-		1, 0, 0, 0, 316, 1710, 1, 0, 0, 0, 318, 1712, 1, 0, 0, 0, 320, 1724, 1,
-		0, 0, 0, 322, 1726, 1, 0, 0, 0, 324, 1732, 1, 0, 0, 0, 326, 1738, 1, 0,
-		0, 0, 328, 1746, 1, 0, 0, 0, 330, 1750, 1, 0, 0, 0, 332, 1758, 1, 0, 0,
+		1, 0, 0, 0, 278, 1563, 1, 0, 0, 0, 280, 1588, 1, 0, 0, 0, 282, 1590, 1,
+		0, 0, 0, 284, 1593, 1, 0, 0, 0, 286, 1596, 1, 0, 0, 0, 288, 1606, 1, 0,
+		0, 0, 290, 1608, 1, 0, 0, 0, 292, 1616, 1, 0, 0, 0, 294, 1618, 1, 0, 0,
+		0, 296, 1622, 1, 0, 0, 0, 298, 1632, 1, 0, 0, 0, 300, 1634, 1, 0, 0, 0,
+		302, 1645, 1, 0, 0, 0, 304, 1666, 1, 0, 0, 0, 306, 1673, 1, 0, 0, 0, 308,
+		1675, 1, 0, 0, 0, 310, 1680, 1, 0, 0, 0, 312, 1705, 1, 0, 0, 0, 314, 1707,
+		1, 0, 0, 0, 316, 1711, 1, 0, 0, 0, 318, 1713, 1, 0, 0, 0, 320, 1725, 1,
+		0, 0, 0, 322, 1727, 1, 0, 0, 0, 324, 1733, 1, 0, 0, 0, 326, 1739, 1, 0,
+		0, 0, 328, 1747, 1, 0, 0, 0, 330, 1751, 1, 0, 0, 0, 332, 1759, 1, 0, 0,
 		0, 334, 337, 3, 2, 1, 0, 335, 337, 3, 4, 2, 0, 336, 334, 1, 0, 0, 0, 336,
 		335, 1, 0, 0, 0, 337, 1, 1, 0, 0, 0, 338, 339, 5, 31, 0, 0, 339, 344, 3,
 		14, 7, 0, 340, 341, 5, 58, 0, 0, 341, 342, 3, 218, 109, 0, 342, 343, 5,
@@ -868,90 +868,91 @@ func pascalParserInit() {
 		0, 1547, 1549, 1, 0, 0, 0, 1548, 1539, 1, 0, 0, 0, 1548, 1547, 1, 0, 0,
 		0, 1549, 273, 1, 0, 0, 0, 1550, 1553, 3, 246, 123, 0, 1551, 1552, 5, 67,
 		0, 0, 1552, 1554, 3, 246, 123, 0, 1553, 1551, 1, 0, 0, 0, 1553, 1554, 1,
-		0, 0, 0, 1554, 275, 1, 0, 0, 0, 1555, 1560, 3, 14, 7, 0, 1556, 1557, 5,
-		58, 0, 0, 1557, 1558, 3, 268, 134, 0, 1558, 1559, 5, 59, 0, 0, 1559, 1561,
-		1, 0, 0, 0, 1560, 1556, 1, 0, 0, 0, 1560, 1561, 1, 0, 0, 0, 1561, 277,
-		1, 0, 0, 0, 1562, 1567, 3, 240, 120, 0, 1563, 1564, 5, 66, 0, 0, 1564,
-		1566, 3, 240, 120, 0, 1565, 1563, 1, 0, 0, 0, 1566, 1569, 1, 0, 0, 0, 1567,
-		1565, 1, 0, 0, 0, 1567, 1568, 1, 0, 0, 0, 1568, 1570, 1, 0, 0, 0, 1569,
-		1567, 1, 0, 0, 0, 1570, 1571, 5, 66, 0, 0, 1571, 1576, 3, 14, 7, 0, 1572,
-		1573, 5, 58, 0, 0, 1573, 1574, 3, 268, 134, 0, 1574, 1575, 5, 59, 0, 0,
-		1575, 1577, 1, 0, 0, 0, 1576, 1572, 1, 0, 0, 0, 1576, 1577, 1, 0, 0, 0,
-		1577, 279, 1, 0, 0, 0, 1578, 1582, 3, 246, 123, 0, 1579, 1581, 3, 282,
-		141, 0, 1580, 1579, 1, 0, 0, 0, 1581, 1584, 1, 0, 0, 0, 1582, 1580, 1,
-		0, 0, 0, 1582, 1583, 1, 0, 0, 0, 1583, 1588, 1, 0, 0, 0, 1584, 1582, 1,
-		0, 0, 0, 1585, 1588, 3, 200, 100, 0, 1586, 1588, 3, 202, 101, 0, 1587,
-		1578, 1, 0, 0, 0, 1587, 1585, 1, 0, 0, 0, 1587, 1586, 1, 0, 0, 0, 1588,
-		281, 1, 0, 0, 0, 1589, 1590, 5, 51, 0, 0, 1590, 1591, 3, 246, 123, 0, 1591,
-		283, 1, 0, 0, 0, 1592, 1593, 5, 18, 0, 0, 1593, 1594, 3, 28, 14, 0, 1594,
-		285, 1, 0, 0, 0, 1595, 1603, 5, 96, 0, 0, 1596, 1601, 3, 14, 7, 0, 1597,
-		1598, 5, 58, 0, 0, 1598, 1599, 3, 268, 134, 0, 1599, 1600, 5, 59, 0, 0,
-		1600, 1602, 1, 0, 0, 0, 1601, 1597, 1, 0, 0, 0, 1601, 1602, 1, 0, 0, 0,
-		1602, 1604, 1, 0, 0, 0, 1603, 1596, 1, 0, 0, 0, 1603, 1604, 1, 0, 0, 0,
-		1604, 287, 1, 0, 0, 0, 1605, 1606, 1, 0, 0, 0, 1606, 289, 1, 0, 0, 0, 1607,
-		1608, 1, 0, 0, 0, 1608, 291, 1, 0, 0, 0, 1609, 1616, 3, 294, 147, 0, 1610,
-		1616, 3, 298, 149, 0, 1611, 1616, 3, 306, 153, 0, 1612, 1616, 3, 320, 160,
-		0, 1613, 1616, 3, 322, 161, 0, 1614, 1616, 3, 324, 162, 0, 1615, 1609,
-		1, 0, 0, 0, 1615, 1610, 1, 0, 0, 0, 1615, 1611, 1, 0, 0, 0, 1615, 1612,
-		1, 0, 0, 0, 1615, 1613, 1, 0, 0, 0, 1615, 1614, 1, 0, 0, 0, 1616, 293,
-		1, 0, 0, 0, 1617, 1618, 5, 4, 0, 0, 1618, 1619, 3, 296, 148, 0, 1619, 1620,
-		5, 14, 0, 0, 1620, 295, 1, 0, 0, 0, 1621, 1626, 3, 226, 113, 0, 1622, 1623,
-		5, 50, 0, 0, 1623, 1625, 3, 226, 113, 0, 1624, 1622, 1, 0, 0, 0, 1625,
-		1628, 1, 0, 0, 0, 1626, 1624, 1, 0, 0, 0, 1626, 1627, 1, 0, 0, 0, 1627,
-		297, 1, 0, 0, 0, 1628, 1626, 1, 0, 0, 0, 1629, 1632, 3, 300, 150, 0, 1630,
-		1632, 3, 302, 151, 0, 1631, 1629, 1, 0, 0, 0, 1631, 1630, 1, 0, 0, 0, 1632,
-		299, 1, 0, 0, 0, 1633, 1634, 5, 20, 0, 0, 1634, 1635, 3, 246, 123, 0, 1635,
-		1636, 5, 37, 0, 0, 1636, 1639, 3, 226, 113, 0, 1637, 1638, 5, 13, 0, 0,
-		1638, 1640, 3, 226, 113, 0, 1639, 1637, 1, 0, 0, 0, 1639, 1640, 1, 0, 0,
-		0, 1640, 1642, 1, 0, 0, 0, 1641, 1643, 5, 50, 0, 0, 1642, 1641, 1, 0, 0,
-		0, 1642, 1643, 1, 0, 0, 0, 1643, 301, 1, 0, 0, 0, 1644, 1645, 5, 6, 0,
-		0, 1645, 1646, 3, 246, 123, 0, 1646, 1647, 5, 27, 0, 0, 1647, 1652, 3,
-		304, 152, 0, 1648, 1649, 5, 50, 0, 0, 1649, 1651, 3, 304, 152, 0, 1650,
-		1648, 1, 0, 0, 0, 1651, 1654, 1, 0, 0, 0, 1652, 1650, 1, 0, 0, 0, 1652,
-		1653, 1, 0, 0, 0, 1653, 1658, 1, 0, 0, 0, 1654, 1652, 1, 0, 0, 0, 1655,
-		1656, 5, 50, 0, 0, 1656, 1657, 5, 13, 0, 0, 1657, 1659, 3, 296, 148, 0,
-		1658, 1655, 1, 0, 0, 0, 1658, 1659, 1, 0, 0, 0, 1659, 1661, 1, 0, 0, 0,
-		1660, 1662, 5, 50, 0, 0, 1661, 1660, 1, 0, 0, 0, 1661, 1662, 1, 0, 0, 0,
-		1662, 1663, 1, 0, 0, 0, 1663, 1664, 5, 14, 0, 0, 1664, 303, 1, 0, 0, 0,
-		1665, 1666, 3, 220, 110, 0, 1666, 1667, 5, 51, 0, 0, 1667, 1668, 3, 226,
-		113, 0, 1668, 305, 1, 0, 0, 0, 1669, 1673, 3, 308, 154, 0, 1670, 1673,
-		3, 310, 155, 0, 1671, 1673, 3, 312, 156, 0, 1672, 1669, 1, 0, 0, 0, 1672,
-		1670, 1, 0, 0, 0, 1672, 1671, 1, 0, 0, 0, 1673, 307, 1, 0, 0, 0, 1674,
-		1675, 5, 42, 0, 0, 1675, 1676, 3, 246, 123, 0, 1676, 1677, 5, 11, 0, 0,
-		1677, 1678, 3, 226, 113, 0, 1678, 309, 1, 0, 0, 0, 1679, 1680, 5, 35, 0,
-		0, 1680, 1681, 3, 296, 148, 0, 1681, 1682, 5, 40, 0, 0, 1682, 1683, 3,
-		246, 123, 0, 1683, 311, 1, 0, 0, 0, 1684, 1686, 5, 16, 0, 0, 1685, 1687,
-		5, 41, 0, 0, 1686, 1685, 1, 0, 0, 0, 1686, 1687, 1, 0, 0, 0, 1687, 1688,
-		1, 0, 0, 0, 1688, 1689, 3, 14, 7, 0, 1689, 1690, 5, 48, 0, 0, 1690, 1691,
-		3, 314, 157, 0, 1691, 1692, 5, 11, 0, 0, 1692, 1693, 3, 226, 113, 0, 1693,
-		1705, 1, 0, 0, 0, 1694, 1696, 5, 16, 0, 0, 1695, 1697, 5, 41, 0, 0, 1696,
-		1695, 1, 0, 0, 0, 1696, 1697, 1, 0, 0, 0, 1697, 1698, 1, 0, 0, 0, 1698,
-		1699, 3, 14, 7, 0, 1699, 1700, 5, 21, 0, 0, 1700, 1701, 3, 246, 123, 0,
-		1701, 1702, 5, 11, 0, 0, 1702, 1703, 3, 226, 113, 0, 1703, 1705, 1, 0,
-		0, 0, 1704, 1684, 1, 0, 0, 0, 1704, 1694, 1, 0, 0, 0, 1705, 313, 1, 0,
-		0, 0, 1706, 1707, 3, 316, 158, 0, 1707, 1708, 7, 13, 0, 0, 1708, 1709,
-		3, 318, 159, 0, 1709, 315, 1, 0, 0, 0, 1710, 1711, 3, 246, 123, 0, 1711,
-		317, 1, 0, 0, 0, 1712, 1713, 3, 246, 123, 0, 1713, 319, 1, 0, 0, 0, 1714,
-		1715, 5, 43, 0, 0, 1715, 1716, 3, 326, 163, 0, 1716, 1717, 5, 11, 0, 0,
-		1717, 1718, 3, 226, 113, 0, 1718, 1725, 1, 0, 0, 0, 1719, 1720, 5, 43,
-		0, 0, 1720, 1721, 3, 246, 123, 0, 1721, 1722, 5, 11, 0, 0, 1722, 1723,
-		3, 226, 113, 0, 1723, 1725, 1, 0, 0, 0, 1724, 1714, 1, 0, 0, 0, 1724, 1719,
-		1, 0, 0, 0, 1725, 321, 1, 0, 0, 0, 1726, 1727, 5, 90, 0, 0, 1727, 1728,
-		3, 296, 148, 0, 1728, 1729, 5, 92, 0, 0, 1729, 1730, 3, 296, 148, 0, 1730,
-		1731, 5, 14, 0, 0, 1731, 323, 1, 0, 0, 0, 1732, 1733, 5, 90, 0, 0, 1733,
-		1734, 3, 296, 148, 0, 1734, 1735, 5, 91, 0, 0, 1735, 1736, 3, 296, 148,
-		0, 1736, 1737, 5, 14, 0, 0, 1737, 325, 1, 0, 0, 0, 1738, 1743, 3, 240,
-		120, 0, 1739, 1740, 5, 49, 0, 0, 1740, 1742, 3, 240, 120, 0, 1741, 1739,
-		1, 0, 0, 0, 1742, 1745, 1, 0, 0, 0, 1743, 1741, 1, 0, 0, 0, 1743, 1744,
-		1, 0, 0, 0, 1744, 327, 1, 0, 0, 0, 1745, 1743, 1, 0, 0, 0, 1746, 1747,
-		5, 60, 0, 0, 1747, 1748, 3, 330, 165, 0, 1748, 1749, 5, 62, 0, 0, 1749,
-		329, 1, 0, 0, 0, 1750, 1755, 3, 332, 166, 0, 1751, 1752, 5, 49, 0, 0, 1752,
-		1754, 3, 332, 166, 0, 1753, 1751, 1, 0, 0, 0, 1754, 1757, 1, 0, 0, 0, 1755,
-		1753, 1, 0, 0, 0, 1755, 1756, 1, 0, 0, 0, 1756, 331, 1, 0, 0, 0, 1757,
-		1755, 1, 0, 0, 0, 1758, 1763, 3, 14, 7, 0, 1759, 1760, 5, 58, 0, 0, 1760,
-		1761, 3, 268, 134, 0, 1761, 1762, 5, 59, 0, 0, 1762, 1764, 1, 0, 0, 0,
-		1763, 1759, 1, 0, 0, 0, 1763, 1764, 1, 0, 0, 0, 1764, 333, 1, 0, 0, 0,
-		196, 336, 344, 348, 362, 365, 368, 376, 382, 397, 402, 410, 412, 426, 428,
+		0, 0, 0, 1554, 275, 1, 0, 0, 0, 1555, 1561, 3, 14, 7, 0, 1556, 1558, 5,
+		58, 0, 0, 1557, 1559, 3, 268, 134, 0, 1558, 1557, 1, 0, 0, 0, 1558, 1559,
+		1, 0, 0, 0, 1559, 1560, 1, 0, 0, 0, 1560, 1562, 5, 59, 0, 0, 1561, 1556,
+		1, 0, 0, 0, 1561, 1562, 1, 0, 0, 0, 1562, 277, 1, 0, 0, 0, 1563, 1568,
+		3, 240, 120, 0, 1564, 1565, 5, 66, 0, 0, 1565, 1567, 3, 240, 120, 0, 1566,
+		1564, 1, 0, 0, 0, 1567, 1570, 1, 0, 0, 0, 1568, 1566, 1, 0, 0, 0, 1568,
+		1569, 1, 0, 0, 0, 1569, 1571, 1, 0, 0, 0, 1570, 1568, 1, 0, 0, 0, 1571,
+		1572, 5, 66, 0, 0, 1572, 1577, 3, 14, 7, 0, 1573, 1574, 5, 58, 0, 0, 1574,
+		1575, 3, 268, 134, 0, 1575, 1576, 5, 59, 0, 0, 1576, 1578, 1, 0, 0, 0,
+		1577, 1573, 1, 0, 0, 0, 1577, 1578, 1, 0, 0, 0, 1578, 279, 1, 0, 0, 0,
+		1579, 1583, 3, 246, 123, 0, 1580, 1582, 3, 282, 141, 0, 1581, 1580, 1,
+		0, 0, 0, 1582, 1585, 1, 0, 0, 0, 1583, 1581, 1, 0, 0, 0, 1583, 1584, 1,
+		0, 0, 0, 1584, 1589, 1, 0, 0, 0, 1585, 1583, 1, 0, 0, 0, 1586, 1589, 3,
+		200, 100, 0, 1587, 1589, 3, 202, 101, 0, 1588, 1579, 1, 0, 0, 0, 1588,
+		1586, 1, 0, 0, 0, 1588, 1587, 1, 0, 0, 0, 1589, 281, 1, 0, 0, 0, 1590,
+		1591, 5, 51, 0, 0, 1591, 1592, 3, 246, 123, 0, 1592, 283, 1, 0, 0, 0, 1593,
+		1594, 5, 18, 0, 0, 1594, 1595, 3, 28, 14, 0, 1595, 285, 1, 0, 0, 0, 1596,
+		1604, 5, 96, 0, 0, 1597, 1602, 3, 14, 7, 0, 1598, 1599, 5, 58, 0, 0, 1599,
+		1600, 3, 268, 134, 0, 1600, 1601, 5, 59, 0, 0, 1601, 1603, 1, 0, 0, 0,
+		1602, 1598, 1, 0, 0, 0, 1602, 1603, 1, 0, 0, 0, 1603, 1605, 1, 0, 0, 0,
+		1604, 1597, 1, 0, 0, 0, 1604, 1605, 1, 0, 0, 0, 1605, 287, 1, 0, 0, 0,
+		1606, 1607, 1, 0, 0, 0, 1607, 289, 1, 0, 0, 0, 1608, 1609, 1, 0, 0, 0,
+		1609, 291, 1, 0, 0, 0, 1610, 1617, 3, 294, 147, 0, 1611, 1617, 3, 298,
+		149, 0, 1612, 1617, 3, 306, 153, 0, 1613, 1617, 3, 320, 160, 0, 1614, 1617,
+		3, 322, 161, 0, 1615, 1617, 3, 324, 162, 0, 1616, 1610, 1, 0, 0, 0, 1616,
+		1611, 1, 0, 0, 0, 1616, 1612, 1, 0, 0, 0, 1616, 1613, 1, 0, 0, 0, 1616,
+		1614, 1, 0, 0, 0, 1616, 1615, 1, 0, 0, 0, 1617, 293, 1, 0, 0, 0, 1618,
+		1619, 5, 4, 0, 0, 1619, 1620, 3, 296, 148, 0, 1620, 1621, 5, 14, 0, 0,
+		1621, 295, 1, 0, 0, 0, 1622, 1627, 3, 226, 113, 0, 1623, 1624, 5, 50, 0,
+		0, 1624, 1626, 3, 226, 113, 0, 1625, 1623, 1, 0, 0, 0, 1626, 1629, 1, 0,
+		0, 0, 1627, 1625, 1, 0, 0, 0, 1627, 1628, 1, 0, 0, 0, 1628, 297, 1, 0,
+		0, 0, 1629, 1627, 1, 0, 0, 0, 1630, 1633, 3, 300, 150, 0, 1631, 1633, 3,
+		302, 151, 0, 1632, 1630, 1, 0, 0, 0, 1632, 1631, 1, 0, 0, 0, 1633, 299,
+		1, 0, 0, 0, 1634, 1635, 5, 20, 0, 0, 1635, 1636, 3, 246, 123, 0, 1636,
+		1637, 5, 37, 0, 0, 1637, 1640, 3, 226, 113, 0, 1638, 1639, 5, 13, 0, 0,
+		1639, 1641, 3, 226, 113, 0, 1640, 1638, 1, 0, 0, 0, 1640, 1641, 1, 0, 0,
+		0, 1641, 1643, 1, 0, 0, 0, 1642, 1644, 5, 50, 0, 0, 1643, 1642, 1, 0, 0,
+		0, 1643, 1644, 1, 0, 0, 0, 1644, 301, 1, 0, 0, 0, 1645, 1646, 5, 6, 0,
+		0, 1646, 1647, 3, 246, 123, 0, 1647, 1648, 5, 27, 0, 0, 1648, 1653, 3,
+		304, 152, 0, 1649, 1650, 5, 50, 0, 0, 1650, 1652, 3, 304, 152, 0, 1651,
+		1649, 1, 0, 0, 0, 1652, 1655, 1, 0, 0, 0, 1653, 1651, 1, 0, 0, 0, 1653,
+		1654, 1, 0, 0, 0, 1654, 1659, 1, 0, 0, 0, 1655, 1653, 1, 0, 0, 0, 1656,
+		1657, 5, 50, 0, 0, 1657, 1658, 5, 13, 0, 0, 1658, 1660, 3, 296, 148, 0,
+		1659, 1656, 1, 0, 0, 0, 1659, 1660, 1, 0, 0, 0, 1660, 1662, 1, 0, 0, 0,
+		1661, 1663, 5, 50, 0, 0, 1662, 1661, 1, 0, 0, 0, 1662, 1663, 1, 0, 0, 0,
+		1663, 1664, 1, 0, 0, 0, 1664, 1665, 5, 14, 0, 0, 1665, 303, 1, 0, 0, 0,
+		1666, 1667, 3, 220, 110, 0, 1667, 1668, 5, 51, 0, 0, 1668, 1669, 3, 226,
+		113, 0, 1669, 305, 1, 0, 0, 0, 1670, 1674, 3, 308, 154, 0, 1671, 1674,
+		3, 310, 155, 0, 1672, 1674, 3, 312, 156, 0, 1673, 1670, 1, 0, 0, 0, 1673,
+		1671, 1, 0, 0, 0, 1673, 1672, 1, 0, 0, 0, 1674, 307, 1, 0, 0, 0, 1675,
+		1676, 5, 42, 0, 0, 1676, 1677, 3, 246, 123, 0, 1677, 1678, 5, 11, 0, 0,
+		1678, 1679, 3, 226, 113, 0, 1679, 309, 1, 0, 0, 0, 1680, 1681, 5, 35, 0,
+		0, 1681, 1682, 3, 296, 148, 0, 1682, 1683, 5, 40, 0, 0, 1683, 1684, 3,
+		246, 123, 0, 1684, 311, 1, 0, 0, 0, 1685, 1687, 5, 16, 0, 0, 1686, 1688,
+		5, 41, 0, 0, 1687, 1686, 1, 0, 0, 0, 1687, 1688, 1, 0, 0, 0, 1688, 1689,
+		1, 0, 0, 0, 1689, 1690, 3, 14, 7, 0, 1690, 1691, 5, 48, 0, 0, 1691, 1692,
+		3, 314, 157, 0, 1692, 1693, 5, 11, 0, 0, 1693, 1694, 3, 226, 113, 0, 1694,
+		1706, 1, 0, 0, 0, 1695, 1697, 5, 16, 0, 0, 1696, 1698, 5, 41, 0, 0, 1697,
+		1696, 1, 0, 0, 0, 1697, 1698, 1, 0, 0, 0, 1698, 1699, 1, 0, 0, 0, 1699,
+		1700, 3, 14, 7, 0, 1700, 1701, 5, 21, 0, 0, 1701, 1702, 3, 246, 123, 0,
+		1702, 1703, 5, 11, 0, 0, 1703, 1704, 3, 226, 113, 0, 1704, 1706, 1, 0,
+		0, 0, 1705, 1685, 1, 0, 0, 0, 1705, 1695, 1, 0, 0, 0, 1706, 313, 1, 0,
+		0, 0, 1707, 1708, 3, 316, 158, 0, 1708, 1709, 7, 13, 0, 0, 1709, 1710,
+		3, 318, 159, 0, 1710, 315, 1, 0, 0, 0, 1711, 1712, 3, 246, 123, 0, 1712,
+		317, 1, 0, 0, 0, 1713, 1714, 3, 246, 123, 0, 1714, 319, 1, 0, 0, 0, 1715,
+		1716, 5, 43, 0, 0, 1716, 1717, 3, 326, 163, 0, 1717, 1718, 5, 11, 0, 0,
+		1718, 1719, 3, 226, 113, 0, 1719, 1726, 1, 0, 0, 0, 1720, 1721, 5, 43,
+		0, 0, 1721, 1722, 3, 246, 123, 0, 1722, 1723, 5, 11, 0, 0, 1723, 1724,
+		3, 226, 113, 0, 1724, 1726, 1, 0, 0, 0, 1725, 1715, 1, 0, 0, 0, 1725, 1720,
+		1, 0, 0, 0, 1726, 321, 1, 0, 0, 0, 1727, 1728, 5, 90, 0, 0, 1728, 1729,
+		3, 296, 148, 0, 1729, 1730, 5, 92, 0, 0, 1730, 1731, 3, 296, 148, 0, 1731,
+		1732, 5, 14, 0, 0, 1732, 323, 1, 0, 0, 0, 1733, 1734, 5, 90, 0, 0, 1734,
+		1735, 3, 296, 148, 0, 1735, 1736, 5, 91, 0, 0, 1736, 1737, 3, 296, 148,
+		0, 1737, 1738, 5, 14, 0, 0, 1738, 325, 1, 0, 0, 0, 1739, 1744, 3, 240,
+		120, 0, 1740, 1741, 5, 49, 0, 0, 1741, 1743, 3, 240, 120, 0, 1742, 1740,
+		1, 0, 0, 0, 1743, 1746, 1, 0, 0, 0, 1744, 1742, 1, 0, 0, 0, 1744, 1745,
+		1, 0, 0, 0, 1745, 327, 1, 0, 0, 0, 1746, 1744, 1, 0, 0, 0, 1747, 1748,
+		5, 60, 0, 0, 1748, 1749, 3, 330, 165, 0, 1749, 1750, 5, 62, 0, 0, 1750,
+		329, 1, 0, 0, 0, 1751, 1756, 3, 332, 166, 0, 1752, 1753, 5, 49, 0, 0, 1753,
+		1755, 3, 332, 166, 0, 1754, 1752, 1, 0, 0, 0, 1755, 1758, 1, 0, 0, 0, 1756,
+		1754, 1, 0, 0, 0, 1756, 1757, 1, 0, 0, 0, 1757, 331, 1, 0, 0, 0, 1758,
+		1756, 1, 0, 0, 0, 1759, 1764, 3, 14, 7, 0, 1760, 1761, 5, 58, 0, 0, 1761,
+		1762, 3, 268, 134, 0, 1762, 1763, 5, 59, 0, 0, 1763, 1765, 1, 0, 0, 0,
+		1764, 1760, 1, 0, 0, 0, 1764, 1765, 1, 0, 0, 0, 1765, 333, 1, 0, 0, 0,
+		197, 336, 344, 348, 362, 365, 368, 376, 382, 397, 402, 410, 412, 426, 428,
 		436, 438, 451, 464, 469, 480, 504, 508, 511, 519, 526, 539, 546, 553, 566,
 		569, 578, 582, 588, 596, 602, 606, 610, 617, 620, 634, 637, 643, 652, 656,
 		660, 665, 671, 677, 681, 694, 699, 708, 711, 719, 730, 735, 740, 745, 750,
@@ -963,9 +964,9 @@ func pascalParserInit() {
 		1240, 1244, 1249, 1252, 1259, 1267, 1283, 1288, 1292, 1303, 1313, 1317,
 		1323, 1327, 1333, 1341, 1352, 1362, 1364, 1366, 1380, 1387, 1398, 1403,
 		1409, 1417, 1425, 1430, 1436, 1443, 1455, 1462, 1467, 1473, 1482, 1492,
-		1494, 1496, 1504, 1509, 1512, 1519, 1526, 1537, 1544, 1548, 1553, 1560,
-		1567, 1576, 1582, 1587, 1601, 1603, 1615, 1626, 1631, 1639, 1642, 1652,
-		1658, 1661, 1672, 1686, 1696, 1704, 1724, 1743, 1755, 1763,
+		1494, 1496, 1504, 1509, 1512, 1519, 1526, 1537, 1544, 1548, 1553, 1558,
+		1561, 1568, 1577, 1583, 1588, 1602, 1604, 1616, 1627, 1632, 1640, 1643,
+		1653, 1659, 1662, 1673, 1687, 1697, 1705, 1725, 1744, 1756, 1764,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -29097,8 +29098,8 @@ type IProcedureStatementContext interface {
 	// Getter signatures
 	Identifier() IIdentifierContext
 	LPAREN() antlr.TerminalNode
-	ParameterList() IParameterListContext
 	RPAREN() antlr.TerminalNode
+	ParameterList() IParameterListContext
 
 	// IsProcedureStatementContext differentiates from other interfaces.
 	IsProcedureStatementContext()
@@ -29156,6 +29157,10 @@ func (s *ProcedureStatementContext) LPAREN() antlr.TerminalNode {
 	return s.GetToken(pascalParserLPAREN, 0)
 }
 
+func (s *ProcedureStatementContext) RPAREN() antlr.TerminalNode {
+	return s.GetToken(pascalParserRPAREN, 0)
+}
+
 func (s *ProcedureStatementContext) ParameterList() IParameterListContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
@@ -29170,10 +29175,6 @@ func (s *ProcedureStatementContext) ParameterList() IParameterListContext {
 	}
 
 	return t.(IParameterListContext)
-}
-
-func (s *ProcedureStatementContext) RPAREN() antlr.TerminalNode {
-	return s.GetToken(pascalParserRPAREN, 0)
 }
 
 func (s *ProcedureStatementContext) GetRuleContext() antlr.RuleContext {
@@ -29216,7 +29217,7 @@ func (p *pascalParser) ProcedureStatement() (localctx IProcedureStatementContext
 		p.SetState(1555)
 		p.Identifier()
 	}
-	p.SetState(1560)
+	p.SetState(1561)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -29232,12 +29233,22 @@ func (p *pascalParser) ProcedureStatement() (localctx IProcedureStatementContext
 				goto errorExit
 			}
 		}
-		{
-			p.SetState(1557)
-			p.ParameterList()
+		p.SetState(1558)
+		p.GetErrorHandler().Sync(p)
+		if p.HasError() {
+			goto errorExit
+		}
+		_la = p.GetTokenStream().LA(1)
+
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&3747047672004084136) != 0) || ((int64((_la-65)) & ^0x3f) == 0 && ((int64(1)<<(_la-65))&9083197500616084737) != 0) {
+			{
+				p.SetState(1557)
+				p.ParameterList()
+			}
+
 		}
 		{
-			p.SetState(1558)
+			p.SetState(1560)
 			p.Match(pascalParserRPAREN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -29441,22 +29452,22 @@ func (p *pascalParser) MethodCallStatement() (localctx IMethodCallStatementConte
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1562)
+		p.SetState(1563)
 		p.VariableDesignator()
 	}
-	p.SetState(1567)
+	p.SetState(1568)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 174, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 175, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(1563)
+				p.SetState(1564)
 				p.Match(pascalParserDOT)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -29464,23 +29475,23 @@ func (p *pascalParser) MethodCallStatement() (localctx IMethodCallStatementConte
 				}
 			}
 			{
-				p.SetState(1564)
+				p.SetState(1565)
 				p.VariableDesignator()
 			}
 
 		}
-		p.SetState(1569)
+		p.SetState(1570)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 174, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 175, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
 	}
 	{
-		p.SetState(1570)
+		p.SetState(1571)
 		p.Match(pascalParserDOT)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -29488,10 +29499,10 @@ func (p *pascalParser) MethodCallStatement() (localctx IMethodCallStatementConte
 		}
 	}
 	{
-		p.SetState(1571)
+		p.SetState(1572)
 		p.Identifier()
 	}
-	p.SetState(1576)
+	p.SetState(1577)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -29500,7 +29511,7 @@ func (p *pascalParser) MethodCallStatement() (localctx IMethodCallStatementConte
 
 	if _la == pascalParserLPAREN {
 		{
-			p.SetState(1572)
+			p.SetState(1573)
 			p.Match(pascalParserLPAREN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -29508,11 +29519,11 @@ func (p *pascalParser) MethodCallStatement() (localctx IMethodCallStatementConte
 			}
 		}
 		{
-			p.SetState(1573)
+			p.SetState(1574)
 			p.ParameterList()
 		}
 		{
-			p.SetState(1574)
+			p.SetState(1575)
 			p.Match(pascalParserRPAREN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -29709,20 +29720,20 @@ func (p *pascalParser) ActualParameter() (localctx IActualParameterContext) {
 	p.EnterRule(localctx, 280, pascalParserRULE_actualParameter)
 	var _la int
 
-	p.SetState(1587)
+	p.SetState(1588)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 177, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 178, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1578)
+			p.SetState(1579)
 			p.Expression()
 		}
-		p.SetState(1582)
+		p.SetState(1583)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -29731,11 +29742,11 @@ func (p *pascalParser) ActualParameter() (localctx IActualParameterContext) {
 
 		for _la == pascalParserCOLON {
 			{
-				p.SetState(1579)
+				p.SetState(1580)
 				p.Parameterwidth()
 			}
 
-			p.SetState(1584)
+			p.SetState(1585)
 			p.GetErrorHandler().Sync(p)
 			if p.HasError() {
 				goto errorExit
@@ -29746,14 +29757,14 @@ func (p *pascalParser) ActualParameter() (localctx IActualParameterContext) {
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1585)
+			p.SetState(1586)
 			p.ProcedureLambdaDeclaration()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(1586)
+			p.SetState(1587)
 			p.FunctionLambdaDeclaration()
 		}
 
@@ -29876,7 +29887,7 @@ func (p *pascalParser) Parameterwidth() (localctx IParameterwidthContext) {
 	p.EnterRule(localctx, 282, pascalParserRULE_parameterwidth)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1589)
+		p.SetState(1590)
 		p.Match(pascalParserCOLON)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -29884,7 +29895,7 @@ func (p *pascalParser) Parameterwidth() (localctx IParameterwidthContext) {
 		}
 	}
 	{
-		p.SetState(1590)
+		p.SetState(1591)
 		p.Expression()
 	}
 
@@ -30003,7 +30014,7 @@ func (p *pascalParser) GotoStatement() (localctx IGotoStatementContext) {
 	p.EnterRule(localctx, 284, pascalParserRULE_gotoStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1592)
+		p.SetState(1593)
 		p.Match(pascalParserGOTO)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -30011,7 +30022,7 @@ func (p *pascalParser) GotoStatement() (localctx IGotoStatementContext) {
 		}
 	}
 	{
-		p.SetState(1593)
+		p.SetState(1594)
 		p.Label()
 	}
 
@@ -30159,14 +30170,14 @@ func (p *pascalParser) InheritedStatement() (localctx IInheritedStatementContext
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1595)
+		p.SetState(1596)
 		p.Match(pascalParserINHERITED)
 		if p.HasError() {
 			// Recognition error - abort rule
 			goto errorExit
 		}
 	}
-	p.SetState(1603)
+	p.SetState(1604)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -30175,10 +30186,10 @@ func (p *pascalParser) InheritedStatement() (localctx IInheritedStatementContext
 
 	if (int64((_la-85)) & ^0x3f) == 0 && ((int64(1)<<(_la-85))&137438953483) != 0 {
 		{
-			p.SetState(1596)
+			p.SetState(1597)
 			p.Identifier()
 		}
-		p.SetState(1601)
+		p.SetState(1602)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -30187,7 +30198,7 @@ func (p *pascalParser) InheritedStatement() (localctx IInheritedStatementContext
 
 		if _la == pascalParserLPAREN {
 			{
-				p.SetState(1597)
+				p.SetState(1598)
 				p.Match(pascalParserLPAREN)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -30195,11 +30206,11 @@ func (p *pascalParser) InheritedStatement() (localctx IInheritedStatementContext
 				}
 			}
 			{
-				p.SetState(1598)
+				p.SetState(1599)
 				p.ParameterList()
 			}
 			{
-				p.SetState(1599)
+				p.SetState(1600)
 				p.Match(pascalParserRPAREN)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -30582,52 +30593,52 @@ func (s *StructuredStatementContext) Accept(visitor antlr.ParseTreeVisitor) inte
 func (p *pascalParser) StructuredStatement() (localctx IStructuredStatementContext) {
 	localctx = NewStructuredStatementContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 292, pascalParserRULE_structuredStatement)
-	p.SetState(1615)
+	p.SetState(1616)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 180, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 181, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1609)
+			p.SetState(1610)
 			p.CompoundStatement()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1610)
+			p.SetState(1611)
 			p.ConditionalStatement()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(1611)
+			p.SetState(1612)
 			p.RepetetiveStatement()
 		}
 
 	case 4:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(1612)
+			p.SetState(1613)
 			p.WithStatement()
 		}
 
 	case 5:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(1613)
+			p.SetState(1614)
 			p.TryExceptStatement()
 		}
 
 	case 6:
 		p.EnterOuterAlt(localctx, 6)
 		{
-			p.SetState(1614)
+			p.SetState(1615)
 			p.TryFinallyStatement()
 		}
 
@@ -30755,7 +30766,7 @@ func (p *pascalParser) CompoundStatement() (localctx ICompoundStatementContext) 
 	p.EnterRule(localctx, 294, pascalParserRULE_compoundStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1617)
+		p.SetState(1618)
 		p.Match(pascalParserBEGIN)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -30763,11 +30774,11 @@ func (p *pascalParser) CompoundStatement() (localctx ICompoundStatementContext) 
 		}
 	}
 	{
-		p.SetState(1618)
+		p.SetState(1619)
 		p.Statements()
 	}
 	{
-		p.SetState(1619)
+		p.SetState(1620)
 		p.Match(pascalParserEND)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -30923,22 +30934,22 @@ func (p *pascalParser) Statements() (localctx IStatementsContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1621)
+		p.SetState(1622)
 		p.Statement()
 	}
-	p.SetState(1626)
+	p.SetState(1627)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 181, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 182, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(1622)
+				p.SetState(1623)
 				p.Match(pascalParserSEMI)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -30946,17 +30957,17 @@ func (p *pascalParser) Statements() (localctx IStatementsContext) {
 				}
 			}
 			{
-				p.SetState(1623)
+				p.SetState(1624)
 				p.Statement()
 			}
 
 		}
-		p.SetState(1628)
+		p.SetState(1629)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 181, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 182, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
@@ -31087,7 +31098,7 @@ func (s *ConditionalStatementContext) Accept(visitor antlr.ParseTreeVisitor) int
 func (p *pascalParser) ConditionalStatement() (localctx IConditionalStatementContext) {
 	localctx = NewConditionalStatementContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 298, pascalParserRULE_conditionalStatement)
-	p.SetState(1631)
+	p.SetState(1632)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -31097,14 +31108,14 @@ func (p *pascalParser) ConditionalStatement() (localctx IConditionalStatementCon
 	case pascalParserIF:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1629)
+			p.SetState(1630)
 			p.IfStatement()
 		}
 
 	case pascalParserCASE:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1630)
+			p.SetState(1631)
 			p.CaseStatement()
 		}
 
@@ -31286,7 +31297,7 @@ func (p *pascalParser) IfStatement() (localctx IIfStatementContext) {
 	p.EnterRule(localctx, 300, pascalParserRULE_ifStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1633)
+		p.SetState(1634)
 		p.Match(pascalParserIF)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31294,11 +31305,11 @@ func (p *pascalParser) IfStatement() (localctx IIfStatementContext) {
 		}
 	}
 	{
-		p.SetState(1634)
+		p.SetState(1635)
 		p.Expression()
 	}
 	{
-		p.SetState(1635)
+		p.SetState(1636)
 		p.Match(pascalParserTHEN)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31306,15 +31317,15 @@ func (p *pascalParser) IfStatement() (localctx IIfStatementContext) {
 		}
 	}
 	{
-		p.SetState(1636)
+		p.SetState(1637)
 		p.Statement()
 	}
-	p.SetState(1639)
+	p.SetState(1640)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 183, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 184, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(1637)
+			p.SetState(1638)
 			p.Match(pascalParserELSE)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -31322,19 +31333,19 @@ func (p *pascalParser) IfStatement() (localctx IIfStatementContext) {
 			}
 		}
 		{
-			p.SetState(1638)
+			p.SetState(1639)
 			p.Statement()
 		}
 
 	} else if p.HasError() { // JIM
 		goto errorExit
 	}
-	p.SetState(1642)
+	p.SetState(1643)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 184, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 185, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(1641)
+			p.SetState(1642)
 			p.Match(pascalParserSEMI)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -31550,7 +31561,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1644)
+		p.SetState(1645)
 		p.Match(pascalParserCASE)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31558,11 +31569,11 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 		}
 	}
 	{
-		p.SetState(1645)
+		p.SetState(1646)
 		p.Expression()
 	}
 	{
-		p.SetState(1646)
+		p.SetState(1647)
 		p.Match(pascalParserOF)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31570,22 +31581,22 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 		}
 	}
 	{
-		p.SetState(1647)
+		p.SetState(1648)
 		p.CaseListElement()
 	}
-	p.SetState(1652)
+	p.SetState(1653)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 185, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 186, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(1648)
+				p.SetState(1649)
 				p.Match(pascalParserSEMI)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -31593,27 +31604,27 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 				}
 			}
 			{
-				p.SetState(1649)
+				p.SetState(1650)
 				p.CaseListElement()
 			}
 
 		}
-		p.SetState(1654)
+		p.SetState(1655)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 185, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 186, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
 	}
-	p.SetState(1658)
+	p.SetState(1659)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 186, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 187, p.GetParserRuleContext()) == 1 {
 		{
-			p.SetState(1655)
+			p.SetState(1656)
 			p.Match(pascalParserSEMI)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -31621,7 +31632,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 			}
 		}
 		{
-			p.SetState(1656)
+			p.SetState(1657)
 			p.Match(pascalParserELSE)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -31629,14 +31640,14 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 			}
 		}
 		{
-			p.SetState(1657)
+			p.SetState(1658)
 			p.Statements()
 		}
 
 	} else if p.HasError() { // JIM
 		goto errorExit
 	}
-	p.SetState(1661)
+	p.SetState(1662)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -31645,7 +31656,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 
 	if _la == pascalParserSEMI {
 		{
-			p.SetState(1660)
+			p.SetState(1661)
 			p.Match(pascalParserSEMI)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -31655,7 +31666,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 
 	}
 	{
-		p.SetState(1663)
+		p.SetState(1664)
 		p.Match(pascalParserEND)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31795,11 +31806,11 @@ func (p *pascalParser) CaseListElement() (localctx ICaseListElementContext) {
 	p.EnterRule(localctx, 304, pascalParserRULE_caseListElement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1665)
+		p.SetState(1666)
 		p.ConstList()
 	}
 	{
-		p.SetState(1666)
+		p.SetState(1667)
 		p.Match(pascalParserCOLON)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -31807,7 +31818,7 @@ func (p *pascalParser) CaseListElement() (localctx ICaseListElementContext) {
 		}
 	}
 	{
-		p.SetState(1667)
+		p.SetState(1668)
 		p.Statement()
 	}
 
@@ -31953,7 +31964,7 @@ func (s *RepetetiveStatementContext) Accept(visitor antlr.ParseTreeVisitor) inte
 func (p *pascalParser) RepetetiveStatement() (localctx IRepetetiveStatementContext) {
 	localctx = NewRepetetiveStatementContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 306, pascalParserRULE_repetetiveStatement)
-	p.SetState(1672)
+	p.SetState(1673)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -31963,21 +31974,21 @@ func (p *pascalParser) RepetetiveStatement() (localctx IRepetetiveStatementConte
 	case pascalParserWHILE:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1669)
+			p.SetState(1670)
 			p.WhileStatement()
 		}
 
 	case pascalParserREPEAT:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1670)
+			p.SetState(1671)
 			p.RepeatStatement()
 		}
 
 	case pascalParserFOR:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(1671)
+			p.SetState(1672)
 			p.ForStatement()
 		}
 
@@ -32123,7 +32134,7 @@ func (p *pascalParser) WhileStatement() (localctx IWhileStatementContext) {
 	p.EnterRule(localctx, 308, pascalParserRULE_whileStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1674)
+		p.SetState(1675)
 		p.Match(pascalParserWHILE)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -32131,11 +32142,11 @@ func (p *pascalParser) WhileStatement() (localctx IWhileStatementContext) {
 		}
 	}
 	{
-		p.SetState(1675)
+		p.SetState(1676)
 		p.Expression()
 	}
 	{
-		p.SetState(1676)
+		p.SetState(1677)
 		p.Match(pascalParserDO)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -32143,7 +32154,7 @@ func (p *pascalParser) WhileStatement() (localctx IWhileStatementContext) {
 		}
 	}
 	{
-		p.SetState(1677)
+		p.SetState(1678)
 		p.Statement()
 	}
 
@@ -32284,7 +32295,7 @@ func (p *pascalParser) RepeatStatement() (localctx IRepeatStatementContext) {
 	p.EnterRule(localctx, 310, pascalParserRULE_repeatStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1679)
+		p.SetState(1680)
 		p.Match(pascalParserREPEAT)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -32292,11 +32303,11 @@ func (p *pascalParser) RepeatStatement() (localctx IRepeatStatementContext) {
 		}
 	}
 	{
-		p.SetState(1680)
+		p.SetState(1681)
 		p.Statements()
 	}
 	{
-		p.SetState(1681)
+		p.SetState(1682)
 		p.Match(pascalParserUNTIL)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -32304,7 +32315,7 @@ func (p *pascalParser) RepeatStatement() (localctx IRepeatStatementContext) {
 		}
 	}
 	{
-		p.SetState(1682)
+		p.SetState(1683)
 		p.Expression()
 	}
 
@@ -32494,24 +32505,24 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 	p.EnterRule(localctx, 312, pascalParserRULE_forStatement)
 	var _la int
 
-	p.SetState(1704)
+	p.SetState(1705)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 191, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 192, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1684)
+			p.SetState(1685)
 			p.Match(pascalParserFOR)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(1686)
+		p.SetState(1687)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -32520,7 +32531,7 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 
 		if _la == pascalParserVAR {
 			{
-				p.SetState(1685)
+				p.SetState(1686)
 				p.Match(pascalParserVAR)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -32530,11 +32541,11 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 
 		}
 		{
-			p.SetState(1688)
+			p.SetState(1689)
 			p.Identifier()
 		}
 		{
-			p.SetState(1689)
+			p.SetState(1690)
 			p.Match(pascalParserASSIGN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -32542,11 +32553,11 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 			}
 		}
 		{
-			p.SetState(1690)
+			p.SetState(1691)
 			p.ForList()
 		}
 		{
-			p.SetState(1691)
+			p.SetState(1692)
 			p.Match(pascalParserDO)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -32554,21 +32565,21 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 			}
 		}
 		{
-			p.SetState(1692)
+			p.SetState(1693)
 			p.Statement()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1694)
+			p.SetState(1695)
 			p.Match(pascalParserFOR)
 			if p.HasError() {
 				// Recognition error - abort rule
 				goto errorExit
 			}
 		}
-		p.SetState(1696)
+		p.SetState(1697)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -32577,7 +32588,7 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 
 		if _la == pascalParserVAR {
 			{
-				p.SetState(1695)
+				p.SetState(1696)
 				p.Match(pascalParserVAR)
 				if p.HasError() {
 					// Recognition error - abort rule
@@ -32587,11 +32598,11 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 
 		}
 		{
-			p.SetState(1698)
+			p.SetState(1699)
 			p.Identifier()
 		}
 		{
-			p.SetState(1699)
+			p.SetState(1700)
 			p.Match(pascalParserIN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -32599,11 +32610,11 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 			}
 		}
 		{
-			p.SetState(1700)
+			p.SetState(1701)
 			p.Expression()
 		}
 		{
-			p.SetState(1701)
+			p.SetState(1702)
 			p.Match(pascalParserDO)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -32611,7 +32622,7 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 			}
 		}
 		{
-			p.SetState(1702)
+			p.SetState(1703)
 			p.Statement()
 		}
 
@@ -32758,11 +32769,11 @@ func (p *pascalParser) ForList() (localctx IForListContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1706)
+		p.SetState(1707)
 		p.InitialValue()
 	}
 	{
-		p.SetState(1707)
+		p.SetState(1708)
 		_la = p.GetTokenStream().LA(1)
 
 		if !(_la == pascalParserDOWNTO || _la == pascalParserTO) {
@@ -32773,7 +32784,7 @@ func (p *pascalParser) ForList() (localctx IForListContext) {
 		}
 	}
 	{
-		p.SetState(1708)
+		p.SetState(1709)
 		p.FinalValue()
 	}
 
@@ -32887,7 +32898,7 @@ func (p *pascalParser) InitialValue() (localctx IInitialValueContext) {
 	p.EnterRule(localctx, 316, pascalParserRULE_initialValue)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1710)
+		p.SetState(1711)
 		p.Expression()
 	}
 
@@ -33001,7 +33012,7 @@ func (p *pascalParser) FinalValue() (localctx IFinalValueContext) {
 	p.EnterRule(localctx, 318, pascalParserRULE_finalValue)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1712)
+		p.SetState(1713)
 		p.Expression()
 	}
 
@@ -33157,17 +33168,17 @@ func (s *WithStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{
 func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 	localctx = NewWithStatementContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 320, pascalParserRULE_withStatement)
-	p.SetState(1724)
+	p.SetState(1725)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 192, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 193, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(1714)
+			p.SetState(1715)
 			p.Match(pascalParserWITH)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -33175,11 +33186,11 @@ func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 			}
 		}
 		{
-			p.SetState(1715)
+			p.SetState(1716)
 			p.WithStatementVariableList()
 		}
 		{
-			p.SetState(1716)
+			p.SetState(1717)
 			p.Match(pascalParserDO)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -33187,14 +33198,14 @@ func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 			}
 		}
 		{
-			p.SetState(1717)
+			p.SetState(1718)
 			p.Statement()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(1719)
+			p.SetState(1720)
 			p.Match(pascalParserWITH)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -33202,11 +33213,11 @@ func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 			}
 		}
 		{
-			p.SetState(1720)
+			p.SetState(1721)
 			p.Expression()
 		}
 		{
-			p.SetState(1721)
+			p.SetState(1722)
 			p.Match(pascalParserDO)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -33214,7 +33225,7 @@ func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 			}
 		}
 		{
-			p.SetState(1722)
+			p.SetState(1723)
 			p.Statement()
 		}
 
@@ -33373,7 +33384,7 @@ func (p *pascalParser) TryExceptStatement() (localctx ITryExceptStatementContext
 	p.EnterRule(localctx, 322, pascalParserRULE_tryExceptStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1726)
+		p.SetState(1727)
 		p.Match(pascalParserTRY)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33381,11 +33392,11 @@ func (p *pascalParser) TryExceptStatement() (localctx ITryExceptStatementContext
 		}
 	}
 	{
-		p.SetState(1727)
+		p.SetState(1728)
 		p.Statements()
 	}
 	{
-		p.SetState(1728)
+		p.SetState(1729)
 		p.Match(pascalParserEXCEPT)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33393,11 +33404,11 @@ func (p *pascalParser) TryExceptStatement() (localctx ITryExceptStatementContext
 		}
 	}
 	{
-		p.SetState(1729)
+		p.SetState(1730)
 		p.Statements()
 	}
 	{
-		p.SetState(1730)
+		p.SetState(1731)
 		p.Match(pascalParserEND)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33556,7 +33567,7 @@ func (p *pascalParser) TryFinallyStatement() (localctx ITryFinallyStatementConte
 	p.EnterRule(localctx, 324, pascalParserRULE_tryFinallyStatement)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1732)
+		p.SetState(1733)
 		p.Match(pascalParserTRY)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33564,11 +33575,11 @@ func (p *pascalParser) TryFinallyStatement() (localctx ITryFinallyStatementConte
 		}
 	}
 	{
-		p.SetState(1733)
+		p.SetState(1734)
 		p.Statements()
 	}
 	{
-		p.SetState(1734)
+		p.SetState(1735)
 		p.Match(pascalParserFINALLY)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33576,11 +33587,11 @@ func (p *pascalParser) TryFinallyStatement() (localctx ITryFinallyStatementConte
 		}
 	}
 	{
-		p.SetState(1735)
+		p.SetState(1736)
 		p.Statements()
 	}
 	{
-		p.SetState(1736)
+		p.SetState(1737)
 		p.Match(pascalParserEND)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33736,10 +33747,10 @@ func (p *pascalParser) WithStatementVariableList() (localctx IWithStatementVaria
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1738)
+		p.SetState(1739)
 		p.VariableDesignator()
 	}
-	p.SetState(1743)
+	p.SetState(1744)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -33748,7 +33759,7 @@ func (p *pascalParser) WithStatementVariableList() (localctx IWithStatementVaria
 
 	for _la == pascalParserCOMMA {
 		{
-			p.SetState(1739)
+			p.SetState(1740)
 			p.Match(pascalParserCOMMA)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -33756,11 +33767,11 @@ func (p *pascalParser) WithStatementVariableList() (localctx IWithStatementVaria
 			}
 		}
 		{
-			p.SetState(1740)
+			p.SetState(1741)
 			p.VariableDesignator()
 		}
 
-		p.SetState(1745)
+		p.SetState(1746)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -33888,7 +33899,7 @@ func (p *pascalParser) AttributeSection() (localctx IAttributeSectionContext) {
 	p.EnterRule(localctx, 328, pascalParserRULE_attributeSection)
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1746)
+		p.SetState(1747)
 		p.Match(pascalParserLBRACK)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -33896,11 +33907,11 @@ func (p *pascalParser) AttributeSection() (localctx IAttributeSectionContext) {
 		}
 	}
 	{
-		p.SetState(1747)
+		p.SetState(1748)
 		p.AttributeList()
 	}
 	{
-		p.SetState(1748)
+		p.SetState(1749)
 		p.Match(pascalParserRBRACK)
 		if p.HasError() {
 			// Recognition error - abort rule
@@ -34056,10 +34067,10 @@ func (p *pascalParser) AttributeList() (localctx IAttributeListContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1750)
+		p.SetState(1751)
 		p.AttributeItem()
 	}
-	p.SetState(1755)
+	p.SetState(1756)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -34068,7 +34079,7 @@ func (p *pascalParser) AttributeList() (localctx IAttributeListContext) {
 
 	for _la == pascalParserCOMMA {
 		{
-			p.SetState(1751)
+			p.SetState(1752)
 			p.Match(pascalParserCOMMA)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -34076,11 +34087,11 @@ func (p *pascalParser) AttributeList() (localctx IAttributeListContext) {
 			}
 		}
 		{
-			p.SetState(1752)
+			p.SetState(1753)
 			p.AttributeItem()
 		}
 
-		p.SetState(1757)
+		p.SetState(1758)
 		p.GetErrorHandler().Sync(p)
 		if p.HasError() {
 			goto errorExit
@@ -34227,10 +34238,10 @@ func (p *pascalParser) AttributeItem() (localctx IAttributeItemContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(1758)
+		p.SetState(1759)
 		p.Identifier()
 	}
-	p.SetState(1763)
+	p.SetState(1764)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -34239,7 +34250,7 @@ func (p *pascalParser) AttributeItem() (localctx IAttributeItemContext) {
 
 	if _la == pascalParserLPAREN {
 		{
-			p.SetState(1759)
+			p.SetState(1760)
 			p.Match(pascalParserLPAREN)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -34247,11 +34258,11 @@ func (p *pascalParser) AttributeItem() (localctx IAttributeItemContext) {
 			}
 		}
 		{
-			p.SetState(1760)
+			p.SetState(1761)
 			p.ParameterList()
 		}
 		{
-			p.SetState(1761)
+			p.SetState(1762)
 			p.Match(pascalParserRPAREN)
 			if p.HasError() {
 				// Recognition error - abort rule

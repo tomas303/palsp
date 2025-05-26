@@ -3,7 +3,8 @@ package discover
 import (
 	"context"
 	"database/sql" // added for formatted strings
-	"os"           // added to read files
+	"errors"
+	"os" // added to read files
 	"palsp/internal/log"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,7 @@ import (
 )
 
 var db *symDB
+var ErrUnitNotFound = errors.New("unit not found")
 
 type symDB struct {
 	db               *sql.DB
@@ -272,7 +274,7 @@ func (db *symDB) SearchSymbol(unit, searchTerm string) ([]Symbol, error) {
 
 	unitID, unitname, err := db.RetriveUnit(unit)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == ErrUnitNotFound {
 			log.Main.Warn().Err(err).Msgf("SearchSymbol error path %s not found", unit)
 			return []Symbol{}, nil
 		}
@@ -335,7 +337,7 @@ func (db *symDB) LocateSymbolsInScope(name string, unit string, scope string, wr
 
 	unitID, _, err := db.RetriveUnit(unit)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == ErrUnitNotFound {
 			return nil
 		}
 		return err
@@ -428,9 +430,12 @@ func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastMod
 		}
 	}
 
-	// If we get here, we couldn't find the unit
-	log.Main.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
-	return 0, "", 0, 0, "", err
+	if err == sql.ErrNoRows {
+		return 0, "", 0, 0, "", ErrUnitNotFound
+	} else {
+		log.Main.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)
+		return 0, "", 0, 0, "", err
+	}
 }
 
 func (db *symDB) fetchSymbolsFromRows(rows *sql.Rows, unitname string) ([]Symbol, error) {

@@ -317,12 +317,14 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 		fieldtype = buildTypeIdentifier(ctx.TypeIdentifier())
 	}
 	if fieldtype == "" {
-		if ctx.Constant().String_() != nil {
-			fieldtype = "string"
-		} else if ctx.Constant().UnsignedNumber() != nil {
-			fieldtype = "integer"
-		} else if ctx.Constant().Sign() != nil {
-			fieldtype = "integer"
+		if ctx.Constant() != nil {
+			if ctx.Constant().String_() != nil {
+				fieldtype = "string"
+			} else if ctx.Constant().UnsignedNumber() != nil {
+				fieldtype = "integer"
+			} else if ctx.Constant().Sign() != nil {
+				fieldtype = "integer"
+			}
 		}
 	}
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, ctxStartPos(ctx.Identifier()))

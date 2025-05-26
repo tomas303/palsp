@@ -191,9 +191,19 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 
 	var locations []interface{}
 	writeSymbol := func(sym *discover.Symbol) error {
-		filePath, err := discover.SymDB().GetUnitPath(sym.Unitname)
+		var filePath string
+		var err error
+		if discover.SymbolKind(sym.Kind) == discover.UnitReference {
+			filePath, err = discover.SymDB().GetUnitPath(sym.Name)
+		} else {
+			filePath, err = discover.SymDB().GetUnitPath(sym.Unitname)
+		}
 		if err != nil {
-			return err
+			if err == discover.ErrUnitNotFound {
+				filePath = ""
+			} else {
+				return err
+			}
 		}
 		location := map[string]interface{}{
 			"uri": discover.FormatFileURI(filePath),

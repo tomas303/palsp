@@ -3,6 +3,7 @@ package discover
 import (
 	"fmt"
 	"os"
+	"palsp/internal/log"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -108,7 +109,8 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 			return text, true
 		}
 	}
-	return "", false
+	log.Main.Debug().Int("line", line).Int("character", character).Msg("no text found on pos line char")
+	return "", true
 }
 
 func (f *FileCacheItem) LocateSymbolsByName(name string, position Position, writer SymbolWriter) error {

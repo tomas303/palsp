@@ -148,6 +148,7 @@ constant
 
 arrayConstant
     : LBRACK constant (COMMA constant)* RBRACK
+    | LPAREN constant (COMMA constant)* RPAREN
     ;
 
 unsignedNumber

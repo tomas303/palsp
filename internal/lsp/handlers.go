@@ -122,17 +122,17 @@ func handleDidClose(params DidCloseTextDocumentParams) edit.OpResult {
 
 // Modified Handle textDocument/completion request
 func handleCompletion(params CompletionParams) edit.OpResult {
-	return edit.GetManager().Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Completion(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character+1)
 }
 
 // Modified Handle textDocument/hover request
 func handleHover(params HoverParams) edit.OpResult {
-	return edit.GetManager().Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Hover(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character+1)
 }
 
 // Modified Handle textDocument/definition request
 func handleDefinition(params DefinitionParams) edit.OpResult {
-	return edit.GetManager().Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character)
+	return edit.GetManager().Definition(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version, params.Position.Line+1, params.Position.Character+1)
 }
 
 // Handle dump definition request

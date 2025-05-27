@@ -41,6 +41,7 @@ type SymbolDatabase interface {
 	LocateSymbolsInScope(name string, unit string, scope string, writer SymbolWriter) error
 	UnscannedUnits() []string
 	DumpDBScopes(unitName string) (string, error)
+	ExecuteSQLQuery(sqlQuery string) (string, error)
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -803,4 +804,92 @@ func (db *symDB) getScopeIndent(scope string) string {
 	}
 	depth := strings.Count(scope, ".") + 1
 	return strings.Repeat("│    ", depth)
+}
+
+// ExecuteSQLQuery executes an arbitrary SQL query and returns the result as formatted text
+func (db *symDB) ExecuteSQLQuery(sqlQuery string) (string, error) {
+	var sb strings.Builder
+
+	// Trim whitespace and check for empty query
+	sqlQuery = strings.TrimSpace(sqlQuery)
+	if sqlQuery == "" {
+		return "Error: Empty SQL query", nil
+	}
+
+	// Execute the query
+	rows, err := db.Query(sqlQuery)
+	if err != nil {
+		return fmt.Sprintf("Error executing query: %v", err), nil
+	}
+	defer rows.Close()
+
+	// Get column names
+	columns, err := rows.Columns()
+	if err != nil {
+		return fmt.Sprintf("Error getting columns: %v", err), nil
+	}
+
+	// Write header
+	sb.WriteString("Query Result:\n")
+	sb.WriteString(strings.Repeat("=", 50) + "\n")
+
+	// Write column headers
+	for i, col := range columns {
+		if i > 0 {
+			sb.WriteString(" | ")
+		}
+		sb.WriteString(fmt.Sprintf("%-15s", col))
+	}
+	sb.WriteString("\n")
+	sb.WriteString(strings.Repeat("-", 15*len(columns)+3*(len(columns)-1)) + "\n")
+
+	// Read and format rows
+	rowCount := 0
+	for rows.Next() {
+		// Create slice to hold column values
+		values := make([]interface{}, len(columns))
+		valuePtrs := make([]interface{}, len(columns))
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
+
+		// Scan the row
+		if err := rows.Scan(valuePtrs...); err != nil {
+			return fmt.Sprintf("Error scanning row: %v", err), nil
+		}
+
+		// Format and write the row
+		for i, val := range values {
+			if i > 0 {
+				sb.WriteString(" | ")
+			}
+
+			// Convert value to string, handling NULL values
+			var strVal string
+			if val == nil {
+				strVal = "NULL"
+			} else {
+				strVal = fmt.Sprintf("%v", val)
+			}
+
+			// Truncate if too long for display
+			if len(strVal) > 15 {
+				strVal = strVal[:12] + "..."
+			}
+
+			sb.WriteString(fmt.Sprintf("%-15s", strVal))
+		}
+		sb.WriteString("\n")
+		rowCount++
+	}
+
+	if err = rows.Err(); err != nil {
+		return fmt.Sprintf("Error iterating rows: %v", err), nil
+	}
+
+	// Write footer with row count
+	sb.WriteString(strings.Repeat("=", 50) + "\n")
+	sb.WriteString(fmt.Sprintf("Rows returned: %d\n", rowCount))
+
+	return sb.String(), nil
 }

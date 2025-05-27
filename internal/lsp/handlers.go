@@ -89,6 +89,13 @@ func handleRequest(request LSPRequest) (response edit.OpResult) {
 		}
 		return handleDumpDBScopes(params)
 
+	case "pascal/executeSQLQuery":
+		var params ExecuteSQLQueryParams
+		if err := json.Unmarshal(request.Params, &params); err != nil {
+			return edit.OpFailure("Invalid params", err)
+		}
+		return handleExecuteSQLQuery(params)
+
 	default:
 		return edit.OpFailure("Method not found", fmt.Errorf("Method %s not found", request.Method))
 	}
@@ -150,4 +157,9 @@ func handleDumpScopes(params DumpScopesParams) edit.OpResult {
 // Handle dump database scopes request
 func handleDumpDBScopes(params DumpDBScopesParams) edit.OpResult {
 	return edit.GetManager().DumpDBScopes(params.TextDocument.URI)
+}
+
+// Handle execute SQL query request
+func handleExecuteSQLQuery(params ExecuteSQLQueryParams) edit.OpResult {
+	return edit.GetManager().ExecuteSQLQuery(params.SQLQuery)
 }

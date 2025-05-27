@@ -161,3 +161,8 @@ type DumpDBScopesParams struct {
 		URI string `json:"uri"`
 	} `json:"textDocument"`
 }
+
+// ExecuteSQLQueryParams structure for the execute SQL query command
+type ExecuteSQLQueryParams struct {
+	SQLQuery string `json:"sqlQuery"`
+}

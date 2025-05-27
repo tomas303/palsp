@@ -248,18 +248,28 @@ func (mgr *Manager) DumpScopes(uri string, text string, version int) OpResult {
 	return OpSuccessWith(DumpScopesResult{Dump: sb.String()})
 }
 
-func (mgr *Manager) DumpDBScopes(uri string) OpResult {
+// DumpDBScopes dumps the database structure for a given unit
+func (m *Manager) DumpDBScopes(uri string) OpResult {
 	// Extract unit name from URI
 	pathElements := discover.DecodePath(uri)
 	unitName := pathElements.Name()
 
-	// Call the database dump method
-	dump, err := discover.SymDB().DumpDBScopes(unitName)
+	result, err := discover.SymDB().DumpDBScopes(unitName)
 	if err != nil {
-		return OpFailure(fmt.Sprintf("unable to dump DB scopes for unit %s", unitName), err)
+		return OpFailure("Failed to dump database scopes", err)
 	}
 
-	return OpSuccessWith(DumpScopesResult{Dump: dump})
+	return OpSuccessWith(DumpScopesResult{Dump: result})
+}
+
+// ExecuteSQLQuery executes an arbitrary SQL query against the database
+func (m *Manager) ExecuteSQLQuery(sqlQuery string) OpResult {
+	result, err := discover.SymDB().ExecuteSQLQuery(sqlQuery)
+	if err != nil {
+		return OpFailure("Failed to execute SQL query", err)
+	}
+
+	return OpSuccessWith(DumpScopesResult{Dump: result})
 }
 
 func (mgr *Manager) getDir(uri string) (string, error) {

@@ -870,6 +870,15 @@ withStatement
 
 tryExceptStatement
     : TRY statements EXCEPT statements END
+    | TRY statements EXCEPT (exceptionCase SEMI)+ exceptionElse? END
+    ;
+
+exceptionCase
+    : ON identifier COLON typeIdentifier DO statements
+    ;
+
+exceptionElse
+    : ELSE statements
     ;
 
 tryFinallyStatement
@@ -1354,6 +1363,10 @@ LONGINT
 
 OPERATOR
     : 'operator'
+    ;
+
+ON
+    : 'ON'
     ;
 
 fragment WHITESPACE

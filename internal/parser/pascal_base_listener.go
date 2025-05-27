@@ -1014,6 +1014,18 @@ func (s *BasepascalListener) EnterTryExceptStatement(ctx *TryExceptStatementCont
 // ExitTryExceptStatement is called when production tryExceptStatement is exited.
 func (s *BasepascalListener) ExitTryExceptStatement(ctx *TryExceptStatementContext) {}
 
+// EnterExceptionCase is called when production exceptionCase is entered.
+func (s *BasepascalListener) EnterExceptionCase(ctx *ExceptionCaseContext) {}
+
+// ExitExceptionCase is called when production exceptionCase is exited.
+func (s *BasepascalListener) ExitExceptionCase(ctx *ExceptionCaseContext) {}
+
+// EnterExceptionElse is called when production exceptionElse is entered.
+func (s *BasepascalListener) EnterExceptionElse(ctx *ExceptionElseContext) {}
+
+// ExitExceptionElse is called when production exceptionElse is exited.
+func (s *BasepascalListener) ExitExceptionElse(ctx *ExceptionElseContext) {}
+
 // EnterTryFinallyStatement is called when production tryFinallyStatement is entered.
 func (s *BasepascalListener) EnterTryFinallyStatement(ctx *TryFinallyStatementContext) {}
 

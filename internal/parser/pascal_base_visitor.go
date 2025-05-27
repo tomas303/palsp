@@ -656,6 +656,14 @@ func (v *BasepascalVisitor) VisitTryExceptStatement(ctx *TryExceptStatementConte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitExceptionCase(ctx *ExceptionCaseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitExceptionElse(ctx *ExceptionElseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitTryFinallyStatement(ctx *TryFinallyStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }

@@ -494,6 +494,12 @@ type pascalListener interface {
 	// EnterTryExceptStatement is called when entering the tryExceptStatement production.
 	EnterTryExceptStatement(c *TryExceptStatementContext)
 
+	// EnterExceptionCase is called when entering the exceptionCase production.
+	EnterExceptionCase(c *ExceptionCaseContext)
+
+	// EnterExceptionElse is called when entering the exceptionElse production.
+	EnterExceptionElse(c *ExceptionElseContext)
+
 	// EnterTryFinallyStatement is called when entering the tryFinallyStatement production.
 	EnterTryFinallyStatement(c *TryFinallyStatementContext)
 
@@ -994,6 +1000,12 @@ type pascalListener interface {
 
 	// ExitTryExceptStatement is called when exiting the tryExceptStatement production.
 	ExitTryExceptStatement(c *TryExceptStatementContext)
+
+	// ExitExceptionCase is called when exiting the exceptionCase production.
+	ExitExceptionCase(c *ExceptionCaseContext)
+
+	// ExitExceptionElse is called when exiting the exceptionElse production.
+	ExitExceptionElse(c *ExceptionElseContext)
 
 	// ExitTryFinallyStatement is called when exiting the tryFinallyStatement production.
 	ExitTryFinallyStatement(c *TryFinallyStatementContext)

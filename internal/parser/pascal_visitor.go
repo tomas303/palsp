@@ -494,6 +494,12 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#tryExceptStatement.
 	VisitTryExceptStatement(ctx *TryExceptStatementContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#exceptionCase.
+	VisitExceptionCase(ctx *ExceptionCaseContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#exceptionElse.
+	VisitExceptionElse(ctx *ExceptionElseContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#tryFinallyStatement.
 	VisitTryFinallyStatement(ctx *TryFinallyStatementContext) interface{}
 

@@ -204,28 +204,8 @@ func buildClassTypeDef(ctx parser.IClassTypeContext) string {
 	if ctx.ABSTRACT() != nil {
 		result += " abstract"
 	}
-	result += "\n"
-	if ctx.ClassImplicitPublishedDeclaration() != nil {
-		result += buildClassImplicitPublishedDeclaration(ctx.ClassImplicitPublishedDeclaration())
-	}
-	result += "end"
-	return result
-}
-
-func buildClassImplicitPublishedDeclaration(ctx parser.IClassImplicitPublishedDeclarationContext) string {
-	result := "published\n"
-	for _, part := range ctx.AllClassDeclarationPart() {
-		result += buildClassDeclarationPart(part)
-	}
-	return result
-}
-
-func buildClassDeclarationPart(ctx parser.IClassDeclarationPartContext) string {
-	result := ""
-	if ctx.TypedIdentifierList() != nil {
-		list, typedef := buildTypedIdentifierList(ctx.TypedIdentifierList())
-		result += strings.Join(list, ", ") + ": " + typedef + ";\n"
-	}
+	// Remove the implicit published declaration and end keyword from the definition
+	// as they are not essential for type identification
 	return result
 }
 

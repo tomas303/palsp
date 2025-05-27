@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql" // added for formatted strings
 	"errors"
+	"fmt"
 	"os" // added to read files
 	"palsp/internal/log"
 	"path/filepath"
@@ -39,6 +40,7 @@ type SymbolDatabase interface {
 	GetUnitPath(unit string) (string, error)
 	LocateSymbolsInScope(name string, unit string, scope string, writer SymbolWriter) error
 	UnscannedUnits() []string
+	DumpDBScopes(unitName string) (string, error)
 }
 
 // SymbolKind represents the kind of public symbol as an integer.
@@ -684,4 +686,121 @@ func createTables(db *symDB) error {
 	}
 
 	return nil
+}
+
+// DumpDBScopes dumps the database structure for a given unit in a tree format
+func (db *symDB) DumpDBScopes(unitName string) (string, error) {
+	var sb strings.Builder
+
+	// Use RetriveUnit to ensure the unit is parsed and up-to-date
+	unitID, actualUnitName, err := db.RetriveUnit(unitName)
+	if err != nil {
+		if err == ErrUnitNotFound {
+			sb.WriteString(fmt.Sprintf("Unit '%s' not found in database\n", unitName))
+			return sb.String(), nil
+		}
+		return "", err
+	}
+
+	// Get the unit path for display
+	unitpath, err := db.GetUnitPath(actualUnitName)
+	if err != nil {
+		return "", err
+	}
+
+	// Write header with unit info
+	sb.WriteString(fmt.Sprintf("Database Structure for Unit: %s\n", actualUnitName))
+	sb.WriteString(fmt.Sprintf("File: %s\n", unitpath))
+	sb.WriteString(fmt.Sprintf("Unit ID: %d\n", unitID))
+	sb.WriteString("\nScope Structure:\n")
+
+	// Query to get all symbols for the unit, ordered by scope path and symbol name
+	query := `
+	SELECT s.symbol, s.scope, s.kind, s.definition, s.line, s.column
+	FROM symbols s
+	WHERE s.unit_id = ?
+	ORDER BY 
+		CASE WHEN s.scope = '' THEN 0 ELSE 1 END,
+		LENGTH(s.scope) - LENGTH(REPLACE(s.scope, '.', '')) ASC,
+		s.scope COLLATE NOCASE,
+		s.symbol COLLATE NOCASE`
+
+	rows, err := db.Query(query, unitID)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	// Track scopes we've already printed headers for
+	printedScopes := make(map[string]bool)
+	currentScope := ""
+
+	for rows.Next() {
+		var symbol, scope, definition string
+		var kind, line, column int
+
+		if err := rows.Scan(&symbol, &scope, &kind, &definition, &line, &column); err != nil {
+			return "", err
+		}
+
+		// If we're in a new scope, print the scope header
+		if scope != currentScope {
+			currentScope = scope
+
+			if scope == "" {
+				// Unit-level symbols
+				if !printedScopes[""] {
+					sb.WriteString("├─ Unit Level\n")
+					printedScopes[""] = true
+				}
+			} else {
+				// Nested scope - print the full scope path hierarchy
+				db.printScopeHierarchy(&sb, scope, printedScopes)
+			}
+		}
+
+		// Print the symbol with appropriate indentation (without definition)
+		indent := db.getScopeIndent(scope)
+		kindStr := SymbolKindToString(SymbolKind(kind))
+		sb.WriteString(fmt.Sprintf("%s│    • %s (%s) (pos: %d:%d)\n",
+			indent, symbol, kindStr, line, column))
+	}
+
+	if err = rows.Err(); err != nil {
+		return "", err
+	}
+
+	return sb.String(), nil
+}
+
+// printScopeHierarchy prints the scope hierarchy for a given scope path
+func (db *symDB) printScopeHierarchy(sb *strings.Builder, scopePath string, printedScopes map[string]bool) {
+	if scopePath == "" {
+		return
+	}
+
+	parts := strings.Split(scopePath, ".")
+	currentPath := ""
+
+	for i, part := range parts {
+		if i > 0 {
+			currentPath += "."
+		}
+		currentPath += part
+
+		if !printedScopes[currentPath] {
+			indent := strings.Repeat("│    ", i)
+			sb.WriteString(fmt.Sprintf("%s├─ %s\n", indent, part))
+			printedScopes[currentPath] = true
+		}
+	}
+}
+
+// getScopeIndent returns the appropriate indentation for a given scope
+func (db *symDB) getScopeIndent(scope string) string {
+	if scope == "" {
+		return ""
+	}
+	depth := strings.Count(scope, ".") + 1
+	return strings.Repeat("│    ", depth)
 }

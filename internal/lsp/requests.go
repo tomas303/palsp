@@ -154,3 +154,10 @@ type TextRange struct {
 type DumpScopesParams struct {
 	TextDocument TextDocumentItem `json:"textDocument"`
 }
+
+// DumpDBScopesParams structure for the dump database scopes command
+type DumpDBScopesParams struct {
+	TextDocument struct {
+		URI string `json:"uri"`
+	} `json:"textDocument"`
+}

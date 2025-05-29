@@ -45,6 +45,7 @@ type InitializationOptions struct {
 	SearchFolders  []string `json:"searchFolders,omitempty"`
 	UnitScopeNames []string `json:"unitScopeNames,omitempty"`
 	PrefetchUnits  bool     `json:"prefetchUnits,omitempty"`
+	Defines        []string `json:"defines,omitempty"` // Add compiler defines support
 }
 
 // WorkspaceFolder structure based on LSP standard

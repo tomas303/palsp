@@ -33,6 +33,10 @@ func (p pathElements) Ext() string {
 	return p.ext
 }
 
+func (p pathElements) DebugInfo() string {
+	return p.Path()
+}
+
 func DecodePath(path string) pathElements {
 	var normPath string
 	if uri, err := url.Parse(path); err == nil && uri.Scheme == "file" {

@@ -34,6 +34,11 @@ type FileCacheItem struct {
 }
 
 func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
+	// Add safety check for nil stream
+	if f.stream == nil {
+		log.Main.Debug().Msg("stream is nil in parseGenericTemplate")
+		return ""
+	}
 
 	var beginSymbolID int
 	var endSymbolID int
@@ -90,6 +95,12 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 }
 
 func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
+	// Add safety check for nil stream
+	if f.stream == nil {
+		log.Main.Debug().Msg("stream is nil in FindText")
+		return "", false
+	}
+
 	var identSymbolID int
 	var found bool
 	if identSymbolID, found = findParserSymbolicNameID("IDENT"); !found {
@@ -217,7 +228,7 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 		}
 		cst, stream := ParseCST(content, uri)
 		unitName := strings.ToLower(pathElements.Name())
-		scope := newScope(cst, unitName)
+		scope := newScope(cst, unitName, pathElements.DebugInfo())
 		fci := FileCacheItem{
 			uri:      uri,
 			unitName: unitName,
@@ -233,9 +244,10 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 	}
 }
 
-func newScope(cst antlr.Tree, unitName string) TopScope {
+func newScope(cst antlr.Tree, unitName string, debugInfo string) TopScope {
 	collector := NewMemorySymbolCollector(unitName)
 	sl := NewScopesListener(collector)
+	sl.SetDebugInfo(debugInfo) // Set debug info for position mapping
 	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
 	scope := collector.GetScope()
 	return scope

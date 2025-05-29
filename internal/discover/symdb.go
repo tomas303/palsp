@@ -22,6 +22,7 @@ type symDB struct {
 	con              *sql.Conn
 	searchPaths      []string
 	unitScopeNames   []string
+	defines          []string // Add defines support
 	retrieveUnitLock *KeyLock[int]
 }
 
@@ -32,6 +33,7 @@ type UnitID int
 type SymbolDatabase interface {
 	AddSearchPath(path string)
 	SetUnitScopeNames(unitScopeNames []string)
+	SetDefines(defines []string) // Add SetDefines method
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string, position Position) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
@@ -513,6 +515,17 @@ func (db *symDB) SetUnitScopeNames(unitScopeNames []string) {
 	for _, name := range unitScopeNames {
 		db.unitScopeNames = append(db.unitScopeNames, strings.ToLower(name))
 	}
+}
+
+func (db *symDB) SetDefines(defines []string) {
+	db.defines = make([]string, len(defines))
+	copy(db.defines, defines)
+
+	// Also set defines in the preprocessor
+	preprocessor := GetPreprocessor()
+	preprocessor.SetDefines(defines)
+
+	log.Main.Info().Msgf("Set %d compiler defines in symDB", len(defines))
 }
 
 func (db *symDB) searchUnits(folder string) {

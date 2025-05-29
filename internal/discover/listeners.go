@@ -2,6 +2,7 @@ package discover
 
 import (
 	"errors"
+	"palsp/internal/log"
 	"palsp/internal/parser"
 	"strings"
 
@@ -23,14 +24,83 @@ func ctxStartPos(ctx positionable) Position {
 	if ctx == nil || ctx.GetStart() == nil {
 		return NewPosition(0, 0)
 	}
-	return NewPosition(ctx.GetStart().GetLine(), ctx.GetStart().GetColumn())
+	// Get the line and column from the token (1-based from ANTLR)
+	line := ctx.GetStart().GetLine()
+	column := ctx.GetStart().GetColumn()
+
+	// Convert to 0-based for our Position system
+	return NewPosition(line-1, column)
 }
 
 func ctxStopPos(ctx positionable) Position {
 	if ctx == nil || ctx.GetStop() == nil {
 		return NewPosition(0, 0)
 	}
-	return NewPosition(ctx.GetStop().GetLine(), ctx.GetStop().GetColumn())
+	// Get the line and column from the token (1-based from ANTLR)
+	line := ctx.GetStop().GetLine()
+	column := ctx.GetStop().GetColumn()
+
+	// Convert to 0-based for our Position system
+	return NewPosition(line-1, column)
+}
+
+// Helper function to map preprocessed position to original source position
+func mapToOriginalPosition(preprocessedPos Position, debugInfo string) Position {
+	// Get the preprocessed mapping for this file
+	mapping := GetPreprocessedMapping(debugInfo)
+	if mapping == nil {
+		// No mapping available, return original position
+		return preprocessedPos
+	}
+
+	// Log the mapping request
+	log.Main.Debug().Msgf("Position mapping request: preprocessed line %d, char %d for file %s",
+		preprocessedPos.Line, preprocessedPos.Character, debugInfo)
+	log.Main.Debug().Msgf("PositionMap has %d entries", len(mapping.PositionMap))
+
+	// Check if we have any position map entries
+	if len(mapping.PositionMap) == 0 {
+		log.Main.Debug().Msg("PositionMap is empty, returning original position")
+		return preprocessedPos
+	}
+
+	// Log some sample entries from the position map
+	for i := 0; i < min(10, len(mapping.PositionMap)); i++ {
+		pos := mapping.PositionMap[i]
+		log.Main.Debug().Msgf("PositionMap[%d]: File=%s, Line=%d, Column=%d, Length=%d",
+			i, pos.File, pos.Line, pos.Column, pos.Length)
+	}
+
+	// The PositionMap contains one entry per line of content that was processed
+	// Each entry tells us what source file and line that preprocessed line came from
+	if preprocessedPos.Line < len(mapping.PositionMap) {
+		sourcePos := mapping.PositionMap[preprocessedPos.Line]
+
+		log.Main.Debug().Msgf("Found mapping entry %d: File=%s, Line=%d, Column=%d, Length=%d",
+			preprocessedPos.Line, sourcePos.File, sourcePos.Line, sourcePos.Column, sourcePos.Length)
+
+		// Calculate the column offset within the line
+		// sourcePos.Column is 1-based, preprocessedPos.Character is 0-based
+		// Convert sourcePos.Column to 0-based before adding
+		originalColumn := (sourcePos.Column - 1) + preprocessedPos.Character
+
+		// Make sure we don't exceed the line length (sourcePos.Length is already 0-based length)
+		if originalColumn >= sourcePos.Length {
+			originalColumn = sourcePos.Length - 1
+			if originalColumn < 0 {
+				originalColumn = 0
+			}
+		}
+
+		result := NewPosition(sourcePos.Line-1, originalColumn) // Convert line to 0-based
+		log.Main.Debug().Msgf("Mapped position: preprocessed %d:%d -> original %d:%d",
+			preprocessedPos.Line, preprocessedPos.Character, result.Line, result.Character)
+		return result
+	}
+
+	log.Main.Debug().Msgf("No mapping found for line %d (map has %d entries), returning original position",
+		preprocessedPos.Line, len(mapping.PositionMap))
+	return preprocessedPos
 }
 
 // Scope visibility levels
@@ -248,6 +318,7 @@ type scopesListener struct {
 	inDeclaration bool
 	scopePath     *stack[string]
 	infoStack     *stack[*scopeInfo]
+	debugInfo     string // Add debugInfo to track which file we're processing
 }
 
 func NewScopesListener(collector SymbolCollector) *scopesListener {
@@ -256,6 +327,17 @@ func NewScopesListener(collector SymbolCollector) *scopesListener {
 		scopePath: newStack[string](),
 		infoStack: newStack[*scopeInfo](),
 	}
+}
+
+// SetDebugInfo sets the debug info for position mapping
+func (s *scopesListener) SetDebugInfo(debugInfo string) {
+	s.debugInfo = debugInfo
+}
+
+// Helper function to get original position from preprocessed position
+func (s *scopesListener) getOriginalPosition(ctx positionable) Position {
+	preprocessedPos := ctxStartPos(ctx)
+	return mapToOriginalPosition(preprocessedPos, s.debugInfo)
 }
 
 func (s *scopesListener) beginScope(ctxScope positionable, ctxIdentifier identfiable, kind SymbolKind) {
@@ -286,20 +368,20 @@ func (s *scopesListener) EnterImplementationSection(ctx *parser.ImplementationSe
 func (s *scopesListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
 		s.collector.AddUseUnit(buildIdentifier(identifier))
-		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), ctxStartPos(identifier))
+		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), s.getOriginalPosition(identifier))
 	}
 }
 
 func (s *scopesListener) ExitVariableDeclaration(ctx *parser.VariableDeclarationContext) {
 	typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 	for _, identifier := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, ctxStartPos(identifier))
+		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, s.getOriginalPosition(identifier))
 	}
 }
 
 func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDeclarationStatementContext) {
 	typedef := ""
-	if ctx.Type_() == nil {
+	if ctx.Type_() != nil {
 		typedef = buildUnderscoreTypeDef(ctx.Type_())
 	}
 	if ctx.Expression() != nil {
@@ -307,7 +389,7 @@ func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDe
 		typedef += " := " + ctx.Expression().GetText()
 	}
 	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
-		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, ctxStartPos(identifier))
+		s.collector.AddSymbol(buildIdentifier(identifier), VariableSymbol, typedef, s.getOriginalPosition(identifier))
 	}
 }
 
@@ -327,14 +409,14 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 			}
 		}
 	}
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, s.getOriginalPosition(ctx.Identifier()))
 }
 
 func (s *scopesListener) ExitFormalParameterList(ctx *parser.FormalParameterListContext) {
 	for _, parSecCtx := range ctx.AllFormalParameterSection() {
 		if parSecCtx.ParameterGroup() != nil {
 			for _, id := range parSecCtx.ParameterGroup().IdentifierList().AllIdentifier() {
-				s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, buildOneParameter(parSecCtx, id), ctxStartPos(id))
+				s.collector.AddSymbol(buildIdentifier(id), ParameterSymbol, buildOneParameter(parSecCtx, id), s.getOriginalPosition(id))
 			}
 		}
 	}
@@ -344,18 +426,18 @@ func (s *scopesListener) ExitClassDeclarationPart(ctx *parser.ClassDeclarationPa
 	if ctx.TypedIdentifierList() != nil {
 		typedef := buildUnderscoreTypeDef(ctx.TypedIdentifierList().Type_())
 		for _, id := range ctx.TypedIdentifierList().IdentifierList().AllIdentifier() {
-			s.collector.AddSymbol(buildIdentifier(id), ClassVariable, typedef, ctxStartPos(id))
+			s.collector.AddSymbol(buildIdentifier(id), ClassVariable, typedef, s.getOriginalPosition(id))
 		}
 	}
 }
 
 func (s *scopesListener) ExitPropertyDeclaration(ctx *parser.PropertyDeclarationContext) {
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), PropertySymbol, buildProperty(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), PropertySymbol, buildProperty(ctx), s.getOriginalPosition(ctx.Identifier()))
 }
 
 func (s *scopesListener) ExitForStatement(ctx *parser.ForStatementContext) {
 	if ctx.VAR() != nil && ctx.Identifier() != nil {
-		s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), VariableSymbol, "(for loop inferred)", ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), VariableSymbol, "(for loop inferred)", s.getOriginalPosition(ctx.Identifier()))
 	}
 }
 
@@ -376,11 +458,11 @@ func (s *scopesListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext
 
 func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.inDeclaration {
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), s.getOriginalPosition(ctx.Identifier()))
 		return
 	}
 	s.endScope()
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), s.getOriginalPosition(ctx.Identifier()))
 }
 
 func (s *scopesListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
@@ -403,16 +485,16 @@ func (s *scopesListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) 
 func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.inDeclaration {
 		if ctx.ResultType() != nil {
-			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), ctxStartPos(ctx.Identifier()))
+			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), s.getOriginalPosition(ctx.Identifier()))
 		}
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), s.getOriginalPosition(ctx.Identifier()))
 		return
 	}
 	if ctx.ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), s.getOriginalPosition(ctx.Identifier()))
 	}
 	s.endScope()
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), s.getOriginalPosition(ctx.Identifier()))
 }
 
 func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
@@ -454,5 +536,13 @@ func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) 
 
 func (s *scopesListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	si := s.endScope()
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), si.kind, buildTypeDef(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), si.kind, buildTypeDef(ctx), s.getOriginalPosition(ctx.Identifier()))
+}
+
+// Helper function to get min of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -3,6 +3,7 @@ package edit
 import (
 	"fmt"
 	"palsp/internal/discover"
+	"palsp/internal/log"
 	"strings"
 	"sync"
 
@@ -22,11 +23,20 @@ func GetManager() *Manager {
 	return mgr
 }
 
-func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string, prefetchUnits bool) OpResult {
+func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string, prefetchUnits bool, defines []string) OpResult {
 	for _, folder := range searchFolders {
 		discover.SymDB().AddSearchPath(folder)
+		// Also add search paths to preprocessor for include file resolution
+		discover.GetPreprocessor().AddSearchPath(folder)
 	}
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
+
+	// Set compiler defines if provided
+	if len(defines) > 0 {
+		discover.SymDB().SetDefines(defines)
+		log.Main.Info().Msgf("Initialized with %d compiler defines: %v", len(defines), defines)
+	}
+
 	discover.GetFetcher().Start()
 	if prefetchUnits {
 		for _, unit := range discover.SymDB().UnscannedUnits() {

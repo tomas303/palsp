@@ -166,3 +166,40 @@ func ParseFile(content string) (antlr.Tree, error) {
 
 	return tree, nil
 }
+
+func ParseCST2(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
+	// Get file path from debugInfo for preprocessing
+	filePath := debugInfo
+	if filePath == "" {
+		filePath = "unknown"
+	}
+
+	// Create input stream from preprocessed content
+	//input := antlr.NewInputStream(preprocessed.Content)
+	input := NewVirtualCharStream(content, filePath)
+	lexer := parser.NewpascalLexer(input)
+
+	// Remove default error listeners and add custom one
+	lexer.RemoveErrorListeners()
+	lexer.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
+
+	// Create token stream
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+
+	// Create parser - use lowercase constructor
+	pascalParser := parser.NewpascalParser(stream)
+
+	// Remove default error listeners and add custom one
+	pascalParser.RemoveErrorListeners()
+	pascalParser.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
+
+	// Optionally add trace listener for debugging
+	if log.AntlrTrace.Debug().Enabled() {
+		pascalParser.AddParseListener(&CustomTraceListener{debugInfo: debugInfo})
+	}
+
+	// Return the AST by invoking the Source rule
+	tree := pascalParser.Source()
+
+	return tree, stream
+}

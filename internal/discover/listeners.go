@@ -196,9 +196,7 @@ type memoryCollector struct {
 }
 
 func NewMemorySymbolCollector(unitName string) *memoryCollector {
-	rootScope := commonScope{name: "root"}
 	scopeStack := newScopeStack()
-	scopeStack.push(&rootScope)
 	unitScope := &unitScope{
 		interfaceUses:      *newStack[string](),
 		implementationUses: *newStack[string](),
@@ -211,9 +209,9 @@ func NewMemorySymbolCollector(unitName string) *memoryCollector {
 }
 
 func (mc *memoryCollector) BeginScope(name string, scopeInfo *scopeInfo) {
-	var parentScope *commonScope
+	var parentScope scope
 	if mc.scopeStack.length() == 0 {
-		parentScope = nil
+		parentScope = mc.unitScope
 	} else {
 		parentScope = mc.scopeStack.peek()
 	}
@@ -223,9 +221,13 @@ func (mc *memoryCollector) BeginScope(name string, scopeInfo *scopeInfo) {
 
 func (mc *memoryCollector) EndScope(name string, scopeInfo *scopeInfo) {
 	scope := mc.scopeStack.pop()
-	parentscope := mc.scopeStack.peek()
-	scope.parentSWM = parentscope.symbolStack.length() - 1
-	parentscope.scopeStack.push(scope)
+	if mc.scopeStack.length() == 0 {
+		mc.unitScope.scope = scope
+	} else {
+		parentscope := mc.scopeStack.peek()
+		scope.parentSWM = parentscope.symbolStack.length() - 1
+		parentscope.scopeStack.push(scope)
+	}
 }
 
 func (mc *memoryCollector) EnterImplementation(position Position) {
@@ -252,10 +254,6 @@ func (mc *memoryCollector) AddSymbol(name string, kind SymbolKind, definition st
 }
 
 func (mc *memoryCollector) GetScope() TopScope {
-	// todo later try to have it like root from the beginning
-	topCommon := mc.scopeStack.peek().scopeStack.peek()
-	topCommon.parentScope = mc.unitScope
-	mc.unitScope.scope = topCommon
 	return mc.unitScope
 }
 

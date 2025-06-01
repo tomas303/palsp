@@ -126,7 +126,30 @@ func handleDidOpen(params DidOpenTextDocumentParams) edit.OpResult {
 
 // Modified Handle textDocument/didChange request
 func handleDidChange(params DidChangeTextDocumentParams) edit.OpResult {
-	return edit.GetManager().DidChange(params.TextDocument.URI, params.TextDocument.Text, params.TextDocument.Version)
+	// For full document sync (most common case)
+	if len(params.ContentChanges) > 0 {
+		// Take the last change which should contain full document for full sync
+		lastChange := params.ContentChanges[len(params.ContentChanges)-1]
+
+		// If no range specified, it's a full document update
+		if lastChange.Range == nil {
+			return edit.GetManager().DidChange(
+				params.TextDocument.URI,
+				lastChange.Text,
+				params.TextDocument.Version,
+			)
+		}
+
+		// TODO: Handle incremental changes if needed
+		// For now, fallback to treating as full document
+		return edit.GetManager().DidChange(
+			params.TextDocument.URI,
+			lastChange.Text,
+			params.TextDocument.Version,
+		)
+	}
+
+	return edit.OpFailure("No content changes provided", nil)
 }
 
 // Modified Handle textDocument/didClose request

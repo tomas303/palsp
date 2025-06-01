@@ -82,15 +82,17 @@ type TextDocumentItem struct {
 	Text       string `json:"text"`
 }
 
-// DidChangeTextDocumentParams structure
+// DidChangeTextDocumentParams structure - corrected
 type DidChangeTextDocumentParams struct {
-	TextDocument   TextDocumentItem                 `json:"textDocument"`
+	TextDocument   VersionedTextDocumentIdentifier  `json:"textDocument"`
 	ContentChanges []TextDocumentContentChangeEvent `json:"contentChanges"`
 }
 
 // TextDocumentContentChangeEvent structure
 type TextDocumentContentChangeEvent struct {
-	Text string `json:"text"`
+	Range       *TextRange `json:"range,omitempty"`       // Optional: specific range that changed
+	RangeLength *int       `json:"rangeLength,omitempty"` // Optional: length of range being replaced
+	Text        string     `json:"text"`                  // The new text content
 }
 
 // DidCloseTextDocumentParams structure
@@ -166,4 +168,10 @@ type DumpDBScopesParams struct {
 // ExecuteSQLQueryParams structure for the execute SQL query command
 type ExecuteSQLQueryParams struct {
 	SQLQuery string `json:"sqlQuery"`
+}
+
+// Add VersionedTextDocumentIdentifier structure
+type VersionedTextDocumentIdentifier struct {
+	URI     string `json:"uri"`
+	Version int    `json:"version"`
 }

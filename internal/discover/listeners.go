@@ -257,13 +257,15 @@ type scopesListener struct {
 	scopePath     *stack[string]
 	infoStack     *stack[*scopeInfo]
 	debugInfo     string // Add debugInfo to track which file we're processing
+	pdata         *ParsedData
 }
 
-func NewScopesListener(collector SymbolCollector) *scopesListener {
+func NewScopesListener(collector SymbolCollector, pdata *ParsedData) *scopesListener {
 	return &scopesListener{
 		collector: collector,
 		scopePath: newStack[string](),
 		infoStack: newStack[*scopeInfo](),
+		pdata:     pdata,
 	}
 }
 

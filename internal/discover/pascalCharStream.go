@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -16,28 +17,14 @@ type FileContext struct {
 }
 
 type SourceFrame struct {
-	FileCtx *FileContext
-	Offset  int
-	Line    int
-	Column  int
+	FileCtx  *FileContext
+	Offset   int
+	LinesCnt int
 }
 
 type defineContext struct {
 	defined map[string]bool
 	stack   []bool
-}
-
-type TrackPos struct {
-	pos    int
-	line   int
-	column int
-}
-
-type Region struct {
-	start   TrackPos // Start position in the preprocessed buffer
-	deshunt TrackPos // Offset adjustment to get to original position
-	active  bool
-	source  *SourceFrame
 }
 
 func NewDefineContext() *defineContext {
@@ -81,18 +68,21 @@ func (d *defineContext) CurrentDefines() []string {
 	return keys
 }
 
+type Region struct {
+	line   int // line number in virtual buffer
+	orLine int // line number in original source(can be lower due to includes)
+	active bool
+}
+
 type pascalCharStream struct {
-	buffer       []rune // Flattened output, filled lazily
-	linesCnt     int
-	columnsCnt   int
-	deshuntSize  int            // Size of the deshunt buffer, used for offset adjustments
-	deshuntLines int            // Number of lines in the deshunt buffer
-	index        int            // Current reading position
-	sourceStack  []*SourceFrame // Stack of active sources (includes)
-	defineCtx    *defineContext // Tracks active defines and conditio}
-	regions      []Region       // Regions for buffer
-	defParser    *defineParser  // Parser for directives
-	searchPaths  []string
+	buffer      []rune         // Flattened output, filled lazily
+	index       int            // Current reading position
+	linesCnt    int            // Current line count in virtual buffer
+	sourceStack []*SourceFrame // Stack of active sources (includes)
+	defineCtx   *defineContext // Tracks active defines and conditio}
+	regions     []Region       // Regions for buffer
+	defParser   *defineParser  // Parser for directives
+	searchPaths []string
 }
 
 func newPascalCharStreamFromFile(filename string, searchPaths []string, defines []string) (*pascalCharStream, error) {
@@ -118,9 +108,9 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 	return &pascalCharStream{
 		buffer:      []rune{},
 		index:       0,
-		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, Line: 1, Column: 1}},
+		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
 		defineCtx:   defCtx,
-		regions:     []Region{{start: TrackPos{}, deshunt: TrackPos{}, active: true}},
+		regions:     []Region{{line: 0, orLine: 0, active: true}},
 		defParser:   newDefineParser(),
 		searchPaths: searchPaths,
 	}
@@ -146,19 +136,6 @@ func (v *pascalCharStream) Mark() int { return -1 }
 func (v *pascalCharStream) Release(marker int) {}
 
 func (v *pascalCharStream) GetSourceName() string {
-	// Get the source file for the current buffer position
-	if v.index < len(v.buffer) {
-		// Find which region contains the current position
-		for i := len(v.regions) - 1; i >= 0; i-- {
-			region := v.regions[i]
-			if v.index >= region.start.pos {
-				// Map back to original source using deshunt info
-				return region.source.FileCtx.Filename
-			}
-		}
-	}
-
-	// Fallback to current source
 	if len(v.sourceStack) > 0 {
 		return v.sourceStack[len(v.sourceStack)-1].FileCtx.Filename
 	}
@@ -259,34 +236,29 @@ func (v *pascalCharStream) fillTo(target int) {
 			source.Offset += matchLen
 			v.handleDirective(directive, value)
 			newR := Region{
-				start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
-				deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
-				active:  v.defineCtx.IsActive(),
-				source:  source,
+				line:   v.linesCnt,
+				orLine: source.LinesCnt,
+				active: v.defineCtx.IsActive(),
 			}
 			v.regions = append(v.regions, newR)
 			continue
 		}
 
 		// normal character processing
-		if ch == '\n' {
+		if v.defineCtx.IsActive() {
 			v.buffer = append(v.buffer, ch)
-			v.linesCnt++
-			v.columnsCnt = 0
-
-			if len(v.sourceStack) > 1 {
-				v.deshuntLines++
-			}
-
 		} else {
-			if v.defineCtx.IsActive() {
+			if unicode.IsSpace(ch) {
 				v.buffer = append(v.buffer, ch)
 			} else {
 				v.buffer = append(v.buffer, ' ')
 			}
 		}
+		if ch == '\n' {
+			v.linesCnt++
+			source.LinesCnt++
+		}
 		source.Offset += 1
-
 	}
 }
 
@@ -301,20 +273,15 @@ func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 			return
 		}
 		includeSource := &SourceFrame{
-			FileCtx: includeFile,
-			Offset:  0,
-			Line:    1,
-			Column:  1,
+			FileCtx:  includeFile,
+			Offset:   0,
+			LinesCnt: 0,
 		}
 		v.sourceStack = append(v.sourceStack, includeSource)
-		v.deshuntSize += len(includeFile.Content)
-		// v.deshuntLines += 1 // Assuming each include starts on a new line
-		// v.deshuntColumns = 0 // Reset columns for new include
 		newR := Region{
-			start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
-			deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
-			active:  v.defineCtx.IsActive(),
-			source:  includeSource,
+			line:   v.linesCnt,
+			orLine: source.LinesCnt,
+			active: v.defineCtx.IsActive(),
 		}
 		v.regions = append(v.regions, newR)
 	case defineDI:

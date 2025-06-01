@@ -133,7 +133,7 @@ func (smb *Symbol) HoverInfo() string {
 	var result strings.Builder
 
 	result.WriteString("position: ")
-	result.WriteString(fmt.Sprintf("%d:%d", smb.Position.Line, smb.Position.Character))
+	result.WriteString(fmt.Sprintf("%d:%d", smb.Position.Line+1, smb.Position.Character+1))
 	result.WriteString("\n")
 	result.WriteString("kind: ")
 	result.WriteString(SymbolKindToString(SymbolKind(smb.Kind)))

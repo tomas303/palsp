@@ -6,8 +6,6 @@ import (
 	"palsp/internal/log"
 	"strings"
 	"sync"
-
-	"github.com/antlr4-go/antlr/v4"
 )
 
 type Manager struct {
@@ -290,14 +288,6 @@ func (mgr *Manager) addPath(uri string) {
 	if err == nil {
 		discover.SymDB().AddSearchPath(dir)
 	}
-}
-
-func newScope(cst antlr.Tree, unitName string) discover.TopScope {
-	collector := discover.NewMemorySymbolCollector(unitName)
-	sl := discover.NewScopesListener(collector)
-	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
-	scope := collector.GetScope()
-	return scope
 }
 
 // Helper function to convert symbol kinds to LSP completion item kinds

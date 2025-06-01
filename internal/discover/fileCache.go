@@ -27,15 +27,14 @@ type FileCacheItem struct {
 	version  int
 	text     string
 	scope    TopScope
-	cst      antlr.Tree
-	stream   antlr.TokenStream
+	pdata    *ParsedData
 	active   bool
 	modTime  int64
 }
 
 func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 	// Add safety check for nil stream
-	if f.stream == nil {
+	if f.pdata.Stream == nil {
 		log.Main.Debug().Msg("stream is nil in parseGenericTemplate")
 		return ""
 	}
@@ -56,8 +55,8 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 
 	pattern := ""
 	depth := 0
-	for i := fromIndex; i < f.stream.Size(); i++ {
-		token := f.stream.Get(i)
+	for i := fromIndex; i < f.pdata.Stream.Size(); i++ {
+		token := f.pdata.Stream.Get(i)
 
 		if token.GetTokenType() == beginSymbolID || token.GetTokenType() == endSymbolID ||
 			token.GetTokenType() == semicolonSymbolID {
@@ -96,7 +95,7 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 
 func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 	// Add safety check for nil stream
-	if f.stream == nil {
+	if f.pdata.Stream == nil {
 		log.Main.Debug().Msg("stream is nil in FindText")
 		return "", false
 	}
@@ -107,8 +106,8 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 		return "", false
 	}
 
-	for i := 0; i < f.stream.Size(); i++ {
-		token := f.stream.Get(i)
+	for i := 0; i < f.pdata.Stream.Size(); i++ {
+		token := f.pdata.Stream.Get(i)
 		if token.GetLine() == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
@@ -226,17 +225,16 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 		if err != nil {
 			return &FileCacheItem{}, err
 		}
-		cst, stream := ParseCST(content, uri)
+		pdata := ParseCST(content, uri)
 		unitName := strings.ToLower(pathElements.Name())
-		scope := newScope(cst, unitName, pathElements.DebugInfo())
+		scope := newScope(pdata, unitName, pathElements.DebugInfo())
 		fci := FileCacheItem{
 			uri:      uri,
 			unitName: unitName,
 			version:  version,
 			text:     text,
 			scope:    scope,
-			cst:      cst,
-			stream:   stream,
+			pdata:    pdata,
 			active:   true,
 			modTime:  modTime,
 		}
@@ -244,11 +242,11 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 	}
 }
 
-func newScope(cst antlr.Tree, unitName string, debugInfo string) TopScope {
+func newScope(pdata *ParsedData, unitName string, debugInfo string) TopScope {
 	collector := NewMemorySymbolCollector(unitName)
-	sl := NewScopesListener(collector)
+	sl := NewScopesListener(collector, pdata)
 	sl.SetDebugInfo(debugInfo) // Set debug info for position mapping
-	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
+	antlr.ParseTreeWalkerDefault.Walk(sl, pdata.Tree)
 	scope := collector.GetScope()
 	return scope
 }

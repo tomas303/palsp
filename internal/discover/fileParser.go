@@ -88,7 +88,52 @@ func ParseFile(content string) (antlr.Tree, error) {
 	return tree, nil
 }
 
-func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
+type ParsedData struct {
+	Tree   antlr.Tree
+	Stream antlr.TokenStream
+	// todo: make it non sparse so just map line to line (or otherwise regions should map line count too)
+	Regions []Region
+}
+
+func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
+	// This method should return the original line number based on the regions
+	if line < 0 || len(pd.Regions) == 0 {
+		return -1, false // Invalid line number
+	}
+
+	// Find the region that contains this line (regions are sparse)
+	var targetRegion *Region
+	for i := range pd.Regions {
+		if i == len(pd.Regions)-1 || pd.Regions[i+1].line > line {
+			targetRegion = &pd.Regions[i]
+			break
+		}
+	}
+
+	if targetRegion == nil {
+		return -1, false
+	}
+
+	return targetRegion.line, true
+}
+
+func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
+	// This method should return the parsed line number based on the original line
+	if originalLine < 0 || len(pd.Regions) == 0 {
+		return -1, false // Invalid line number
+	}
+
+	// Find the region that corresponds to this original line
+	for i := range pd.Regions {
+		if pd.Regions[i].line == originalLine {
+			return i, true
+		}
+	}
+
+	return -1, false
+}
+
+func ParseCST(content string, debugInfo string) *ParsedData {
 	// Get file path from debugInfo for preprocessing
 	filePath := debugInfo
 	if filePath == "" {
@@ -122,5 +167,11 @@ func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) 
 	// Return the AST by invoking the Source rule
 	tree := pascalParser.Source()
 
-	return tree, stream
+	ParsedData := &ParsedData{
+		Tree:    tree,
+		Stream:  stream,
+		Regions: input.regions,
+	}
+
+	return ParsedData
 }

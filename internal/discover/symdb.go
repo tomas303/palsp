@@ -499,9 +499,9 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 		}
 	}()
 	collector := NewDBSymbolCollector(unitID, db)
-	sl := NewScopesListener(collector)
-	cst, _ := ParseCST(content, fileName)
-	antlr.ParseTreeWalkerDefault.Walk(sl, cst)
+	pdata := ParseCST(content, fileName)
+	sl := NewScopesListener(collector, pdata)
+	antlr.ParseTreeWalkerDefault.Walk(sl, pdata.Tree)
 }
 
 func (db *symDB) AddSearchPath(path string) {

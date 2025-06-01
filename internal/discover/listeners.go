@@ -2,7 +2,6 @@ package discover
 
 import (
 	"errors"
-	"palsp/internal/log"
 	"palsp/internal/parser"
 	"strings"
 
@@ -42,65 +41,6 @@ func ctxStopPos(ctx positionable) Position {
 
 	// Convert to 0-based for our Position system
 	return NewPosition(line-1, column)
-}
-
-// Helper function to map preprocessed position to original source position
-func mapToOriginalPosition(preprocessedPos Position, debugInfo string) Position {
-	// Get the preprocessed mapping for this file
-	mapping := GetPreprocessedMapping(debugInfo)
-	if mapping == nil {
-		// No mapping available, return original position
-		return preprocessedPos
-	}
-
-	// Log the mapping request
-	log.Main.Debug().Msgf("Position mapping request: preprocessed line %d, char %d for file %s",
-		preprocessedPos.Line, preprocessedPos.Character, debugInfo)
-	log.Main.Debug().Msgf("PositionMap has %d entries", len(mapping.PositionMap))
-
-	// Check if we have any position map entries
-	if len(mapping.PositionMap) == 0 {
-		log.Main.Debug().Msg("PositionMap is empty, returning original position")
-		return preprocessedPos
-	}
-
-	// Log some sample entries from the position map
-	for i := 0; i < min(10, len(mapping.PositionMap)); i++ {
-		pos := mapping.PositionMap[i]
-		log.Main.Debug().Msgf("PositionMap[%d]: File=%s, Line=%d, Column=%d, Length=%d",
-			i, pos.File, pos.Line, pos.Column, pos.Length)
-	}
-
-	// The PositionMap contains one entry per line of content that was processed
-	// Each entry tells us what source file and line that preprocessed line came from
-	if preprocessedPos.Line < len(mapping.PositionMap) {
-		sourcePos := mapping.PositionMap[preprocessedPos.Line]
-
-		log.Main.Debug().Msgf("Found mapping entry %d: File=%s, Line=%d, Column=%d, Length=%d",
-			preprocessedPos.Line, sourcePos.File, sourcePos.Line, sourcePos.Column, sourcePos.Length)
-
-		// Calculate the column offset within the line
-		// sourcePos.Column is 1-based, preprocessedPos.Character is 0-based
-		// Convert sourcePos.Column to 0-based before adding
-		originalColumn := (sourcePos.Column - 1) + preprocessedPos.Character
-
-		// Make sure we don't exceed the line length (sourcePos.Length is already 0-based length)
-		if originalColumn >= sourcePos.Length {
-			originalColumn = sourcePos.Length - 1
-			if originalColumn < 0 {
-				originalColumn = 0
-			}
-		}
-
-		result := NewPosition(sourcePos.Line-1, originalColumn) // Convert line to 0-based
-		log.Main.Debug().Msgf("Mapped position: preprocessed %d:%d -> original %d:%d",
-			preprocessedPos.Line, preprocessedPos.Character, result.Line, result.Character)
-		return result
-	}
-
-	log.Main.Debug().Msgf("No mapping found for line %d (map has %d entries), returning original position",
-		preprocessedPos.Line, len(mapping.PositionMap))
-	return preprocessedPos
 }
 
 // Scope visibility levels
@@ -335,7 +275,7 @@ func (s *scopesListener) SetDebugInfo(debugInfo string) {
 // Helper function to get original position from preprocessed position
 func (s *scopesListener) getOriginalPosition(ctx positionable) Position {
 	preprocessedPos := ctxStartPos(ctx)
-	return mapToOriginalPosition(preprocessedPos, s.debugInfo)
+	return preprocessedPos
 }
 
 func (s *scopesListener) beginScope(ctxScope positionable, ctxIdentifier identfiable, kind SymbolKind) {

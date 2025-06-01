@@ -4,7 +4,6 @@ import (
 	"palsp/internal/log"
 	"palsp/internal/parser"
 	"strconv"
-	"sync"
 
 	"github.com/antlr4-go/antlr/v4"
 )
@@ -70,84 +69,6 @@ func (ctl *CustomTraceListener) VisitErrorNode(node antlr.ErrorNode) {
 		Msg("Visit error node")
 }
 
-// Enhanced ParseCST function with preprocessor support
-func ParseCST3(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
-	// Get file path from debugInfo for preprocessing
-	filePath := debugInfo
-	if filePath == "" {
-		filePath = "unknown"
-	}
-
-	// Preprocess content to handle includes and defines
-	preprocessor := GetPreprocessor()
-	preprocessed, err := preprocessor.PreprocessContent(content, filePath)
-	if err != nil {
-		log.Main.Warn().Err(err).Msgf("Preprocessing failed for %s, using original content", debugInfo)
-		preprocessed = &PreprocessedContent{
-			Content: content,
-			PositionMap: []SourcePosition{{
-				File:   filePath,
-				Line:   1,
-				Column: 1,
-				Length: len(content),
-			}},
-		}
-	}
-
-	// Create input stream from preprocessed content
-	input := antlr.NewInputStream(preprocessed.Content)
-	lexer := parser.NewpascalLexer(input)
-
-	// Remove default error listeners and add custom one
-	lexer.RemoveErrorListeners()
-	lexer.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
-
-	// Create token stream
-	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
-
-	// Create parser - use lowercase constructor
-	pascalParser := parser.NewpascalParser(stream)
-
-	// Remove default error listeners and add custom one
-	pascalParser.RemoveErrorListeners()
-	pascalParser.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
-
-	// Optionally add trace listener for debugging
-	if log.AntlrTrace.Debug().Enabled() {
-		pascalParser.AddParseListener(&CustomTraceListener{debugInfo: debugInfo})
-	}
-
-	// Return the AST by invoking the Source rule
-	tree := pascalParser.Source()
-
-	// Store preprocessed content for position mapping if needed
-	if preprocessed != nil {
-		// You might want to store this mapping somewhere accessible
-		// for later use in error reporting or symbol resolution
-		storePreprocessedMapping(debugInfo, preprocessed)
-	}
-
-	return tree, stream
-}
-
-// Store preprocessed mapping for later use
-var preprocessedMappings = make(map[string]*PreprocessedContent)
-var mappingMutex sync.RWMutex
-
-func storePreprocessedMapping(debugInfo string, preprocessed *PreprocessedContent) {
-	mappingMutex.Lock()
-	defer mappingMutex.Unlock()
-	preprocessedMappings[debugInfo] = preprocessed
-}
-
-// GetPreprocessedMapping retrieves stored preprocessed mapping
-func GetPreprocessedMapping(debugInfo string) *PreprocessedContent {
-	mappingMutex.RLock()
-	defer mappingMutex.RUnlock()
-	return preprocessedMappings[debugInfo]
-}
-
-// ParseFile parses a Pascal source file and returns the parse tree
 func ParseFile(content string) (antlr.Tree, error) {
 	// Create input stream from content
 	input := antlr.NewInputStream(content)

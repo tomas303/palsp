@@ -26,8 +26,6 @@ func GetManager() *Manager {
 func (mgr *Manager) Init(searchFolders []string, unitScopeNames []string, prefetchUnits bool, defines []string) OpResult {
 	for _, folder := range searchFolders {
 		discover.SymDB().AddSearchPath(folder)
-		// Also add search paths to preprocessor for include file resolution
-		discover.GetPreprocessor().AddSearchPath(folder)
 	}
 	discover.SymDB().SetUnitScopeNames(unitScopeNames)
 

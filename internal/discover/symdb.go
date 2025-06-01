@@ -528,11 +528,6 @@ func (db *symDB) SetDefines(defines []string) {
 	for i, define := range defines {
 		db.defines[i] = strings.ToUpper(define) // Normalize to uppercase
 	}
-
-	// Also set defines in the preprocessor
-	preprocessor := GetPreprocessor()
-	preprocessor.SetDefines(db.defines) // Pass normalized defines
-
 	log.Main.Info().Msgf("Set %d compiler defines in symDB", len(defines))
 }
 

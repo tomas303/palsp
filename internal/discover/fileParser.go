@@ -71,7 +71,7 @@ func (ctl *CustomTraceListener) VisitErrorNode(node antlr.ErrorNode) {
 }
 
 // Enhanced ParseCST function with preprocessor support
-func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
+func ParseCST3(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
 	// Get file path from debugInfo for preprocessing
 	filePath := debugInfo
 	if filePath == "" {
@@ -167,7 +167,7 @@ func ParseFile(content string) (antlr.Tree, error) {
 	return tree, nil
 }
 
-func ParseCST2(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
+func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) {
 	// Get file path from debugInfo for preprocessing
 	filePath := debugInfo
 	if filePath == "" {
@@ -176,7 +176,7 @@ func ParseCST2(content string, debugInfo string) (antlr.Tree, antlr.TokenStream)
 
 	// Create input stream from preprocessed content
 	//input := antlr.NewInputStream(preprocessed.Content)
-	input := NewVirtualCharStream(content, filePath)
+	input := NewVirtualCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines())
 	lexer := parser.NewpascalLexer(input)
 
 	// Remove default error listeners and add custom one

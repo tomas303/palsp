@@ -17,6 +17,7 @@ import (
 var db *symDB
 var ErrUnitNotFound = errors.New("unit not found")
 
+// todo : later move some commone ctx fields to separate global context
 type symDB struct {
 	db               *sql.DB
 	con              *sql.Conn
@@ -32,8 +33,10 @@ type UnitID int
 // Define an interface for symDB operations
 type SymbolDatabase interface {
 	AddSearchPath(path string)
+	GetSearchPaths() []string
 	SetUnitScopeNames(unitScopeNames []string)
 	SetDefines(defines []string) // Add SetDefines method
+	GetDefines() []string
 	GetUnitContent(unit string) (int, string, error)
 	InsertSymbol(unitID int, symbol, scope string, kind int, definition string, position Position) error
 	SearchSymbol(unit, searchTerm string) ([]Symbol, error)
@@ -510,6 +513,9 @@ func (db *symDB) AddSearchPath(path string) {
 	db.searchPaths = append(db.searchPaths, path)
 	db.searchUnits(path)
 }
+func (db *symDB) GetSearchPaths() []string {
+	return db.searchPaths
+}
 
 func (db *symDB) SetUnitScopeNames(unitScopeNames []string) {
 	for _, name := range unitScopeNames {
@@ -519,13 +525,19 @@ func (db *symDB) SetUnitScopeNames(unitScopeNames []string) {
 
 func (db *symDB) SetDefines(defines []string) {
 	db.defines = make([]string, len(defines))
-	copy(db.defines, defines)
+	for i, define := range defines {
+		db.defines[i] = strings.ToUpper(define) // Normalize to uppercase
+	}
 
 	// Also set defines in the preprocessor
 	preprocessor := GetPreprocessor()
-	preprocessor.SetDefines(defines)
+	preprocessor.SetDefines(db.defines) // Pass normalized defines
 
 	log.Main.Info().Msgf("Set %d compiler defines in symDB", len(defines))
+}
+
+func (db *symDB) GetDefines() []string {
+	return db.defines
 }
 
 func (db *symDB) searchUnits(folder string) {

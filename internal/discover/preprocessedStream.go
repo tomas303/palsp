@@ -44,7 +44,7 @@ type Region struct {
 	start   TrackPos // Start position in the preprocessed buffer
 	deshunt TrackPos // Offset adjustment to get to original position
 	active  bool
-	// source  *SourceFrame
+	source  *SourceFrame
 }
 
 func NewDefineContext() *DefineContext {
@@ -59,11 +59,15 @@ func (d *DefineContext) IsActive() bool {
 }
 
 func (d *DefineContext) Define(name string) {
-	d.defined[name] = true
+	d.defined[strings.ToUpper(name)] = true
 }
 
 func (d *DefineContext) Undef(name string) {
-	delete(d.defined, name)
+	delete(d.defined, strings.ToUpper(name))
+}
+
+func (d *DefineContext) IsDefined(name string) bool {
+	return d.defined[strings.ToUpper(name)]
 }
 
 func (d *DefineContext) PushIf(name string) {
@@ -99,19 +103,24 @@ type VirtualCharStream struct {
 	searchPaths  []string
 }
 
-func NewVirtualCharStreamFromFile(filename string) (*VirtualCharStream, error) {
+func NewVirtualCharStreamFromFile(filename string, searchPaths []string, defines []string) (*VirtualCharStream, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	vchs := NewVirtualCharStream(string(content), filename)
+	vchs := NewVirtualCharStream(string(content), filename, searchPaths, defines)
 	return vchs, nil
 }
 
-func NewVirtualCharStream(content string, filename string) *VirtualCharStream {
+func NewVirtualCharStream(content string, filename string, searchPaths []string, defines []string) *VirtualCharStream {
 	ctx := &FileContext{
 		Filename: filename,
 		Content:  []rune(string(content)),
+	}
+
+	defCtx := NewDefineContext()
+	for _, def := range defines {
+		defCtx.Define(def)
 	}
 
 	return &VirtualCharStream{
@@ -119,9 +128,10 @@ func NewVirtualCharStream(content string, filename string) *VirtualCharStream {
 		metaMap:     []CharMeta{},
 		index:       0,
 		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, Line: 1, Column: 1}},
-		defineCtx:   NewDefineContext(),
+		defineCtx:   defCtx,
 		regions:     []Region{{start: TrackPos{}, deshunt: TrackPos{}, active: true}},
 		defParser:   newDefineParser(),
+		searchPaths: searchPaths,
 	}
 }
 
@@ -145,7 +155,23 @@ func (v *VirtualCharStream) Mark() int { return -1 }
 func (v *VirtualCharStream) Release(marker int) {}
 
 func (v *VirtualCharStream) GetSourceName() string {
-	return "virtual"
+	// Get the source file for the current buffer position
+	if v.index < len(v.buffer) {
+		// Find which region contains the current position
+		for i := len(v.regions) - 1; i >= 0; i-- {
+			region := v.regions[i]
+			if v.index >= region.start.pos {
+				// Map back to original source using deshunt info
+				return region.source.FileCtx.Filename
+			}
+		}
+	}
+
+	// Fallback to current source
+	if len(v.sourceStack) > 0 {
+		return v.sourceStack[len(v.sourceStack)-1].FileCtx.Filename
+	}
+	return "unknown"
 }
 
 // Required by ANTLR
@@ -175,17 +201,40 @@ func (v *VirtualCharStream) GetText(start, stop int) string {
 }
 
 func (v *VirtualCharStream) GetTextFromTokens(start, end antlr.Token) string {
-	return v.GetText(start.GetStart(), end.GetStop())
+	if start == nil || end == nil {
+		return ""
+	}
+
+	startPos := start.GetStart()
+	endPos := end.GetStop()
+
+	if startPos > endPos {
+		return "" // Invalid range
+	}
+
+	return v.GetText(startPos, endPos)
 }
 
-func (v *VirtualCharStream) GetTextFromInterval(antlr.Interval) string {
-	return ""
+func (v *VirtualCharStream) GetTextFromInterval(interval antlr.Interval) string {
+	start := interval.Start
+	stop := interval.Stop
+
+	// Additional validation
+	if start < 0 || stop < 0 || start > stop {
+		return ""
+	}
+
+	// Ensure we don't exceed buffer bounds
+	if start >= len(v.buffer) {
+		return ""
+	}
+
+	return v.GetText(start, stop)
 }
 
 func (v *VirtualCharStream) fillTo(target int) {
 	for len(v.buffer) <= target {
 		source := v.sourceStack[len(v.sourceStack)-1]
-		source.Offset += 1
 
 		if source.Offset >= len(source.FileCtx.Content) {
 			if len(v.sourceStack) == 1 {
@@ -196,64 +245,35 @@ func (v *VirtualCharStream) fillTo(target int) {
 		}
 
 		ch := source.FileCtx.Content[source.Offset]
+
+		// Check for comments first
+		isComment, commentLen := v.defParser.ParseCommentFromRunes(
+			source.FileCtx.Content,
+			source.Offset,
+		)
+		if isComment {
+			// Skip the entire comment
+			v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+commentLen]...)
+			source.Offset += commentLen
+			continue
+		}
+
 		if ch == '{' {
 			directive, value, matchLen := v.defParser.ParseDirectiveFromRunes(
 				source.FileCtx.Content,
 				source.Offset,
 			)
 			if directive != -1 {
-				switch directive {
-				case includeDI:
-					source.Offset += matchLen - 1 // -1 because we'll increment at loop start
-					// Handle include directive
-					includeFile, err := v.readInclude(value, source.FileCtx.Filename)
-					if err != nil {
-						// fmt.Printf("Error reading include file %s: %v\n", value, err)
-						continue
-					}
-					v.sourceStack = append(v.sourceStack, &SourceFrame{
-						FileCtx: includeFile,
-						Offset:  -1,
-						Line:    1,
-						Column:  1,
-					})
-					v.deshuntSize += len(includeFile.Content)
-					// v.deshuntLines += 1 // Assuming each include starts on a new line
-					// v.deshuntColumns = 0 // Reset columns for new include
-					newR := Region{
-						start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
-						deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
-						active:  v.defineCtx.IsActive(),
-					}
-					v.regions = append(v.regions, newR)
-					continue
-				case defineDI:
-					v.defineCtx.Define(value)
-				case undefDI:
-					v.defineCtx.Undef(value)
-				case ifdefDI:
-					// Use the helper to evaluate complex expressions
-					result := v.defParser.evaluateExpression(value, v.defineCtx)
-					v.defineCtx.stack = append(v.defineCtx.stack, result && v.defineCtx.IsActive())
-				case ifndefDI:
-					result := v.defParser.evaluateExpression(value, v.defineCtx)
-					v.defineCtx.stack = append(v.defineCtx.stack, !result && v.defineCtx.IsActive())
-				case elseDI:
-					if len(v.defineCtx.stack) > 0 {
-						v.defineCtx.stack[len(v.defineCtx.stack)-1] = !v.defineCtx.stack[len(v.defineCtx.stack)-1]
-					}
-				case endifDI:
-					v.defineCtx.PopIf()
-				}
-				source.Offset += matchLen - 1 // -1 because we'll increment at loop start
-
+				v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+matchLen]...)
+				source.Offset += matchLen
+				v.handleDirective(directive, value)
 				newR := Region{
 					start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
 					deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
 					active:  v.defineCtx.IsActive(),
+					source:  source,
 				}
 				v.regions = append(v.regions, newR)
-
 				continue
 			}
 		}
@@ -274,8 +294,57 @@ func (v *VirtualCharStream) fillTo(target int) {
 				v.buffer = append(v.buffer, ' ')
 			}
 		}
+		source.Offset += 1
 
 	}
+}
+
+func (v *VirtualCharStream) handleDirective(directive defineType, value string) {
+	switch directive {
+	case includeDI:
+		// Handle include directive
+		source := v.sourceStack[len(v.sourceStack)-1]
+		includeFile, err := v.readInclude(value, source.FileCtx.Filename)
+		if err != nil {
+			// fmt.Printf("Error reading include file %s: %v\n", value, err)
+			return
+		}
+		includeSource := &SourceFrame{
+			FileCtx: includeFile,
+			Offset:  0,
+			Line:    1,
+			Column:  1,
+		}
+		v.sourceStack = append(v.sourceStack, includeSource)
+		v.deshuntSize += len(includeFile.Content)
+		// v.deshuntLines += 1 // Assuming each include starts on a new line
+		// v.deshuntColumns = 0 // Reset columns for new include
+		newR := Region{
+			start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
+			deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
+			active:  v.defineCtx.IsActive(),
+			source:  includeSource,
+		}
+		v.regions = append(v.regions, newR)
+	case defineDI:
+		v.defineCtx.Define(value)
+	case undefDI:
+		v.defineCtx.Undef(value)
+	case ifdefDI:
+		// Use the helper to evaluate complex expressions
+		result := v.defParser.evaluateExpression(value, v.defineCtx)
+		v.defineCtx.stack = append(v.defineCtx.stack, result && v.defineCtx.IsActive())
+	case ifndefDI:
+		result := v.defParser.evaluateExpression(value, v.defineCtx)
+		v.defineCtx.stack = append(v.defineCtx.stack, !result && v.defineCtx.IsActive())
+	case elseDI:
+		if len(v.defineCtx.stack) > 0 {
+			v.defineCtx.stack[len(v.defineCtx.stack)-1] = !v.defineCtx.stack[len(v.defineCtx.stack)-1]
+		}
+	case endifDI:
+		v.defineCtx.PopIf()
+	}
+
 }
 
 func (v *VirtualCharStream) readInclude(filename string, baseFile string) (*FileContext, error) {
@@ -438,8 +507,8 @@ func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defi
 		return -1, "", 0
 	}
 
-	directive := strings.ToUpper(parts[0])
-	totalLen := end - offset + 1 // Include the closing }
+	directive := strings.ToUpper(parts[0]) // Make directive case-insensitive
+	totalLen := end - offset + 1           // Include the closing }
 
 	switch directive {
 	case "I", "INCLUDE":
@@ -452,12 +521,14 @@ func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defi
 
 	case "DEFINE":
 		if len(parts) > 1 {
+			// Keep the original case of the define name for proper Pascal behavior
 			return defineDI, parts[1], totalLen
 		}
 		return defineDI, "", totalLen
 
 	case "UNDEF":
 		if len(parts) > 1 {
+			// Keep the original case of the define name
 			return undefDI, parts[1], totalLen
 		}
 		return undefDI, "", totalLen
@@ -515,26 +586,86 @@ func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defi
 
 // Helper function to evaluate complex expressions (for future use)
 func (p *defineParser) evaluateExpression(expression string, defineCtx *DefineContext) bool {
-	// For now, simple implementation - just check if the symbol is defined
-	// Later you can expand this to handle AND, OR, NOT, DEFINED(), etc.
-
-	// Remove common function calls and operators for simple cases
 	expr := strings.TrimSpace(expression)
-	expr = strings.ToUpper(expr)
+	expr = strings.ToUpper(expr) // Make expression case-insensitive
 
 	// Handle DEFINED(symbol) function
 	if strings.HasPrefix(expr, "DEFINED(") && strings.HasSuffix(expr, ")") {
 		symbol := strings.TrimSpace(expr[8 : len(expr)-1])
-		return defineCtx.defined[symbol]
-	}
-
-	// Handle simple symbol name
-	if strings.Contains(expr, " ") {
-		// Complex expression with AND/OR - for now just return true
-		// TODO: Implement proper expression parser
-		return true
+		return defineCtx.defined[symbol] // symbol is already uppercase
 	}
 
 	// Simple symbol check
-	return defineCtx.defined[expr]
+	return defineCtx.defined[expr] // expr is already uppercase
+}
+
+func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, int) {
+	if offset >= len(content) {
+		return false, 0
+	}
+
+	ch := content[offset]
+
+	// Check for line comment: //
+	if ch == '/' && offset+1 < len(content) && content[offset+1] == '/' {
+		// Find end of line comment (newline or EOF)
+		end := offset + 2
+		for end < len(content) && content[end] != '\n' && content[end] != '\r' {
+			end++
+		}
+
+		// Include the newline character if present
+		if end < len(content) && (content[end] == '\n' || content[end] == '\r') {
+			end++
+			// Handle \r\n sequences
+			if end < len(content) && content[end-1] == '\r' && content[end] == '\n' {
+				end++
+			}
+		}
+
+		return true, end - offset
+	}
+
+	// Check for block comment: { ... }
+	if ch == '{' {
+		// Check if it's a directive (starts with {$)
+		if offset+1 < len(content) && content[offset+1] == '$' {
+			return false, 0 // This is a directive, not a comment
+		}
+
+		// Find end of block comment
+		end := offset + 1
+		for end < len(content) && content[end] != '}' {
+			end++
+		}
+
+		if end >= len(content) {
+			// Unclosed block comment - consume to end of file
+			return true, len(content) - offset
+		}
+
+		// Include the closing }
+		end++
+		return true, end - offset
+	}
+
+	// Check for alternative block comment: (* ... *)
+	if ch == '(' && offset+1 < len(content) && content[offset+1] == '*' {
+		end := offset + 2
+
+		// Look for closing *)
+		for end+1 < len(content) {
+			if content[end] == '*' && content[end+1] == ')' {
+				end += 2 // Include the closing *)
+				return true, end - offset
+			}
+			end++
+		}
+
+		// Unclosed (* comment - consume to end of file
+		return true, len(content) - offset
+	}
+
+	// No comment found
+	return false, 0
 }

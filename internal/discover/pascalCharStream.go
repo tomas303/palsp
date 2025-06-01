@@ -10,13 +10,6 @@ import (
 	"github.com/antlr4-go/antlr/v4"
 )
 
-type CharMeta struct {
-	Source  *FileContext
-	Line    int
-	Column  int
-	Defines []string
-}
-
 type FileContext struct {
 	Filename string
 	Content  []rune
@@ -29,7 +22,7 @@ type SourceFrame struct {
 	Column  int
 }
 
-type DefineContext struct {
+type defineContext struct {
 	defined map[string]bool
 	stack   []bool
 }
@@ -47,40 +40,40 @@ type Region struct {
 	source  *SourceFrame
 }
 
-func NewDefineContext() *DefineContext {
-	return &DefineContext{
+func NewDefineContext() *defineContext {
+	return &defineContext{
 		defined: make(map[string]bool),
 		stack:   []bool{true},
 	}
 }
 
-func (d *DefineContext) IsActive() bool {
+func (d *defineContext) IsActive() bool {
 	return d.stack[len(d.stack)-1]
 }
 
-func (d *DefineContext) Define(name string) {
+func (d *defineContext) Define(name string) {
 	d.defined[strings.ToUpper(name)] = true
 }
 
-func (d *DefineContext) Undef(name string) {
+func (d *defineContext) Undef(name string) {
 	delete(d.defined, strings.ToUpper(name))
 }
 
-func (d *DefineContext) IsDefined(name string) bool {
+func (d *defineContext) IsDefined(name string) bool {
 	return d.defined[strings.ToUpper(name)]
 }
 
-func (d *DefineContext) PushIf(name string) {
+func (d *defineContext) PushIf(name string) {
 	d.stack = append(d.stack, d.defined[name])
 }
 
-func (d *DefineContext) PopIf() {
+func (d *defineContext) PopIf() {
 	if len(d.stack) > 1 {
 		d.stack = d.stack[:len(d.stack)-1]
 	}
 }
 
-func (d *DefineContext) CurrentDefines() []string {
+func (d *defineContext) CurrentDefines() []string {
 	var keys []string
 	for k := range d.defined {
 		keys = append(keys, k)
@@ -88,31 +81,30 @@ func (d *DefineContext) CurrentDefines() []string {
 	return keys
 }
 
-type VirtualCharStream struct {
+type pascalCharStream struct {
 	buffer       []rune // Flattened output, filled lazily
 	linesCnt     int
 	columnsCnt   int
 	deshuntSize  int            // Size of the deshunt buffer, used for offset adjustments
 	deshuntLines int            // Number of lines in the deshunt buffer
-	metaMap      []CharMeta     // Parallel to buffer (for tooling)
 	index        int            // Current reading position
 	sourceStack  []*SourceFrame // Stack of active sources (includes)
-	defineCtx    *DefineContext // Tracks active defines and conditio}
+	defineCtx    *defineContext // Tracks active defines and conditio}
 	regions      []Region       // Regions for buffer
 	defParser    *defineParser  // Parser for directives
 	searchPaths  []string
 }
 
-func NewVirtualCharStreamFromFile(filename string, searchPaths []string, defines []string) (*VirtualCharStream, error) {
+func newPascalCharStreamFromFile(filename string, searchPaths []string, defines []string) (*pascalCharStream, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	vchs := NewVirtualCharStream(string(content), filename, searchPaths, defines)
+	vchs := newPascalCharStream(string(content), filename, searchPaths, defines)
 	return vchs, nil
 }
 
-func NewVirtualCharStream(content string, filename string, searchPaths []string, defines []string) *VirtualCharStream {
+func newPascalCharStream(content string, filename string, searchPaths []string, defines []string) *pascalCharStream {
 	ctx := &FileContext{
 		Filename: filename,
 		Content:  []rune(string(content)),
@@ -123,9 +115,8 @@ func NewVirtualCharStream(content string, filename string, searchPaths []string,
 		defCtx.Define(def)
 	}
 
-	return &VirtualCharStream{
+	return &pascalCharStream{
 		buffer:      []rune{},
-		metaMap:     []CharMeta{},
 		index:       0,
 		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, Line: 1, Column: 1}},
 		defineCtx:   defCtx,
@@ -135,7 +126,7 @@ func NewVirtualCharStream(content string, filename string, searchPaths []string,
 	}
 }
 
-func (v *VirtualCharStream) LA(n int) int {
+func (v *pascalCharStream) LA(n int) int {
 	// LA (and LT) are 1-based in ANTLR, so 1 means the current character
 	target := v.index + n - 1
 	v.fillTo(target)
@@ -146,15 +137,15 @@ func (v *VirtualCharStream) LA(n int) int {
 	return int(v.buffer[target])
 }
 
-func (v *VirtualCharStream) Consume() {
+func (v *pascalCharStream) Consume() {
 	v.index++
 }
 
-func (v *VirtualCharStream) Mark() int { return -1 }
+func (v *pascalCharStream) Mark() int { return -1 }
 
-func (v *VirtualCharStream) Release(marker int) {}
+func (v *pascalCharStream) Release(marker int) {}
 
-func (v *VirtualCharStream) GetSourceName() string {
+func (v *pascalCharStream) GetSourceName() string {
 	// Get the source file for the current buffer position
 	if v.index < len(v.buffer) {
 		// Find which region contains the current position
@@ -175,19 +166,19 @@ func (v *VirtualCharStream) GetSourceName() string {
 }
 
 // Required by ANTLR
-func (v *VirtualCharStream) Index() int {
+func (v *pascalCharStream) Index() int {
 	return v.index
 }
 
-func (v *VirtualCharStream) Size() int {
+func (v *pascalCharStream) Size() int {
 	return len(v.buffer)
 }
 
-func (v *VirtualCharStream) Seek(index int) {
+func (v *pascalCharStream) Seek(index int) {
 	v.index = index
 }
 
-func (v *VirtualCharStream) GetText(start, stop int) string {
+func (v *pascalCharStream) GetText(start, stop int) string {
 	if start < 0 {
 		start = 0
 	}
@@ -200,7 +191,7 @@ func (v *VirtualCharStream) GetText(start, stop int) string {
 	return string(v.buffer[start : stop+1])
 }
 
-func (v *VirtualCharStream) GetTextFromTokens(start, end antlr.Token) string {
+func (v *pascalCharStream) GetTextFromTokens(start, end antlr.Token) string {
 	if start == nil || end == nil {
 		return ""
 	}
@@ -215,7 +206,7 @@ func (v *VirtualCharStream) GetTextFromTokens(start, end antlr.Token) string {
 	return v.GetText(startPos, endPos)
 }
 
-func (v *VirtualCharStream) GetTextFromInterval(interval antlr.Interval) string {
+func (v *pascalCharStream) GetTextFromInterval(interval antlr.Interval) string {
 	start := interval.Start
 	stop := interval.Stop
 
@@ -232,7 +223,7 @@ func (v *VirtualCharStream) GetTextFromInterval(interval antlr.Interval) string 
 	return v.GetText(start, stop)
 }
 
-func (v *VirtualCharStream) fillTo(target int) {
+func (v *pascalCharStream) fillTo(target int) {
 	for len(v.buffer) <= target {
 		source := v.sourceStack[len(v.sourceStack)-1]
 
@@ -246,7 +237,7 @@ func (v *VirtualCharStream) fillTo(target int) {
 
 		ch := source.FileCtx.Content[source.Offset]
 
-		// Check for comments first
+		// Check for comments
 		isComment, commentLen := v.defParser.ParseCommentFromRunes(
 			source.FileCtx.Content,
 			source.Offset,
@@ -258,26 +249,26 @@ func (v *VirtualCharStream) fillTo(target int) {
 			continue
 		}
 
-		if ch == '{' {
-			directive, value, matchLen := v.defParser.ParseDirectiveFromRunes(
-				source.FileCtx.Content,
-				source.Offset,
-			)
-			if directive != -1 {
-				v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+matchLen]...)
-				source.Offset += matchLen
-				v.handleDirective(directive, value)
-				newR := Region{
-					start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
-					deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
-					active:  v.defineCtx.IsActive(),
-					source:  source,
-				}
-				v.regions = append(v.regions, newR)
-				continue
+		// Check for directives
+		directive, value, matchLen := v.defParser.ParseDirectiveFromRunes(
+			source.FileCtx.Content,
+			source.Offset,
+		)
+		if directive != -1 {
+			v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+matchLen]...)
+			source.Offset += matchLen
+			v.handleDirective(directive, value)
+			newR := Region{
+				start:   TrackPos{pos: len(v.buffer), line: v.linesCnt, column: v.columnsCnt},
+				deshunt: TrackPos{pos: v.deshuntSize, line: v.deshuntLines, column: 0},
+				active:  v.defineCtx.IsActive(),
+				source:  source,
 			}
+			v.regions = append(v.regions, newR)
+			continue
 		}
 
+		// normal character processing
 		if ch == '\n' {
 			v.buffer = append(v.buffer, ch)
 			v.linesCnt++
@@ -299,7 +290,7 @@ func (v *VirtualCharStream) fillTo(target int) {
 	}
 }
 
-func (v *VirtualCharStream) handleDirective(directive defineType, value string) {
+func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 	switch directive {
 	case includeDI:
 		// Handle include directive
@@ -347,7 +338,7 @@ func (v *VirtualCharStream) handleDirective(directive defineType, value string) 
 
 }
 
-func (v *VirtualCharStream) readInclude(filename string, baseFile string) (*FileContext, error) {
+func (v *pascalCharStream) readInclude(filename string, baseFile string) (*FileContext, error) {
 	// Clean up filename
 	filename = strings.Trim(filename, " \t\r\n'\"")
 
@@ -371,7 +362,7 @@ func (v *VirtualCharStream) readInclude(filename string, baseFile string) (*File
 	return includeCtx, nil
 }
 
-func (v *VirtualCharStream) resolveIncludePath(filename string, baseFile string) (string, error) {
+func (v *pascalCharStream) resolveIncludePath(filename string, baseFile string) (string, error) {
 	// Try relative to current file first
 	if baseFile != "" {
 		dir := filepath.Dir(baseFile)
@@ -399,7 +390,7 @@ func (v *VirtualCharStream) resolveIncludePath(filename string, baseFile string)
 	return "", fmt.Errorf("include file not found: %s", filename)
 }
 
-func (v *VirtualCharStream) searchInSubdirectories(rootPath string, filename string) (string, error) {
+func (v *pascalCharStream) searchInSubdirectories(rootPath string, filename string) (string, error) {
 	var foundPath string
 
 	err := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
@@ -585,7 +576,7 @@ func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defi
 }
 
 // Helper function to evaluate complex expressions (for future use)
-func (p *defineParser) evaluateExpression(expression string, defineCtx *DefineContext) bool {
+func (p *defineParser) evaluateExpression(expression string, defineCtx *defineContext) bool {
 	expr := strings.TrimSpace(expression)
 	expr = strings.ToUpper(expr) // Make expression case-insensitive
 

@@ -97,7 +97,7 @@ func ParseCST(content string, debugInfo string) (antlr.Tree, antlr.TokenStream) 
 
 	// Create input stream from preprocessed content
 	//input := antlr.NewInputStream(preprocessed.Content)
-	input := NewVirtualCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines())
+	input := newPascalCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines())
 	lexer := parser.NewpascalLexer(input)
 
 	// Remove default error listeners and add custom one

@@ -95,39 +95,82 @@ type ParsedData struct {
 	Regions []Region
 }
 
-func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
-	// This method should return the original line number based on the regions
+func (pd *ParsedData) FindOriginalLine(line int) (string, int) {
 	if line < 0 || len(pd.Regions) == 0 {
-		return -1, false // Invalid line number
+		return "unknown", line
 	}
 
-	// Find the region that contains this line (regions are sparse)
+	cumulativeDelta := 0
 	var targetRegion *Region
-	for i := range pd.Regions {
-		if i == len(pd.Regions)-1 || pd.Regions[i+1].line > line {
-			targetRegion = &pd.Regions[i]
+
+	// Find the region where mainLine is last lesser or equal to line parameter
+	// Sum deltas from regions we skip
+	for i := 0; i < len(pd.Regions); i++ {
+		region := &pd.Regions[i]
+
+		if region.mainLine <= line {
+			// This region could be our target, but keep looking for a better match
+			targetRegion = region
+		} else {
+			// This region's mainLine is greater than our line, so we stop here
 			break
 		}
+
+		// Add delta from this region (movement relative to previous region)
+		cumulativeDelta += region.delta
 	}
 
+	// If no suitable region found, use the first region
 	if targetRegion == nil {
-		return -1, false
+		targetRegion = &pd.Regions[0]
+		cumulativeDelta = pd.Regions[0].delta
 	}
 
-	return targetRegion.line, true
+	// Calculate the original line by subtracting cumulative delta
+	originalLine := line - cumulativeDelta
+
+	// Ensure we don't return negative line numbers
+	if originalLine < 1 {
+		originalLine = 1
+	}
+
+	filename := "unknown"
+	if targetRegion.fileCtx != nil {
+		filename = targetRegion.fileCtx.Filename
+	}
+
+	return filename, originalLine
 }
 
 func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
-	// This method should return the parsed line number based on the original line
-	if originalLine < 0 || len(pd.Regions) == 0 {
-		return -1, false // Invalid line number
+	if originalLine < 1 || len(pd.Regions) == 0 {
+		return -1, false
 	}
 
-	// Find the region that corresponds to this original line
-	for i := range pd.Regions {
-		if pd.Regions[i].line == originalLine {
-			return i, true
+	cumulativeDelta := 0
+
+	// Iterate through regions to find where this original line maps to
+	for i := 0; i < len(pd.Regions); i++ {
+		region := &pd.Regions[i]
+
+		// Add delta from this region (movement relative to previous region)
+		cumulativeDelta += region.delta
+
+		// Check if this region contains our original line
+		// The original line + cumulative delta should equal or be less than the mainLine
+		parsedLine := originalLine + cumulativeDelta
+
+		// If this parsed line is within or at the region boundary, we found our match
+		if parsedLine <= region.mainLine {
+			return parsedLine, true
 		}
+
+	}
+
+	// If not found in any region, check if it falls after the last region
+	if len(pd.Regions) > 0 {
+		parsedLine := originalLine + cumulativeDelta
+		return parsedLine, true
 	}
 
 	return -1, false

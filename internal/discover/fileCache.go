@@ -105,6 +105,11 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
 	if identSymbolID, found = findParserSymbolicNameID("IDENT"); !found {
 		return "", false
 	}
+	//todo:have to sent orline back because search is now in all include source
+	orline, found := f.pdata.FindParsedLine(line)
+	if found {
+		line = orline
+	}
 
 	for i := 0; i < f.pdata.Stream.Size(); i++ {
 		token := f.pdata.Stream.Get(i)

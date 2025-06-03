@@ -69,9 +69,11 @@ func (d *defineContext) CurrentDefines() []string {
 }
 
 type Region struct {
-	line   int // line number in virtual buffer
-	orLine int // line number in original source(can be lower due to includes)
-	active bool
+	mainLine int // line number in virtual buffer(what was all parsed into)
+	srcLine  int // line number in source(can be virtual due to includes containing other includes)
+	delta    int // mapping of virtual line to source line
+	fileCtx  *FileContext
+	active   bool // based on defines
 }
 
 type pascalCharStream struct {
@@ -110,7 +112,7 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 		index:       0,
 		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
 		defineCtx:   defCtx,
-		regions:     []Region{{line: 0, orLine: 0, active: true}},
+		regions:     []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, delta: 0, active: true}},
 		defParser:   newDefineParser(),
 		searchPaths: searchPaths,
 	}
@@ -208,14 +210,25 @@ func (v *pascalCharStream) fillTo(target int) {
 			if len(v.sourceStack) == 1 {
 				break
 			}
+
 			v.sourceStack = v.sourceStack[:len(v.sourceStack)-1]
+			backsource := v.sourceStack[len(v.sourceStack)-1]
+			newR := Region{
+				mainLine: v.linesCnt,
+				srcLine:  backsource.LinesCnt,
+				fileCtx:  backsource.FileCtx,
+				delta:    source.LinesCnt,
+				active:   v.defineCtx.IsActive(),
+			}
+			v.regions = append(v.regions, newR)
+
 			continue
 		}
 
 		ch := source.FileCtx.Content[source.Offset]
 
 		// Check for comments
-		isComment, commentLen := v.defParser.ParseCommentFromRunes(
+		isComment, commentLen, commentLines := v.defParser.ParseCommentFromRunes(
 			source.FileCtx.Content,
 			source.Offset,
 		)
@@ -223,6 +236,11 @@ func (v *pascalCharStream) fillTo(target int) {
 			// Skip the entire comment
 			v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+commentLen]...)
 			source.Offset += commentLen
+
+			// Update line counts based on newlines in the comment
+			v.linesCnt += commentLines
+			source.LinesCnt += commentLines
+
 			continue
 		}
 
@@ -236,9 +254,11 @@ func (v *pascalCharStream) fillTo(target int) {
 			source.Offset += matchLen
 			v.handleDirective(directive, value)
 			newR := Region{
-				line:   v.linesCnt,
-				orLine: source.LinesCnt,
-				active: v.defineCtx.IsActive(),
+				mainLine: v.linesCnt,
+				srcLine:  source.LinesCnt,
+				fileCtx:  source.FileCtx,
+				delta:    0,
+				active:   v.defineCtx.IsActive(),
 			}
 			v.regions = append(v.regions, newR)
 			continue
@@ -278,12 +298,6 @@ func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 			LinesCnt: 0,
 		}
 		v.sourceStack = append(v.sourceStack, includeSource)
-		newR := Region{
-			line:   v.linesCnt,
-			orLine: source.LinesCnt,
-			active: v.defineCtx.IsActive(),
-		}
-		v.regions = append(v.regions, newR)
 	case defineDI:
 		v.defineCtx.Define(value)
 	case undefDI:
@@ -557,9 +571,9 @@ func (p *defineParser) evaluateExpression(expression string, defineCtx *defineCo
 	return defineCtx.defined[expr] // expr is already uppercase
 }
 
-func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, int) {
+func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, int, int) {
 	if offset >= len(content) {
-		return false, 0
+		return false, 0, 0
 	}
 
 	ch := content[offset]
@@ -568,12 +582,15 @@ func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, 
 	if ch == '/' && offset+1 < len(content) && content[offset+1] == '/' {
 		// Find end of line comment (newline or EOF)
 		end := offset + 2
+		lineCount := 0
+
 		for end < len(content) && content[end] != '\n' && content[end] != '\r' {
 			end++
 		}
 
-		// Include the newline character if present
+		// Include the newline character if present and count it
 		if end < len(content) && (content[end] == '\n' || content[end] == '\r') {
+			lineCount++
 			end++
 			// Handle \r\n sequences
 			if end < len(content) && content[end-1] == '\r' && content[end] == '\n' {
@@ -581,49 +598,71 @@ func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, 
 			}
 		}
 
-		return true, end - offset
+		return true, end - offset, lineCount
 	}
 
 	// Check for block comment: { ... }
 	if ch == '{' {
 		// Check if it's a directive (starts with {$)
 		if offset+1 < len(content) && content[offset+1] == '$' {
-			return false, 0 // This is a directive, not a comment
+			return false, 0, 0 // This is a directive, not a comment
 		}
 
-		// Find end of block comment
+		// Find end of block comment and count newlines
 		end := offset + 1
+		lineCount := 0
+
 		for end < len(content) && content[end] != '}' {
+			if content[end] == '\n' {
+				lineCount++
+			} else if content[end] == '\r' {
+				lineCount++
+				// Handle \r\n sequences - don't double count
+				if end+1 < len(content) && content[end+1] == '\n' {
+					end++
+				}
+			}
 			end++
 		}
 
 		if end >= len(content) {
 			// Unclosed block comment - consume to end of file
-			return true, len(content) - offset
+			return true, len(content) - offset, lineCount
 		}
 
 		// Include the closing }
 		end++
-		return true, end - offset
+		return true, end - offset, lineCount
 	}
 
 	// Check for alternative block comment: (* ... *)
 	if ch == '(' && offset+1 < len(content) && content[offset+1] == '*' {
 		end := offset + 2
+		lineCount := 0
 
 		// Look for closing *)
 		for end+1 < len(content) {
 			if content[end] == '*' && content[end+1] == ')' {
 				end += 2 // Include the closing *)
-				return true, end - offset
+				return true, end - offset, lineCount
+			}
+
+			if content[end] == '\n' {
+				lineCount++
+			} else if content[end] == '\r' {
+				lineCount++
+				// Handle \r\n sequences - don't double count
+				if end+1 < len(content) && content[end+1] == '\n' {
+					end++
+				}
 			}
 			end++
 		}
 
 		// Unclosed (* comment - consume to end of file
-		return true, len(content) - offset
+		return true, len(content) - offset, lineCount
 	}
 
 	// No comment found
-	return false, 0
+	return false, 0, 0
 }

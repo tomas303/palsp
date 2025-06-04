@@ -85,7 +85,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	}
 
 	var hoverText string
-	if hoverText, found = fci.FindText(line, character); !found {
+	if hoverText, found, line = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	if hoverText == "" {
@@ -101,7 +101,7 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 
 	var info string
 	writeSymbol := func(sym *discover.Symbol) error {
-		info = sym.HoverInfo()
+		info = mgr.HoverInfo(sym, fci.PData)
 		return discover.ErrFirstSymbolWriten
 	}
 	writer := discover.SymbolWriterFunc(writeSymbol)
@@ -140,7 +140,7 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	}
 
 	var hoverText string
-	if hoverText, found = fci.FindText(line, character); !found {
+	if hoverText, found, line = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	if hoverText == "" {
@@ -187,7 +187,7 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 
 	var hoverText string
 	var found bool
-	if hoverText, found = fci.FindText(line, character); !found {
+	if hoverText, found, line = fci.FindText(line, character); !found {
 		return OpFailure(fmt.Sprintf("cannot find text on position - URI: %s, line: %d, chr: %d", uri, line, character), err)
 	}
 	if hoverText == "" {
@@ -288,6 +288,32 @@ func (mgr *Manager) addPath(uri string) {
 	if err == nil {
 		discover.SymDB().AddSearchPath(dir)
 	}
+}
+
+func (mgr *Manager) HoverInfo(smb *discover.Symbol, pdata *discover.ParsedData) string {
+	var result strings.Builder
+
+	line, found := pdata.FindOriginalLine(smb.Position.Line)
+	if !found {
+		line = smb.Position.Line
+	}
+
+	result.WriteString("position: ")
+	result.WriteString(fmt.Sprintf("%d:%d", line+1, smb.Position.Character+1))
+	result.WriteString("\n")
+	result.WriteString("kind: ")
+	result.WriteString(discover.SymbolKindToString(discover.SymbolKind(smb.Kind)))
+	result.WriteString("\n")
+	result.WriteString("scope: ")
+	result.WriteString(smb.Path)
+	result.WriteString("\n")
+	result.WriteString(smb.Name)
+	if smb.Definition != "" {
+		result.WriteString(": ")
+		result.WriteString(smb.Definition)
+	}
+
+	return result.String()
 }
 
 // Helper function to convert symbol kinds to LSP completion item kinds

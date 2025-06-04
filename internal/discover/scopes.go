@@ -129,27 +129,6 @@ type Symbol struct {
 	Unitname   string
 }
 
-func (smb *Symbol) HoverInfo() string {
-	var result strings.Builder
-
-	result.WriteString("position: ")
-	result.WriteString(fmt.Sprintf("%d:%d", smb.Position.Line+1, smb.Position.Character+1))
-	result.WriteString("\n")
-	result.WriteString("kind: ")
-	result.WriteString(SymbolKindToString(SymbolKind(smb.Kind)))
-	result.WriteString("\n")
-	result.WriteString("scope: ")
-	result.WriteString(smb.Path)
-	result.WriteString("\n")
-	result.WriteString(smb.Name)
-	if smb.Definition != "" {
-		result.WriteString(": ")
-		result.WriteString(smb.Definition)
-	}
-
-	return result.String()
-}
-
 func (smb *Symbol) String() string {
 	return smb.Name
 }

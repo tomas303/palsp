@@ -27,14 +27,14 @@ type FileCacheItem struct {
 	version  int
 	text     string
 	scope    TopScope
-	pdata    *ParsedData
+	PData    *ParsedData
 	active   bool
 	modTime  int64
 }
 
 func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 	// Add safety check for nil stream
-	if f.pdata.Stream == nil {
+	if f.PData.Stream == nil {
 		log.Main.Debug().Msg("stream is nil in parseGenericTemplate")
 		return ""
 	}
@@ -55,8 +55,8 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 
 	pattern := ""
 	depth := 0
-	for i := fromIndex; i < f.pdata.Stream.Size(); i++ {
-		token := f.pdata.Stream.Get(i)
+	for i := fromIndex; i < f.PData.Stream.Size(); i++ {
+		token := f.PData.Stream.Get(i)
 
 		if token.GetTokenType() == beginSymbolID || token.GetTokenType() == endSymbolID ||
 			token.GetTokenType() == semicolonSymbolID {
@@ -93,39 +93,38 @@ func (f *FileCacheItem) parseGenericTemplate(fromIndex int) string {
 	return pattern
 }
 
-func (f *FileCacheItem) FindText(line int, character int) (string, bool) {
+func (f *FileCacheItem) FindText(line int, character int) (string, bool, int) {
 	// Add safety check for nil stream
-	if f.pdata.Stream == nil {
+	if f.PData.Stream == nil {
 		log.Main.Debug().Msg("stream is nil in FindText")
-		return "", false
+		return "", false, 0
 	}
 
 	var identSymbolID int
 	var found bool
 	if identSymbolID, found = findParserSymbolicNameID("IDENT"); !found {
-		return "", false
+		return "", false, 0
 	}
-	//todo:have to sent orline back because search is now in all include source
-	orline, found := f.pdata.FindParsedLine(line)
+	orline, found := f.PData.FindParsedLine(line)
 	if found {
 		line = orline
 	}
 
-	for i := 0; i < f.pdata.Stream.Size(); i++ {
-		token := f.pdata.Stream.Get(i)
+	for i := 0; i < f.PData.Stream.Size(); i++ {
+		token := f.PData.Stream.Get(i)
 		if token.GetLine() == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
 			if token.GetTokenType() != identSymbolID {
-				return "", true
+				return "", true, line
 			}
 			text := token.GetText()
 			text += f.parseGenericTemplate(i + 1)
-			return text, true
+			return text, true, line
 		}
 	}
 	log.Main.Debug().Int("line", line).Int("character", character).Msg("no text found on pos line char")
-	return "", true
+	return "", true, line
 }
 
 func (f *FileCacheItem) LocateSymbolsByName(name string, position Position, writer SymbolWriter) error {
@@ -239,7 +238,7 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 			version:  version,
 			text:     text,
 			scope:    scope,
-			pdata:    pdata,
+			PData:    pdata,
 			active:   true,
 			modTime:  modTime,
 		}

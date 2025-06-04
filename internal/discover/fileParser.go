@@ -89,15 +89,14 @@ func ParseFile(content string) (antlr.Tree, error) {
 }
 
 type ParsedData struct {
-	Tree   antlr.Tree
-	Stream antlr.TokenStream
-	// todo: make it non sparse so just map line to line (or otherwise regions should map line count too)
+	Tree    antlr.Tree
+	Stream  antlr.TokenStream
 	Regions []Region
 }
 
-func (pd *ParsedData) FindOriginalLine(line int) (string, int) {
+func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
 	if line < 0 || len(pd.Regions) == 0 {
-		return "unknown", line
+		return -1, false
 	}
 
 	cumulativeDelta := 0
@@ -131,15 +130,10 @@ func (pd *ParsedData) FindOriginalLine(line int) (string, int) {
 
 	// Ensure we don't return negative line numbers
 	if originalLine < 1 {
-		originalLine = 1
+		return -1, false
 	}
 
-	filename := "unknown"
-	if targetRegion.fileCtx != nil {
-		filename = targetRegion.fileCtx.Filename
-	}
-
-	return filename, originalLine
+	return originalLine, true
 }
 
 func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {

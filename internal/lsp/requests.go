@@ -102,8 +102,8 @@ type DidCloseTextDocumentParams struct {
 
 // CompletionParams structure
 type CompletionParams struct {
-	TextDocument TextDocumentItem `json:"textDocument"`
-	Position     Position         `json:"position"`
+	TextDocument TextDocumentIdentifier `json:"textDocument"` // Changed from TextDocumentItem
+	Position     Position               `json:"position"`
 }
 
 // Position structure
@@ -120,8 +120,13 @@ type CompletionItem struct {
 
 // HoverParams structure
 type HoverParams struct {
-	TextDocument TextDocumentItem `json:"textDocument"`
-	Position     Position         `json:"position"`
+	TextDocument TextDocumentIdentifier `json:"textDocument"` // Changed from TextDocumentItem
+	Position     Position               `json:"position"`
+}
+
+// TextDocumentIdentifier structure (not TextDocumentItem)
+type TextDocumentIdentifier struct {
+	URI string `json:"uri"`
 }
 
 // Hover structure
@@ -137,8 +142,8 @@ type MarkedString struct {
 
 // DefinitionParams structure
 type DefinitionParams struct {
-	TextDocument TextDocumentItem `json:"textDocument"`
-	Position     Position         `json:"position"`
+	TextDocument TextDocumentIdentifier `json:"textDocument"` // Changed from TextDocumentItem
+	Position     Position               `json:"position"`
 }
 
 // Location structure to return definition locations
@@ -155,7 +160,7 @@ type TextRange struct {
 
 // DumpScopesParams structure for the dump definition command
 type DumpScopesParams struct {
-	TextDocument TextDocumentItem `json:"textDocument"`
+	TextDocument TextDocumentIdentifier `json:"textDocument"` // Changed from TextDocumentItem
 }
 
 // DumpDBScopesParams structure for the dump database scopes command

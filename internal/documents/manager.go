@@ -75,12 +75,12 @@ func (mgr *Manager) DidClose(uri string) OpResult {
 	}
 }
 
-func (mgr *Manager) Hover(uri string, text string, version int, line int, character int) OpResult {
+func (mgr *Manager) Hover(uri string, line int, character int) OpResult {
 	var found bool
 	var err error
 	var fci *discover.FileCacheItem
 
-	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().OpenActual(uri); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
@@ -130,12 +130,12 @@ func (mgr *Manager) Hover(uri string, text string, version int, line int, charac
 	return OpFailure(fmt.Sprintf("hover error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
-func (mgr *Manager) Completion(uri string, text string, version int, line int, character int) OpResult {
+func (mgr *Manager) Completion(uri string, line int, character int) OpResult {
 	var found bool
 	var err error
 	var fci *discover.FileCacheItem
 
-	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().OpenActual(uri); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
@@ -177,11 +177,11 @@ func (mgr *Manager) Completion(uri string, text string, version int, line int, c
 	return OpFailure(fmt.Sprintf("completion error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
-func (mgr *Manager) Definition(uri string, text string, version int, line int, character int) OpResult {
+func (mgr *Manager) Definition(uri string, line int, character int) OpResult {
 	var err error
 	var fci *discover.FileCacheItem
 
-	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().OpenActual(uri); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 
@@ -241,11 +241,11 @@ func (mgr *Manager) Definition(uri string, text string, version int, line int, c
 	return OpFailure(fmt.Sprintf("definition error - URI: %s, line: %d, chr: %d", uri, line, character), err)
 }
 
-func (mgr *Manager) DumpScopes(uri string, text string, version int) OpResult {
+func (mgr *Manager) DumpScopes(uri string) OpResult {
 	var err error
 	var fci *discover.FileCacheItem
 
-	if fci, err = discover.EditFileCache().Open(uri, text, version); err != nil {
+	if fci, err = discover.EditFileCache().OpenActual(uri); err != nil {
 		return OpFailure(fmt.Sprintf("unable to locate file %s", uri), err)
 	}
 	var sb strings.Builder

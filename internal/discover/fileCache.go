@@ -165,6 +165,14 @@ func (fc *FileCache) Open(uri string, text string, version int) (*FileCacheItem,
 	return fcitem, nil
 }
 
+func (fc *FileCache) OpenActual(uri string) (*FileCacheItem, error) {
+	fcitem, ok := fc.fileDict[uri]
+	if !ok {
+		return nil, fmt.Errorf("FileCache: file %s not found", uri)
+	}
+	return fcitem, nil
+}
+
 func (fc *FileCache) Close(uri string) (*FileCacheItem, error) {
 	fcitem, ok := fc.fileDict[uri]
 	if ok {

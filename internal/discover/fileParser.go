@@ -1,74 +1,130 @@
 package discover
 
 import (
+	"fmt"
 	"palsp/internal/log"
 	"palsp/internal/parser"
-	"strconv"
 
 	"github.com/antlr4-go/antlr/v4"
+	"github.com/rs/zerolog"
 )
 
 // Custom error listener that sends errors to zerolog
-type CustomErrorListener struct {
-	debugInfo string
+type ZerologErrorListener struct {
+	antlr.DefaultErrorListener // Embed default implementation
+	debugInfo                  string
 }
 
-func (cel *CustomErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{}, line, column int, msg string, e antlr.RecognitionException) {
+func NewZerologErrorListener(debugInfo string) *ZerologErrorListener {
+	l := new(ZerologErrorListener)
+	l.debugInfo = debugInfo
+	return l
+}
+
+// SyntaxError is called by ANTLR when a syntax error occurs
+func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
+	line, column int, msg string, e antlr.RecognitionException) {
 	log.AntlrError.Error().
-		Str("di", cel.debugInfo).
 		Int("line", line).
 		Int("column", column).
 		Str("msg", msg).
-		Msg("Syntax error")
+		Str("di", l.debugInfo).
+		Send()
 }
 
-func (cel *CustomErrorListener) ReportAmbiguity(recognizer antlr.Parser, dfa *antlr.DFA, startIndex, stopIndex int, exact bool, ambigAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
-	// Optional: handle ambiguity reports
+// trace listener that logs enter/exit events(based on original ANTLR TraceListener)
+type ZerologTraceListener struct {
+	parser    antlr.Parser
+	degubInfo string
 }
 
-func (cel *CustomErrorListener) ReportAttemptingFullContext(recognizer antlr.Parser, dfa *antlr.DFA, startIndex, stopIndex int, conflictingAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
-	// Optional: handle full context attempts
+func NewZerologTraceListener(parser antlr.Parser, debugInfo string) *ZerologTraceListener {
+	tl := new(ZerologTraceListener)
+	tl.parser = parser
+	tl.degubInfo = debugInfo
+	return tl
+}
+func (t *ZerologTraceListener) getEvent(ctx antlr.ParserRuleContext) *zerolog.Event {
+	ruleName := t.parser.GetRuleNames()[ctx.GetRuleIndex()]
+	if len(ruleName) >= 5 && ruleName[0:5] == "error" {
+		return log.AntlrTrace.Error()
+	}
+	return log.AntlrTrace.Debug()
 }
 
-func (cel *CustomErrorListener) ReportContextSensitivity(recognizer antlr.Parser, dfa *antlr.DFA, startIndex, stopIndex int, prediction int, configs *antlr.ATNConfigSet) {
-	// Optional: handle context sensitivity
+func (t *ZerologTraceListener) VisitErrorNode(node antlr.ErrorNode) {
+	log.AntlrTrace.Error().
+		Str("di", t.degubInfo).
+		Str("errorNode", node.GetText()).
+		Str("interval", fmt.Sprintf("%v", node.GetSourceInterval())).
+		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
+		Send()
 }
 
-// Custom trace listener that logs enter/exit events (based on original ANTLR TraceListener)
-type CustomTraceListener struct {
-	debugInfo string
+func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
+	t.getEvent(ctx).
+		Str("di", t.degubInfo).
+		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
+		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Send()
 }
 
-func (ctl *CustomTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTrace.Debug().
-		Str("di", ctl.debugInfo).
-		Str("enter", "rule").
-		Str("rule", strconv.Itoa(ctx.GetRuleContext().GetRuleIndex())).
-		Msg("Enter rule")
+func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
+	t.getEvent(t.parser.GetParserRuleContext()).
+		Str("di", t.degubInfo).
+		Str("consume", fmt.Sprint(node.GetSymbol())).
+		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
+		Send()
 }
 
-func (ctl *CustomTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
-	log.AntlrTrace.Debug().
-		Str("di", ctl.debugInfo).
-		Str("exit", "rule").
-		Str("rule", strconv.Itoa(ctx.GetRuleContext().GetRuleIndex())).
-		Msg("Exit rule")
+func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
+	t.getEvent(ctx).
+		Str("di", t.degubInfo).
+		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
+		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Send()
 }
 
-func (ctl *CustomTraceListener) VisitTerminal(node antlr.TerminalNode) {
-	log.AntlrTrace.Debug().
-		Str("di", ctl.debugInfo).
-		Str("token", node.GetText()).
-		Msg("Visit terminal")
+type ResilientErrorStrategy struct {
+	*antlr.DefaultErrorStrategy
+	endTokenType int
 }
 
-func (ctl *CustomTraceListener) VisitErrorNode(node antlr.ErrorNode) {
-	log.AntlrTrace.Debug().
-		Str("di", ctl.debugInfo).
-		Str("token", node.GetText()).
-		Msg("Visit error node")
+// Override Recover to skip tokens until 'end' or EOF
+func (es *ResilientErrorStrategy) Recover(recognizer antlr.Parser, e antlr.RecognitionException) {
+	es.ReportError(recognizer, e)
+
+	for {
+		t := recognizer.GetTokenStream().LA(1)
+		if t == antlr.TokenEOF || t == es.endTokenType {
+			break
+		}
+		recognizer.Consume()
+	}
 }
 
+// Optionally override RecoverInline for single-token errors
+func (es *ResilientErrorStrategy) RecoverInline(recognizer antlr.Parser) antlr.Token {
+	es.ReportMatch(recognizer)
+	return recognizer.GetCurrentToken()
+}
+
+func NewResilientErrorStrategy() *ResilientErrorStrategy {
+	var endTokenType int
+	for i, n := range parser.PascalLexerLexerStaticData.SymbolicNames {
+		if n == "END" {
+			endTokenType = i
+			break
+		}
+	}
+
+	return &ResilientErrorStrategy{
+		DefaultErrorStrategy: antlr.NewDefaultErrorStrategy(),
+		endTokenType:         endTokenType,
+	}
+}
+
+// ParseFile parses the given content as a Pascal source file and returns the parse tree.
 func ParseFile(content string) (antlr.Tree, error) {
 	// Create input stream from content
 	input := antlr.NewInputStream(content)
@@ -184,7 +240,7 @@ func ParseCST(content string, debugInfo string) *ParsedData {
 
 	// Remove default error listeners and add custom one
 	lexer.RemoveErrorListeners()
-	lexer.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
+	lexer.AddErrorListener(NewZerologErrorListener(debugInfo))
 
 	// Create token stream
 	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
@@ -194,11 +250,11 @@ func ParseCST(content string, debugInfo string) *ParsedData {
 
 	// Remove default error listeners and add custom one
 	pascalParser.RemoveErrorListeners()
-	pascalParser.AddErrorListener(&CustomErrorListener{debugInfo: debugInfo})
+	pascalParser.AddErrorListener(NewZerologErrorListener(debugInfo))
 
 	// Optionally add trace listener for debugging
 	if log.AntlrTrace.Debug().Enabled() {
-		pascalParser.AddParseListener(&CustomTraceListener{debugInfo: debugInfo})
+		pascalParser.AddParseListener(NewZerologTraceListener(pascalParser, debugInfo))
 	}
 
 	// Return the AST by invoking the Source rule

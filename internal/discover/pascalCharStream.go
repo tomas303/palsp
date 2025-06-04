@@ -344,7 +344,36 @@ func (v *pascalCharStream) readInclude(filename string, baseFile string) (*FileC
 }
 
 func (v *pascalCharStream) resolveIncludePath(filename string, baseFile string) (string, error) {
-	// Try relative to current file first
+	// Check if filename contains path separators (relative or absolute path)
+	hasPath := strings.Contains(filename, "/") || strings.Contains(filename, "\\") || filepath.IsAbs(filename)
+
+	if hasPath {
+		// Filename contains a path (relative or absolute)
+		var candidatePath string
+
+		if filepath.IsAbs(filename) {
+			// Absolute path - use as is
+			candidatePath = filename
+		} else {
+			// Relative path - resolve relative to current file
+			if baseFile != "" {
+				dir := filepath.Dir(baseFile)
+				candidatePath = filepath.Join(dir, filename)
+			} else {
+				candidatePath = filename
+			}
+		}
+
+		// Check if the resolved path exists
+		if _, err := os.Stat(candidatePath); err == nil {
+			return candidatePath, nil
+		}
+
+		// Path specified but file not found - don't search in searchPaths
+		return "", fmt.Errorf("include file not found: %s", filename)
+	}
+
+	// Filename is just a filename without path - first try relative to current file
 	if baseFile != "" {
 		dir := filepath.Dir(baseFile)
 		candidatePath := filepath.Join(dir, filename)
@@ -353,8 +382,7 @@ func (v *pascalCharStream) resolveIncludePath(filename string, baseFile string) 
 		}
 	}
 
-	// Try search paths including subdirectories
-
+	// File not found relative to current file, now search in searchPaths
 	for _, searchPath := range v.searchPaths {
 		// First try direct path in search directory
 		candidatePath := filepath.Join(searchPath, filename)

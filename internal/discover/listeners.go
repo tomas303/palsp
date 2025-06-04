@@ -334,12 +334,12 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 	}
 	if fieldtype == "" {
 		if ctx.Constant() != nil {
-			if ctx.Constant().String_() != nil {
-				fieldtype = "string"
-			} else if ctx.Constant().UnsignedNumber() != nil {
-				fieldtype = "integer"
-			} else if ctx.Constant().Sign() != nil {
-				fieldtype = "integer"
+			if ctx.Constant().UnsignedConstant() != nil {
+				if ctx.Constant().UnsignedConstant().String_() != nil {
+					fieldtype = "string"
+				} else if ctx.Constant().UnsignedConstant().UnsignedNumber() != nil {
+					fieldtype = "integer"
+				}
 			}
 		}
 	}

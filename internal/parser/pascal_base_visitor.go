@@ -92,6 +92,14 @@ func (v *BasepascalVisitor) VisitArrayConstant(ctx *ArrayConstantContext) interf
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitRecordConstant(ctx *RecordConstantContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitRecordField(ctx *RecordFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitUnsignedNumber(ctx *UnsignedNumberContext) interface{} {
 	return v.VisitChildren(ctx)
 }

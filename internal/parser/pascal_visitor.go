@@ -71,6 +71,12 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#arrayConstant.
 	VisitArrayConstant(ctx *ArrayConstantContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#recordConstant.
+	VisitRecordConstant(ctx *RecordConstantContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#recordField.
+	VisitRecordField(ctx *RecordFieldContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#unsignedNumber.
 	VisitUnsignedNumber(ctx *UnsignedNumberContext) interface{}
 

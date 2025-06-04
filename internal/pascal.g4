@@ -136,20 +136,28 @@ hexConstant
     ;
 
 constant
-    : unsignedNumber
-    | sign unsignedNumber
+    : unsignedConstant
     | identifier
-    | sign identifier
-    | string
-    | constantChr
     | scalarType
     | arrayConstant (PLUS (arrayConstant | identifier))*
+    | recordConstant
     ;
 
 arrayConstant
     : LBRACK constant (COMMA constant)* RBRACK
     | LPAREN constant (COMMA constant)* RPAREN
     ;
+
+recordConstant
+    : LPAREN recordField (SEMI recordField)* RPAREN
+    ;
+
+recordField
+    : identifier COLON constant
+    | identifier COLON constant DOTDOT constant
+    | identifier COLON arrayConstant
+    ;
+
 
 unsignedNumber
     : unsignedInteger
@@ -730,7 +738,7 @@ factor
     ;
 
 unsignedConstant
-    : unsignedNumber
+    : sign? unsignedNumber
     | constantChr
     | hexConstant
     | string

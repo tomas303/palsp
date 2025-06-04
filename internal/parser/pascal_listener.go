@@ -71,6 +71,12 @@ type pascalListener interface {
 	// EnterArrayConstant is called when entering the arrayConstant production.
 	EnterArrayConstant(c *ArrayConstantContext)
 
+	// EnterRecordConstant is called when entering the recordConstant production.
+	EnterRecordConstant(c *RecordConstantContext)
+
+	// EnterRecordField is called when entering the recordField production.
+	EnterRecordField(c *RecordFieldContext)
+
 	// EnterUnsignedNumber is called when entering the unsignedNumber production.
 	EnterUnsignedNumber(c *UnsignedNumberContext)
 
@@ -577,6 +583,12 @@ type pascalListener interface {
 
 	// ExitArrayConstant is called when exiting the arrayConstant production.
 	ExitArrayConstant(c *ArrayConstantContext)
+
+	// ExitRecordConstant is called when exiting the recordConstant production.
+	ExitRecordConstant(c *RecordConstantContext)
+
+	// ExitRecordField is called when exiting the recordField production.
+	ExitRecordField(c *RecordFieldContext)
 
 	// ExitUnsignedNumber is called when exiting the unsignedNumber production.
 	ExitUnsignedNumber(c *UnsignedNumberContext)

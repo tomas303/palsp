@@ -147,6 +147,18 @@ func (s *BasepascalListener) EnterArrayConstant(ctx *ArrayConstantContext) {}
 // ExitArrayConstant is called when production arrayConstant is exited.
 func (s *BasepascalListener) ExitArrayConstant(ctx *ArrayConstantContext) {}
 
+// EnterRecordConstant is called when production recordConstant is entered.
+func (s *BasepascalListener) EnterRecordConstant(ctx *RecordConstantContext) {}
+
+// ExitRecordConstant is called when production recordConstant is exited.
+func (s *BasepascalListener) ExitRecordConstant(ctx *RecordConstantContext) {}
+
+// EnterRecordField is called when production recordField is entered.
+func (s *BasepascalListener) EnterRecordField(ctx *RecordFieldContext) {}
+
+// ExitRecordField is called when production recordField is exited.
+func (s *BasepascalListener) ExitRecordField(ctx *RecordFieldContext) {}
+
 // EnterUnsignedNumber is called when production unsignedNumber is entered.
 func (s *BasepascalListener) EnterUnsignedNumber(ctx *UnsignedNumberContext) {}
 

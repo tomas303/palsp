@@ -112,7 +112,8 @@ func (f *FileCacheItem) FindText(line int, character int) (string, bool, int) {
 
 	for i := 0; i < f.PData.Stream.Size(); i++ {
 		token := f.PData.Stream.Get(i)
-		if token.GetLine() == line &&
+		tokenLine := token.GetLine() - 1 // ANTLR lines are 1-based and columns 0-based
+		if tokenLine == line &&
 			token.GetColumn() <= character &&
 			(token.GetColumn()+len(token.GetText()) >= character) {
 			if token.GetTokenType() != identSymbolID {

@@ -197,14 +197,21 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 		return -1, false
 	}
 
+	prevRegion := &pd.Regions[0]
+	mainFile := prevRegion.fileCtx.Filename
 	cumulativeDelta := 0
 
 	// Iterate through regions to find where this original line maps to
-	for i := 0; i < len(pd.Regions); i++ {
+	for i := 1; i < len(pd.Regions); i++ {
 		region := &pd.Regions[i]
 
-		// Add delta from this region (movement relative to previous region)
-		cumulativeDelta += region.delta
+		if prevRegion.fileCtx.Filename != mainFile {
+			// If we switched files, reset cumulative delta
+			cumulativeDelta += region.mainLine - prevRegion.mainLine
+		}
+
+		// // Add delta from this region (movement relative to previous region)
+		// cumulativeDelta += region.delta
 
 		// Check if this region contains our original line
 		// The original line + cumulative delta should equal or be less than the mainLine
@@ -214,7 +221,7 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 		if parsedLine <= region.mainLine {
 			return parsedLine, true
 		}
-
+		prevRegion = region
 	}
 
 	// If not found in any region, check if it falls after the last region

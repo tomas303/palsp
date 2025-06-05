@@ -203,8 +203,8 @@ func (v *pascalCharStream) GetTextFromInterval(interval antlr.Interval) string {
 }
 
 func (v *pascalCharStream) fillTo(target int) {
+	source := v.sourceStack[len(v.sourceStack)-1]
 	for len(v.buffer) <= target {
-		source := v.sourceStack[len(v.sourceStack)-1]
 
 		if source.Offset >= len(source.FileCtx.Content) {
 			if len(v.sourceStack) == 1 {
@@ -212,11 +212,11 @@ func (v *pascalCharStream) fillTo(target int) {
 			}
 
 			v.sourceStack = v.sourceStack[:len(v.sourceStack)-1]
-			backsource := v.sourceStack[len(v.sourceStack)-1]
+			source := v.sourceStack[len(v.sourceStack)-1]
 			newR := Region{
 				mainLine: v.linesCnt,
-				srcLine:  backsource.LinesCnt,
-				fileCtx:  backsource.FileCtx,
+				srcLine:  source.LinesCnt,
+				fileCtx:  source.FileCtx,
 				delta:    source.LinesCnt,
 				active:   v.defineCtx.IsActive(),
 			}
@@ -253,6 +253,7 @@ func (v *pascalCharStream) fillTo(target int) {
 			v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+matchLen]...)
 			source.Offset += matchLen
 			v.handleDirective(directive, value)
+			source := v.sourceStack[len(v.sourceStack)-1]
 			newR := Region{
 				mainLine: v.linesCnt,
 				srcLine:  source.LinesCnt,

@@ -150,48 +150,40 @@ type ParsedData struct {
 	Regions []Region
 }
 
+// FindOriginalLine finds the original line number corresponding to the parsed line number.
+// Thats because parsed data contains includes too which move original lines.
+// Each region contains source - so each source from external file just cumulate movement
+// and when region of line is found, we can calculate original line by subtracting it.
 func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
 	if line < 0 || len(pd.Regions) == 0 {
 		return -1, false
 	}
 
+	prevRegion := &pd.Regions[0]
+	mainFile := prevRegion.fileCtx.Filename
 	cumulativeDelta := 0
-	var targetRegion *Region
 
-	// Find the region where mainLine is last lesser or equal to line parameter
-	// Sum deltas from regions we skip
-	for i := 0; i < len(pd.Regions); i++ {
+	for i := 1; i < len(pd.Regions); i++ {
 		region := &pd.Regions[i]
-
-		if region.mainLine <= line {
-			// This region could be our target, but keep looking for a better match
-			targetRegion = region
-		} else {
-			// This region's mainLine is greater than our line, so we stop here
-			break
+		if prevRegion.fileCtx.Filename != mainFile {
+			cumulativeDelta += region.mainLine - prevRegion.mainLine
 		}
-
-		// Add delta from this region (movement relative to previous region)
-		cumulativeDelta += region.delta
+		if line <= region.mainLine {
+			return line - cumulativeDelta, true
+		}
+		prevRegion = region
 	}
 
-	// If no suitable region found, use the first region
-	if targetRegion == nil {
-		targetRegion = &pd.Regions[0]
-		cumulativeDelta = pd.Regions[0].delta
+	if len(pd.Regions) > 0 {
+		return line - cumulativeDelta, true
 	}
 
-	// Calculate the original line by subtracting cumulative delta
-	originalLine := line - cumulativeDelta
-
-	// Ensure we don't return negative line numbers
-	if originalLine < 1 {
-		return -1, false
-	}
-
-	return originalLine, true
+	return line, false
 }
 
+// FindParsedLine finds the parsed line number corresponding to the original line number.
+// Thats because parsed data contains includes too which move original lines.
+// Each region contains source - so each source from external file just move following lines
 func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 	if originalLine < 1 || len(pd.Regions) == 0 {
 		return -1, false
@@ -201,36 +193,25 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 	mainFile := prevRegion.fileCtx.Filename
 	cumulativeDelta := 0
 
-	// Iterate through regions to find where this original line maps to
 	for i := 1; i < len(pd.Regions); i++ {
 		region := &pd.Regions[i]
 
 		if prevRegion.fileCtx.Filename != mainFile {
-			// If we switched files, reset cumulative delta
 			cumulativeDelta += region.mainLine - prevRegion.mainLine
 		}
-
-		// // Add delta from this region (movement relative to previous region)
-		// cumulativeDelta += region.delta
-
-		// Check if this region contains our original line
-		// The original line + cumulative delta should equal or be less than the mainLine
 		parsedLine := originalLine + cumulativeDelta
-
-		// If this parsed line is within or at the region boundary, we found our match
 		if parsedLine <= region.mainLine {
 			return parsedLine, true
 		}
 		prevRegion = region
 	}
 
-	// If not found in any region, check if it falls after the last region
 	if len(pd.Regions) > 0 {
 		parsedLine := originalLine + cumulativeDelta
 		return parsedLine, true
 	}
 
-	return -1, false
+	return originalLine, false
 }
 
 func ParseCST(content string, debugInfo string) *ParsedData {

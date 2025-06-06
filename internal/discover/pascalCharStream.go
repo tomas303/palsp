@@ -71,7 +71,6 @@ func (d *defineContext) CurrentDefines() []string {
 type Region struct {
 	mainLine int // line number in virtual buffer(what was all parsed into)
 	srcLine  int // line number in source(can be virtual due to includes containing other includes)
-	delta    int // mapping of virtual line to source line
 	fileCtx  *FileContext
 	active   bool // based on defines
 }
@@ -112,7 +111,7 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 		index:       0,
 		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
 		defineCtx:   defCtx,
-		regions:     []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, delta: 0, active: true}},
+		regions:     []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true}},
 		defParser:   newDefineParser(),
 		searchPaths: searchPaths,
 	}
@@ -217,7 +216,6 @@ func (v *pascalCharStream) fillTo(target int) {
 				mainLine: v.linesCnt,
 				srcLine:  source.LinesCnt,
 				fileCtx:  source.FileCtx,
-				delta:    source.LinesCnt,
 				active:   v.defineCtx.IsActive(),
 			}
 			v.regions = append(v.regions, newR)
@@ -258,7 +256,6 @@ func (v *pascalCharStream) fillTo(target int) {
 				mainLine: v.linesCnt,
 				srcLine:  source.LinesCnt,
 				fileCtx:  source.FileCtx,
-				delta:    0,
 				active:   v.defineCtx.IsActive(),
 			}
 			v.regions = append(v.regions, newR)

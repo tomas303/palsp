@@ -499,7 +499,7 @@ func (db *symDB) collectSymbols(unitID int, content string, fileName string) {
 		}
 	}()
 	collector := NewDBSymbolCollector(unitID, db)
-	pdata := ParseCST(content, fileName)
+	pdata := ParseCST(content, fileName, true)
 	sl := NewScopesListener(collector, pdata)
 	antlr.ParseTreeWalkerDefault.Walk(sl, pdata.Tree)
 }

@@ -214,7 +214,7 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 	return originalLine, false
 }
 
-func ParseCST(content string, debugInfo string) *ParsedData {
+func ParseCST(content string, debugInfo string, skipImplementation bool) *ParsedData {
 	// Get file path from debugInfo for preprocessing
 	filePath := debugInfo
 	if filePath == "" {
@@ -223,7 +223,7 @@ func ParseCST(content string, debugInfo string) *ParsedData {
 
 	// Create input stream from preprocessed content
 	//input := antlr.NewInputStream(preprocessed.Content)
-	input := newPascalCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines())
+	input := newPascalCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines(), skipImplementation)
 	lexer := parser.NewpascalLexer(input)
 
 	// Remove default error listeners and add custom one

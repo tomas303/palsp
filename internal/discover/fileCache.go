@@ -238,7 +238,7 @@ func newFileCacheItem(uri string, text string, version int) (*FileCacheItem, err
 		if err != nil {
 			return &FileCacheItem{}, err
 		}
-		pdata := ParseCST(content, uri)
+		pdata := ParseCST(content, uri, false)
 		unitName := strings.ToLower(pathElements.Name())
 		scope := newScope(pdata, unitName, pathElements.DebugInfo())
 		fci := FileCacheItem{

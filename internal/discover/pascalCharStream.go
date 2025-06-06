@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"unicode"
 
@@ -76,26 +75,27 @@ type Region struct {
 }
 
 type pascalCharStream struct {
-	buffer      []rune         // Flattened output, filled lazily
-	index       int            // Current reading position
-	linesCnt    int            // Current line count in virtual buffer
-	sourceStack []*SourceFrame // Stack of active sources (includes)
-	defineCtx   *defineContext // Tracks active defines and conditio}
-	regions     []Region       // Regions for buffer
-	defParser   *defineParser  // Parser for directives
-	searchPaths []string
+	buffer             []rune         // Flattened output, filled lazily
+	index              int            // Current reading position
+	linesCnt           int            // Current line count in virtual buffer
+	sourceStack        []*SourceFrame // Stack of active sources (includes)
+	defineCtx          *defineContext // Tracks active defines and conditio}
+	regions            []Region       // Regions for buffer
+	defParser          *defineParser  // Parser for directives
+	searchPaths        []string
+	skipImplementation bool // Skip implementation sections
 }
 
-func newPascalCharStreamFromFile(filename string, searchPaths []string, defines []string) (*pascalCharStream, error) {
+func newPascalCharStreamFromFile(filename string, searchPaths []string, defines []string, skipImplemenation bool) (*pascalCharStream, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	vchs := newPascalCharStream(string(content), filename, searchPaths, defines)
+	vchs := newPascalCharStream(string(content), filename, searchPaths, defines, skipImplemenation)
 	return vchs, nil
 }
 
-func newPascalCharStream(content string, filename string, searchPaths []string, defines []string) *pascalCharStream {
+func newPascalCharStream(content string, filename string, searchPaths []string, defines []string, skipImplemenation bool) *pascalCharStream {
 	ctx := &FileContext{
 		Filename: filename,
 		Content:  []rune(string(content)),
@@ -107,13 +107,14 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 	}
 
 	return &pascalCharStream{
-		buffer:      []rune{},
-		index:       0,
-		sourceStack: []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
-		defineCtx:   defCtx,
-		regions:     []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true}},
-		defParser:   newDefineParser(),
-		searchPaths: searchPaths,
+		buffer:             []rune{},
+		index:              0,
+		sourceStack:        []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
+		defineCtx:          defCtx,
+		regions:            []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true}},
+		defParser:          newDefineParser(),
+		searchPaths:        searchPaths,
+		skipImplementation: skipImplemenation,
 	}
 }
 
@@ -260,6 +261,23 @@ func (v *pascalCharStream) fillTo(target int) {
 			}
 			v.regions = append(v.regions, newR)
 			continue
+		}
+
+		if v.skipImplementation && len(v.sourceStack) == 1 {
+			isImplementaion, implLen, _ := v.defParser.ParseImplementationFromRunes(
+				source.FileCtx.Content,
+				source.Offset,
+			)
+			if isImplementaion {
+				// Skip the entire implementation section
+				v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+implLen]...)
+				source.Offset += implLen
+				unitend := "\nend."
+				v.buffer = append(v.buffer, []rune(unitend)...)
+				source.Offset += len(unitend)
+				source.LinesCnt += 1 // Count the "end." line
+				break
+			}
 		}
 
 		// normal character processing
@@ -445,33 +463,10 @@ const (
 )
 
 type defineParser struct {
-	// Regex patterns for different directive types
-	patterns map[defineType]*regexp.Regexp
 }
 
 func newDefineParser() *defineParser {
-	return &defineParser{
-		patterns: map[defineType]*regexp.Regexp{
-			includeDI: regexp.MustCompile(`^\{\$(?:I|INCLUDE)\s+([^}]+)\}`),
-			defineDI:  regexp.MustCompile(`^\{\$DEFINE\s+([^}]+)\}`),
-			undefDI:   regexp.MustCompile(`^\{\$UNDEF\s+([^}]+)\}`),
-			ifdefDI:   regexp.MustCompile(`^\{\$IFDEF\s+([^}]+)\}`),
-			ifndefDI:  regexp.MustCompile(`^\{\$IFNDEF\s+([^}]+)\}`),
-			elseDI:    regexp.MustCompile(`^\{\$ELSE\s*\}`),
-			endifDI:   regexp.MustCompile(`^\{\$ENDIF\s*\}`),
-		},
-	}
-}
-func (p *defineParser) ParseDirective(text string) (defineType, string) {
-	for dt, re := range p.patterns {
-		if matches := re.FindStringSubmatch(text); matches != nil {
-			if len(matches) > 1 {
-				return dt, matches[1]
-			}
-			return dt, ""
-		}
-	}
-	return -1, "" // No match found
+	return &defineParser{}
 }
 
 func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defineType, string, int) {
@@ -691,4 +686,81 @@ func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, 
 
 	// No comment found
 	return false, 0, 0
+}
+
+func (p *defineParser) ParseImplementationFromRunes(content []rune, offset int) (bool, int, int) {
+	if offset >= len(content) {
+		return false, 0, 0
+	}
+
+	// Check if we have enough characters for "implementation"
+	keyword := []rune("implementation")
+	keywordLen := len(keyword)
+
+	if offset+keywordLen > len(content) {
+		return false, 0, 0
+	}
+
+	// Check if current position starts with "implementation" (case-insensitive)
+	for i := 0; i < keywordLen; i++ {
+		contentChar := content[offset+i]
+		keywordChar := keyword[i]
+
+		// Convert both to lowercase for comparison
+		if contentChar >= 'A' && contentChar <= 'Z' {
+			contentChar = contentChar + 32 // Convert to lowercase
+		}
+		if keywordChar >= 'A' && keywordChar <= 'Z' {
+			keywordChar = keywordChar + 32 // Convert to lowercase
+		}
+
+		if contentChar != keywordChar {
+			return false, 0, 0
+		}
+	}
+
+	// Check that it's a complete word (not part of another identifier)
+	// Before: should be whitespace, start of file, or non-identifier character
+	if offset > 0 {
+		prevChar := content[offset-1]
+		if (prevChar >= 'a' && prevChar <= 'z') ||
+			(prevChar >= 'A' && prevChar <= 'Z') ||
+			(prevChar >= '0' && prevChar <= '9') ||
+			prevChar == '_' {
+			return false, 0, 0 // Part of another identifier
+		}
+	}
+
+	// After: should be whitespace, end of file, or non-identifier character
+	endPos := offset + keywordLen
+	if endPos < len(content) {
+		nextChar := content[endPos]
+		if (nextChar >= 'a' && nextChar <= 'z') ||
+			(nextChar >= 'A' && nextChar <= 'Z') ||
+			(nextChar >= '0' && nextChar <= '9') ||
+			nextChar == '_' {
+			return false, 0, 0 // Part of another identifier
+		}
+	}
+
+	// Found "implementation" keyword - now consume everything until end of file
+	lineCount := 0
+	currentPos := endPos
+
+	// Count newlines from current position to end of file
+	for currentPos < len(content) {
+		if content[currentPos] == '\n' {
+			lineCount++
+		} else if content[currentPos] == '\r' {
+			lineCount++
+			// Handle \r\n sequences - don't double count
+			if currentPos+1 < len(content) && content[currentPos+1] == '\n' {
+				currentPos++
+			}
+		}
+		currentPos++
+	}
+
+	// Return: found implementation, total length consumed, line count
+	return true, len(content) - offset, lineCount
 }

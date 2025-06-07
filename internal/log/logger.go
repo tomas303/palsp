@@ -214,8 +214,8 @@ func getOutput(file *string) io.Writer {
 			return io.Discard
 		}
 
-		// Open the log file
-		logFile, err := os.OpenFile(*file, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		// Open the log file with truncation (O_TRUNC instead of O_APPEND)
+		logFile, err := os.OpenFile(*file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to open log file %s: %v\n", *file, err)
 			return io.Discard

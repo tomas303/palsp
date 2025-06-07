@@ -125,6 +125,7 @@ constantDefinitionPart
 constantDefinition
     : identifier (COLON typeIdentifier)? EQUAL constant
     | identifier COLON arrayType EQUAL constant
+    | identifier COLON setType EQUAL constant
     ;
 
 constantChr

@@ -174,11 +174,7 @@ func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
 		prevRegion = region
 	}
 
-	if len(pd.Regions) > 0 {
-		return line - cumulativeDelta, true
-	}
-
-	return line, false
+	return line - cumulativeDelta, true
 }
 
 // FindParsedLine finds the parsed line number corresponding to the original line number.
@@ -206,12 +202,8 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 		prevRegion = region
 	}
 
-	if len(pd.Regions) > 0 {
-		parsedLine := originalLine + cumulativeDelta
-		return parsedLine, true
-	}
-
-	return originalLine, false
+	parsedLine := originalLine + cumulativeDelta
+	return parsedLine, true
 }
 
 func ParseCST(content string, debugInfo string, skipImplementation bool) *ParsedData {

@@ -141,6 +141,7 @@ constant
     | scalarType
     | arrayConstant (PLUS (arrayConstant | identifier))*
     | recordConstant
+    | simpleExpression
     ;
 
 arrayConstant
@@ -204,11 +205,11 @@ typeDefinitionPart
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        type_
+        forwardClassType
+        | forwardInterfaceType
         | functionType
         | procedureType
-        | forwardClassType
-        | forwardInterfaceType
+        | type_
     )
     ;
 
@@ -223,11 +224,11 @@ procedureType
     ;
 
 forwardClassType
-    : CLASS SEMI
+    : CLASS
     ;
 
 forwardInterfaceType
-    : INTERFACE SEMI
+    : INTERFACE
     ;
 
 classType

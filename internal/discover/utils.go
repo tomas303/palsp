@@ -247,6 +247,12 @@ func (k *KeyLock[K]) Unlock(key K) {
 // formatFileURI converts a filesystem path to a properly formatted URI
 // Works for both Windows and Unix-like systems
 func FormatFileURI(path string) string {
+
+	// If already a file URI, return as-is
+	if strings.HasPrefix(path, "file://") {
+		return path
+	}
+
 	// Normalize path separators to forward slashes (for Windows)
 	normalizedPath := strings.ReplaceAll(path, "\\", "/")
 

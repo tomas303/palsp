@@ -150,31 +150,53 @@ type ParsedData struct {
 	Regions []Region
 }
 
-// FindOriginalLine finds the original line number corresponding to the parsed line number.
-// Thats because parsed data contains includes too which move original lines.
-// Each region contains source - so each source from external file just cumulate movement
-// and when region of line is found, we can calculate original line by subtracting it.
+// FindOriginalLine finds the original line number corresponding to the parsed line number
+// and its filecontext.
+// It just keep tracks of regions beeing pushed and popped and calculates cumulative delta
+
 func (pd *ParsedData) FindOriginalLine(line int) (int, bool, *FileContext) {
+
+	type sourceStackItem struct {
+		start           *Region
+		cumulativeDelta int
+	}
+
 	if line < 0 || len(pd.Regions) == 0 {
 		return -1, false, nil
 	}
 
-	prevRegion := &pd.Regions[0]
-	mainFile := prevRegion.fileCtx.Filename
-	cumulativeDelta := 0
-
+	sourceStack := []sourceStackItem{
+		{
+			start:           &pd.Regions[0],
+			cumulativeDelta: 0,
+		},
+	}
+	actualSource := &sourceStack[0]
 	for i := 1; i < len(pd.Regions); i++ {
 		region := &pd.Regions[i]
+
 		if line < region.mainLine {
-			return line - prevRegion.mainLine - cumulativeDelta, true, prevRegion.fileCtx
+			return line - actualSource.start.mainLine - actualSource.cumulativeDelta, true, actualSource.start.fileCtx
 		}
-		if prevRegion.fileCtx.Filename != mainFile {
-			cumulativeDelta += region.mainLine - prevRegion.mainLine
+
+		if region.rsmove == rsPush {
+			sourceStack = append(sourceStack, sourceStackItem{
+				start:           region,
+				cumulativeDelta: 0,
+			})
+			actualSource = &sourceStack[len(sourceStack)-1]
 		}
-		prevRegion = region
+
+		if region.rsmove == rsPop {
+			cumulated := actualSource.cumulativeDelta
+			span := region.mainLine - actualSource.start.mainLine
+			sourceStack = sourceStack[:len(sourceStack)-1]
+			actualSource = &sourceStack[len(sourceStack)-1]
+			actualSource.cumulativeDelta += cumulated + span
+		}
 	}
 
-	return line - cumulativeDelta, true, pd.Regions[len(pd.Regions)-1].fileCtx
+	return line - actualSource.start.mainLine - actualSource.cumulativeDelta, true, actualSource.start.fileCtx
 }
 
 // FindParsedLine finds the parsed line number corresponding to the original line number.

@@ -67,11 +67,20 @@ func (d *defineContext) CurrentDefines() []string {
 	return keys
 }
 
+type regionStackMove int
+
+const (
+	rsNeutral regionStackMove = iota // No stack change (same file continues)
+	rsPush                           // Stack up (entering include file)
+	rsPop                            // Stack down (returning from include file)
+)
+
 type Region struct {
 	mainLine int // line number in virtual buffer(what was all parsed into)
 	srcLine  int // line number in source(can be virtual due to includes containing other includes)
 	fileCtx  *FileContext
-	active   bool // based on defines
+	active   bool            // based on defines
+	rsmove   regionStackMove // How this region affects the stack
 }
 
 type pascalCharStream struct {
@@ -111,7 +120,7 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 		index:              0,
 		sourceStack:        []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
 		defineCtx:          defCtx,
-		regions:            []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true}},
+		regions:            []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true, rsmove: rsNeutral}},
 		defParser:          newDefineParser(),
 		searchPaths:        searchPaths,
 		skipImplementation: skipImplemenation,
@@ -218,6 +227,7 @@ func (v *pascalCharStream) fillTo(target int) {
 				srcLine:  source.LinesCnt,
 				fileCtx:  source.FileCtx,
 				active:   v.defineCtx.IsActive(),
+				rsmove:   rsPop,
 			}
 			v.regions = append(v.regions, newR)
 
@@ -251,13 +261,14 @@ func (v *pascalCharStream) fillTo(target int) {
 		if directive != -1 {
 			v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+matchLen]...)
 			source.Offset += matchLen
-			v.handleDirective(directive, value)
+			rsmove := v.handleDirective(directive, value)
 			source := v.sourceStack[len(v.sourceStack)-1]
 			newR := Region{
 				mainLine: v.linesCnt,
 				srcLine:  source.LinesCnt,
 				fileCtx:  source.FileCtx,
 				active:   v.defineCtx.IsActive(),
+				rsmove:   rsmove,
 			}
 			v.regions = append(v.regions, newR)
 			continue
@@ -298,7 +309,7 @@ func (v *pascalCharStream) fillTo(target int) {
 	}
 }
 
-func (v *pascalCharStream) handleDirective(directive defineType, value string) {
+func (v *pascalCharStream) handleDirective(directive defineType, value string) regionStackMove {
 	switch directive {
 	case includeDI:
 		// Handle include directive
@@ -306,7 +317,7 @@ func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 		includeFile, err := v.readInclude(value, source.FileCtx.Filename)
 		if err != nil {
 			// fmt.Printf("Error reading include file %s: %v\n", value, err)
-			return
+			return rsNeutral // Skip this include if error occurs
 		}
 		includeSource := &SourceFrame{
 			FileCtx:  includeFile,
@@ -314,6 +325,7 @@ func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 			LinesCnt: 0,
 		}
 		v.sourceStack = append(v.sourceStack, includeSource)
+		return rsPush
 	case defineDI:
 		v.defineCtx.Define(value)
 	case undefDI:
@@ -332,7 +344,7 @@ func (v *pascalCharStream) handleDirective(directive defineType, value string) {
 	case endifDI:
 		v.defineCtx.PopIf()
 	}
-
+	return rsNeutral
 }
 
 func (v *pascalCharStream) readInclude(filename string, baseFile string) (*FileContext, error) {

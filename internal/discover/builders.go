@@ -530,7 +530,7 @@ func buildConstList(ctx parser.IConstListContext) string {
 	return strings.Join(consts, ",")
 }
 
-func buildProcedureHeader(ctx *parser.ProcedureHeaderContext) string {
+func buildProcedureHeader(ctx parser.IProcedureHeaderContext) string {
 	definition := ""
 	name := ""
 	if ctx.CLASS() != nil {
@@ -552,7 +552,7 @@ func buildProcedureHeader(ctx *parser.ProcedureHeaderContext) string {
 	return definition
 }
 
-func buildFunctionHeader(ctx *parser.FunctionHeaderContext) string {
+func buildFunctionHeader(ctx parser.IFunctionHeaderContext) string {
 	definition := ""
 	name := ""
 	if ctx.CLASS() != nil {

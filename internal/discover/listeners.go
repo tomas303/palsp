@@ -392,7 +392,6 @@ func (s *scopesListener) EnterProcedureHeader(ctx *parser.ProcedureHeaderContext
 
 func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext) {
 	if s.inDeclaration {
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), ctxStartPos(ctx.Identifier()))
 		return
 	}
 	s.endScope()
@@ -401,6 +400,7 @@ func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext)
 
 func (s *scopesListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
+	s.collector.AddSymbol(getLastIdent(ctx.ProcedureHeader().Identifier()), ProcedureSymbol, buildProcedureHeader(ctx.ProcedureHeader()), ctxStartPos(ctx.ProcedureHeader().Identifier()))
 	s.beginScope(ctx, ctx.ProcedureHeader(), ProcedureSymbol)
 }
 
@@ -418,10 +418,6 @@ func (s *scopesListener) EnterFunctionHeader(ctx *parser.FunctionHeaderContext) 
 
 func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 	if s.inDeclaration {
-		if ctx.ResultType() != nil {
-			s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), ctxStartPos(ctx.Identifier()))
-		}
-		s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.Identifier()))
 		return
 	}
 	if ctx.ResultType() != nil {
@@ -433,6 +429,12 @@ func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 
 func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
+
+	if ctx.FunctionHeader().ResultType() != nil {
+		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), ctxStartPos(ctx.FunctionHeader().Identifier()))
+	}
+	s.collector.AddSymbol(getLastIdent(ctx.FunctionHeader().Identifier()), FunctionSymbol, buildFunctionHeader(ctx.FunctionHeader()), ctxStartPos(ctx.FunctionHeader().Identifier()))
+
 	s.beginScope(ctx, ctx.FunctionHeader(), FunctionSymbol)
 }
 

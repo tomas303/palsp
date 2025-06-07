@@ -154,9 +154,9 @@ type ParsedData struct {
 // Thats because parsed data contains includes too which move original lines.
 // Each region contains source - so each source from external file just cumulate movement
 // and when region of line is found, we can calculate original line by subtracting it.
-func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
+func (pd *ParsedData) FindOriginalLine(line int) (int, bool, *FileContext) {
 	if line < 0 || len(pd.Regions) == 0 {
-		return -1, false
+		return -1, false, nil
 	}
 
 	prevRegion := &pd.Regions[0]
@@ -165,16 +165,16 @@ func (pd *ParsedData) FindOriginalLine(line int) (int, bool) {
 
 	for i := 1; i < len(pd.Regions); i++ {
 		region := &pd.Regions[i]
+		if line < region.mainLine {
+			return line - prevRegion.mainLine - cumulativeDelta, true, prevRegion.fileCtx
+		}
 		if prevRegion.fileCtx.Filename != mainFile {
 			cumulativeDelta += region.mainLine - prevRegion.mainLine
-		}
-		if line <= region.mainLine {
-			return line - cumulativeDelta, true
 		}
 		prevRegion = region
 	}
 
-	return line - cumulativeDelta, true
+	return line - cumulativeDelta, true, pd.Regions[len(pd.Regions)-1].fileCtx
 }
 
 // FindParsedLine finds the parsed line number corresponding to the original line number.

@@ -211,16 +211,27 @@ func (mgr *Manager) Definition(uri string, line int, character int) OpResult {
 				return err
 			}
 		}
+
+		line, found, fileCtx := fci.PData.FindOriginalLine(sym.Position.Line)
+		if !found {
+			line = sym.Position.Line
+		} else {
+			// If the symbol is from an included file, we need to adjust the filePath
+			if fileCtx != nil && fileCtx.Filename != filePath {
+				filePath = fileCtx.Filename
+			}
+		}
+
 		location := map[string]interface{}{
 			"uri": discover.FormatFileURI(filePath),
 			"range": map[string]interface{}{
 				"start": map[string]interface{}{
-					"line":      sym.Position.Line - 1,
-					"character": sym.Position.Character - 1,
+					"line":      line,
+					"character": sym.Position.Character,
 				},
 				"end": map[string]interface{}{
-					"line":      sym.Position.Line - 1,
-					"character": sym.Position.Character - 1 + len(sym.Name),
+					"line":      line,
+					"character": sym.Position.Character + len(sym.Name),
 				},
 			},
 		}
@@ -293,7 +304,7 @@ func (mgr *Manager) addPath(uri string) {
 func (mgr *Manager) HoverInfo(smb *discover.Symbol, pdata *discover.ParsedData) string {
 	var result strings.Builder
 
-	line, found := pdata.FindOriginalLine(smb.Position.Line)
+	line, found, fileCtx := pdata.FindOriginalLine(smb.Position.Line)
 	if !found {
 		line = smb.Position.Line
 	}
@@ -312,7 +323,10 @@ func (mgr *Manager) HoverInfo(smb *discover.Symbol, pdata *discover.ParsedData) 
 		result.WriteString(": ")
 		result.WriteString(smb.Definition)
 	}
-
+	if fileCtx != nil {
+		result.WriteString("\n")
+		result.WriteString(fileCtx.Filename)
+	}
 	return result.String()
 }
 

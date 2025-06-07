@@ -188,7 +188,7 @@ string
     ;
 
 stringExpression
-    : string (PLUS string)*
+    : string (PLUS (string | identifier))*
     ;
 
 resourceDefinitionPart

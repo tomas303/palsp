@@ -392,7 +392,7 @@ structuredType
     | unpackedStructuredType
     | helperType
     | classType
-    | recordType
+    | PACKED? recordType
     | interfaceType
     ;
 

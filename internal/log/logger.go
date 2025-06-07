@@ -2,7 +2,9 @@ package log
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -198,16 +200,27 @@ func newConsoleWriter(file *string) zerolog.ConsoleWriter {
 	return writer
 }
 
-func getOutput(file *string) *os.File {
-
-	output := os.Stderr
+func getOutput(file *string) io.Writer {
 	if file != nil && *file != "" {
-		file, err := os.OpenFile(*file, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err == nil {
-			output = file
-		} else {
-			os.Stderr.WriteString("Failed to open log file: " + err.Error() + "\n")
+		// Check for special values to disable output
+		if *file == "none" || *file == "null" {
+			return io.Discard
 		}
+
+		// Create all directories in the file path if they don't exist
+		dir := filepath.Dir(*file)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create log directory %s: %v\n", dir, err)
+			return io.Discard
+		}
+
+		// Open the log file
+		logFile, err := os.OpenFile(*file, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to open log file %s: %v\n", *file, err)
+			return io.Discard
+		}
+		return logFile
 	}
-	return output
+	return os.Stderr
 }

@@ -216,8 +216,8 @@ func (mgr *Manager) Definition(uri string, line int, character int) OpResult {
 		if !found {
 			line = sym.Position.Line
 		} else {
-			// If the symbol is from an included file, we need to adjust the filePath
-			if fileCtx != nil && fileCtx.Filename != filePath {
+			// todo: later add better indication of inclcude files
+			if fileCtx != nil && strings.HasSuffix(fileCtx.Filename, ".inc") {
 				filePath = fileCtx.Filename
 			}
 		}

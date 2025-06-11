@@ -15,6 +15,11 @@
         "visitors": true,
         "language": "Go",
         "outputDir": "parser",
-    }
+    },
+    "editor.guides.highlightActiveBracketPair": false,
+    "editor.guides.bracketPairsHorizontal": false,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.matchBrackets": "never",
+    "editor.occurrencesHighlight": "off"
 
 }

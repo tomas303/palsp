@@ -115,12 +115,18 @@ func newPascalCharStream(content string, filename string, searchPaths []string, 
 		defCtx.Define(def)
 	}
 
+	sourceStack := make([]*SourceFrame, 0, 32)
+	sourceStack = append(sourceStack, &SourceFrame{FileCtx: ctx, Offset: 0, LinesCnt: 0})
+
+	regions := make([]Region, 0, 32)
+	regions = append(regions, Region{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true, rsmove: rsNeutral})
+
 	return &pascalCharStream{
-		buffer:             []rune{},
+		buffer:             make([]rune, 0, 1048576),
 		index:              0,
-		sourceStack:        []*SourceFrame{{FileCtx: ctx, Offset: 0, LinesCnt: 0}},
+		sourceStack:        sourceStack,
 		defineCtx:          defCtx,
-		regions:            []Region{{mainLine: 0, srcLine: 0, fileCtx: ctx, active: true, rsmove: rsNeutral}},
+		regions:            regions,
 		defParser:          newDefineParser(),
 		searchPaths:        searchPaths,
 		skipImplementation: skipImplemenation,

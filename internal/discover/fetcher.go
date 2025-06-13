@@ -140,10 +140,19 @@ func (f *Fetcher) worker(id int) {
 
 		log.Main.Debug().Int("worker", id).Str("unit", unit).Msg("Processing unit")
 
+		// Start timing
+		start := time.Now()
+
 		// Retrieve the unit to parse and index it
 		_, _, err := SymDB().RetriveUnit(unit)
+
+		// Calculate duration
+		duration := time.Since(start)
+
 		if err != nil {
-			log.Main.Error().Err(err).Str("unit", unit).Msg("Failed to process unit")
+			log.Main.Error().Err(err).Str("unit", unit).Str("duration", duration.String()).Msg("Failed to process unit")
+		} else {
+			log.Main.Info().Int("worker", id).Str("unit", unit).Str("duration", duration.String()).Msg("Unit processed")
 		}
 	}
 

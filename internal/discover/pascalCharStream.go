@@ -746,7 +746,7 @@ func (p *defineParser) evaluateExpressionRunes(expression []rune, defineCtx *def
 	}
 
 	// Parse and evaluate the expression
-	result, _ := p.parseOrExpressionRunes(tokens, 0, defineCtx)
+	result, _ := p.parseOrExpressionRunes(tokens, 0, defineCtx, expression)
 	return result
 }
 
@@ -888,12 +888,12 @@ func (p *defineParser) toLower(r rune) rune {
 }
 
 // Parse OR expression (lowest precedence)
-func (p *defineParser) parseOrExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext) (bool, int) {
-	left, pos := p.parseXorExpressionRunes(tokens, pos, defineCtx)
+func (p *defineParser) parseOrExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext, originalExpr []rune) (bool, int) {
+	left, pos := p.parseXorExpressionRunes(tokens, pos, defineCtx, originalExpr)
 
 	for pos < len(tokens) && tokens[pos].kind == tokenOr {
 		pos++ // Skip OR
-		right, newPos := p.parseXorExpressionRunes(tokens, pos, defineCtx)
+		right, newPos := p.parseXorExpressionRunes(tokens, pos, defineCtx, originalExpr)
 		pos = newPos
 		left = left || right
 	}
@@ -902,12 +902,12 @@ func (p *defineParser) parseOrExpressionRunes(tokens []runeToken, pos int, defin
 }
 
 // Parse XOR expression
-func (p *defineParser) parseXorExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext) (bool, int) {
-	left, pos := p.parseAndExpressionRunes(tokens, pos, defineCtx)
+func (p *defineParser) parseXorExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext, originalExpr []rune) (bool, int) {
+	left, pos := p.parseAndExpressionRunes(tokens, pos, defineCtx, originalExpr)
 
 	for pos < len(tokens) && tokens[pos].kind == tokenXor {
 		pos++ // Skip XOR
-		right, newPos := p.parseAndExpressionRunes(tokens, pos, defineCtx)
+		right, newPos := p.parseAndExpressionRunes(tokens, pos, defineCtx, originalExpr)
 		pos = newPos
 		left = (left && !right) || (!left && right) // XOR logic
 	}
@@ -916,12 +916,12 @@ func (p *defineParser) parseXorExpressionRunes(tokens []runeToken, pos int, defi
 }
 
 // Parse AND expression
-func (p *defineParser) parseAndExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext) (bool, int) {
-	left, pos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx)
+func (p *defineParser) parseAndExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext, originalExpr []rune) (bool, int) {
+	left, pos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx, originalExpr)
 
 	for pos < len(tokens) && tokens[pos].kind == tokenAnd {
 		pos++ // Skip AND
-		right, newPos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx)
+		right, newPos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx, originalExpr)
 		pos = newPos
 		left = left && right
 	}
@@ -930,7 +930,7 @@ func (p *defineParser) parseAndExpressionRunes(tokens []runeToken, pos int, defi
 }
 
 // Parse primary expressions (identifiers, literals, parentheses)
-func (p *defineParser) parsePrimaryExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext) (bool, int) {
+func (p *defineParser) parsePrimaryExpressionRunes(tokens []runeToken, pos int, defineCtx *defineContext, originalExpr []rune) (bool, int) {
 	if pos >= len(tokens) {
 		return false, pos
 	}
@@ -944,26 +944,109 @@ func (p *defineParser) parsePrimaryExpressionRunes(tokens []runeToken, pos int, 
 
 	case tokenNot:
 		pos++ // Skip NOT
-		value, newPos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx)
+		value, newPos := p.parsePrimaryExpressionRunes(tokens, pos, defineCtx, originalExpr)
 		return !value, newPos
 
 	case tokenIdent:
-		// Simple identifier - check if it's defined
-		// We need access to original expression to extract the identifier
-		return true, pos + 1 // Simplified for now
+		// Simple identifier - extract from original expression and check if it's defined
+		token := tokens[pos]
+		identifier := string(originalExpr[token.start:token.end])
+		return defineCtx.IsDefined(identifier), pos + 1
 
 	case tokenDefined:
-		// DEFINED(symbol) function - extract symbol and check
-		return true, pos + 1 // Simplified for now
+		// DEFINED(symbol) function - extract symbol name and check
+		token := tokens[pos]
+		funcText := originalExpr[token.start:token.end]
+
+		// Extract symbol name from DEFINED(symbol)
+		parenStart := -1
+		for i, r := range funcText {
+			if r == '(' {
+				parenStart = i
+				break
+			}
+		}
+
+		if parenStart != -1 {
+			// Find the closing parenthesis
+			parenEnd := -1
+			for i := len(funcText) - 1; i >= 0; i-- {
+				if funcText[i] == ')' {
+					parenEnd = i
+					break
+				}
+			}
+
+			if parenEnd > parenStart {
+				// Extract symbol name between parentheses
+				symbolRunes := funcText[parenStart+1 : parenEnd]
+				// Trim whitespace
+				start := 0
+				end := len(symbolRunes)
+				for start < len(symbolRunes) && isSpace(symbolRunes[start]) {
+					start++
+				}
+				for end > start && isSpace(symbolRunes[end-1]) {
+					end--
+				}
+
+				if start < end {
+					symbol := string(symbolRunes[start:end])
+					return defineCtx.IsDefined(symbol), pos + 1
+				}
+			}
+		}
+
+		return false, pos + 1
 
 	case tokenDeclared:
-		// DECLARED(symbol) function
-		return true, pos + 1 // Simplified for now
+		// DECLARED(symbol) function - similar to DEFINED for our purposes
+		token := tokens[pos]
+		funcText := originalExpr[token.start:token.end]
+
+		// Extract symbol name from DECLARED(symbol)
+		parenStart := -1
+		for i, r := range funcText {
+			if r == '(' {
+				parenStart = i
+				break
+			}
+		}
+
+		if parenStart != -1 {
+			parenEnd := -1
+			for i := len(funcText) - 1; i >= 0; i-- {
+				if funcText[i] == ')' {
+					parenEnd = i
+					break
+				}
+			}
+
+			if parenEnd > parenStart {
+				symbolRunes := funcText[parenStart+1 : parenEnd]
+				// Trim whitespace
+				start := 0
+				end := len(symbolRunes)
+				for start < len(symbolRunes) && isSpace(symbolRunes[start]) {
+					start++
+				}
+				for end > start && isSpace(symbolRunes[end-1]) {
+					end--
+				}
+
+				if start < end {
+					symbol := string(symbolRunes[start:end])
+					return defineCtx.IsDefined(symbol), pos + 1
+				}
+			}
+		}
+
+		return false, pos + 1
 
 	case tokenLParen:
 		// Parenthesized expression
 		pos++ // Skip (
-		result, newPos := p.parseOrExpressionRunes(tokens, pos, defineCtx)
+		result, newPos := p.parseOrExpressionRunes(tokens, pos, defineCtx, originalExpr)
 		pos = newPos
 		if pos < len(tokens) && tokens[pos].kind == tokenRParen {
 			pos++ // Skip )

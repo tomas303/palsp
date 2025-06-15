@@ -375,6 +375,12 @@ func (s *scopesListener) ExitForStatement(ctx *parser.ForStatementContext) {
 	}
 }
 
+func (s *scopesListener) ExitResourceDefinition(ctx *parser.ResourceDefinitionContext) {
+	if ctx.Identifier() != nil {
+		s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ResourceStringSymbol, ctx.StringExpression().GetText(), ctxStartPos(ctx.Identifier()))
+	}
+}
+
 func (s *scopesListener) EnterUnit(ctx *parser.UnitContext) {
 	s.beginScope(ctx, ctx, Unit)
 }

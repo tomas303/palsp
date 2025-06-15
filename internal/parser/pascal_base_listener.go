@@ -213,6 +213,12 @@ func (s *BasepascalListener) EnterResourceDefinition(ctx *ResourceDefinitionCont
 // ExitResourceDefinition is called when production resourceDefinition is exited.
 func (s *BasepascalListener) ExitResourceDefinition(ctx *ResourceDefinitionContext) {}
 
+// EnterDeprecatedHint is called when production deprecatedHint is entered.
+func (s *BasepascalListener) EnterDeprecatedHint(ctx *DeprecatedHintContext) {}
+
+// ExitDeprecatedHint is called when production deprecatedHint is exited.
+func (s *BasepascalListener) ExitDeprecatedHint(ctx *DeprecatedHintContext) {}
+
 // EnterTypeDefinitionPart is called when production typeDefinitionPart is entered.
 func (s *BasepascalListener) EnterTypeDefinitionPart(ctx *TypeDefinitionPartContext) {}
 
@@ -248,6 +254,18 @@ func (s *BasepascalListener) EnterForwardInterfaceType(ctx *ForwardInterfaceType
 
 // ExitForwardInterfaceType is called when production forwardInterfaceType is exited.
 func (s *BasepascalListener) ExitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) {}
+
+// EnterAliasDistinctType is called when production aliasDistinctType is entered.
+func (s *BasepascalListener) EnterAliasDistinctType(ctx *AliasDistinctTypeContext) {}
+
+// ExitAliasDistinctType is called when production aliasDistinctType is exited.
+func (s *BasepascalListener) ExitAliasDistinctType(ctx *AliasDistinctTypeContext) {}
+
+// EnterAliasType is called when production aliasType is entered.
+func (s *BasepascalListener) EnterAliasType(ctx *AliasTypeContext) {}
+
+// ExitAliasType is called when production aliasType is exited.
+func (s *BasepascalListener) ExitAliasType(ctx *AliasTypeContext) {}
 
 // EnterClassType is called when production classType is entered.
 func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}

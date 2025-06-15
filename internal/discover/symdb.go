@@ -53,22 +53,23 @@ type SymbolDatabase interface {
 type SymbolKind int
 
 const (
-	UnknownSymbol   SymbolKind = iota // 0
-	ProcedureSymbol                   // 1
-	FunctionSymbol                    // 2
-	ConstantSymbol                    // 3
-	VariableSymbol                    // 4
-	ClassSymbol                       // 5
-	InterfaceSymbol                   // 6
-	TypeSymbol                        // 7
-	ParameterSymbol                   // 8
-	FunctionResult                    // 9
-	ClassVariable                     // 10
-	UnitReference                     // 11
-	TypeIdentifier                    // 12
-	PropertySymbol                    // 13
-	HelperSymbol                      // 14
-	Unit                              // 15
+	UnknownSymbol        SymbolKind = iota // 0
+	ProcedureSymbol                        // 1
+	FunctionSymbol                         // 2
+	ConstantSymbol                         // 3
+	VariableSymbol                         // 4
+	ClassSymbol                            // 5
+	InterfaceSymbol                        // 6
+	TypeSymbol                             // 7
+	ParameterSymbol                        // 8
+	FunctionResult                         // 9
+	ClassVariable                          // 10
+	UnitReference                          // 11
+	TypeIdentifier                         // 12
+	PropertySymbol                         // 13
+	HelperSymbol                           // 14
+	ResourceStringSymbol                   // 15
+	Unit                                   // 16
 )
 
 func init() {
@@ -115,6 +116,8 @@ func SymbolKindToString(kind SymbolKind) string {
 		return "property"
 	case HelperSymbol:
 		return "class helper"
+	case ResourceStringSymbol:
+		return "resourcestring"
 	case Unit:
 		return "unit"
 	default:
@@ -439,6 +442,7 @@ func (db *symDB) findUnitInfo(unit string) (unitID int, unitpath string, lastMod
 	}
 
 	if err == sql.ErrNoRows {
+		log.Main.Warn().Err(err).Msgf("Unit %s not found in database, even with scope prefixes", unit)
 		return 0, "", 0, 0, "", ErrUnitNotFound
 	} else {
 		log.Main.Warn().Err(err).Msgf("Unit %s not found, even with scope prefixes", unit)

@@ -104,6 +104,9 @@ type pascalListener interface {
 	// EnterResourceDefinition is called when entering the resourceDefinition production.
 	EnterResourceDefinition(c *ResourceDefinitionContext)
 
+	// EnterDeprecatedHint is called when entering the deprecatedHint production.
+	EnterDeprecatedHint(c *DeprecatedHintContext)
+
 	// EnterTypeDefinitionPart is called when entering the typeDefinitionPart production.
 	EnterTypeDefinitionPart(c *TypeDefinitionPartContext)
 
@@ -121,6 +124,12 @@ type pascalListener interface {
 
 	// EnterForwardInterfaceType is called when entering the forwardInterfaceType production.
 	EnterForwardInterfaceType(c *ForwardInterfaceTypeContext)
+
+	// EnterAliasDistinctType is called when entering the aliasDistinctType production.
+	EnterAliasDistinctType(c *AliasDistinctTypeContext)
+
+	// EnterAliasType is called when entering the aliasType production.
+	EnterAliasType(c *AliasTypeContext)
 
 	// EnterClassType is called when entering the classType production.
 	EnterClassType(c *ClassTypeContext)
@@ -617,6 +626,9 @@ type pascalListener interface {
 	// ExitResourceDefinition is called when exiting the resourceDefinition production.
 	ExitResourceDefinition(c *ResourceDefinitionContext)
 
+	// ExitDeprecatedHint is called when exiting the deprecatedHint production.
+	ExitDeprecatedHint(c *DeprecatedHintContext)
+
 	// ExitTypeDefinitionPart is called when exiting the typeDefinitionPart production.
 	ExitTypeDefinitionPart(c *TypeDefinitionPartContext)
 
@@ -634,6 +646,12 @@ type pascalListener interface {
 
 	// ExitForwardInterfaceType is called when exiting the forwardInterfaceType production.
 	ExitForwardInterfaceType(c *ForwardInterfaceTypeContext)
+
+	// ExitAliasDistinctType is called when exiting the aliasDistinctType production.
+	ExitAliasDistinctType(c *AliasDistinctTypeContext)
+
+	// ExitAliasType is called when exiting the aliasType production.
+	ExitAliasType(c *AliasTypeContext)
 
 	// ExitClassType is called when exiting the classType production.
 	ExitClassType(c *ClassTypeContext)

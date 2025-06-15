@@ -27,9 +27,9 @@
             "args": ["--port", "8080", 
                 "--log-level-main", "debug", 
                 "--log-level-antlr-error", "debug",
-                "--log-file-antlr-error", "/tmp/palsp/error.log",
-                "--log-level-antlr-trace", "debug",
-                "--log-file-antlr-trace", "/tmp/palsp/trace.log"
+                // "--log-file-antlr-error", "/tmp/palsp/error.log",
+                "--log-level-antlr-trace", "debug"
+                // "--log-file-antlr-trace", "/tmp/palsp/trace.log"
             ],
             "env": {},
             "buildFlags": "",

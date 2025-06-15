@@ -104,6 +104,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#resourceDefinition.
 	VisitResourceDefinition(ctx *ResourceDefinitionContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#deprecatedHint.
+	VisitDeprecatedHint(ctx *DeprecatedHintContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#typeDefinitionPart.
 	VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{}
 
@@ -121,6 +124,12 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#forwardInterfaceType.
 	VisitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#aliasDistinctType.
+	VisitAliasDistinctType(ctx *AliasDistinctTypeContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#aliasType.
+	VisitAliasType(ctx *AliasTypeContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#classType.
 	VisitClassType(ctx *ClassTypeContext) interface{}

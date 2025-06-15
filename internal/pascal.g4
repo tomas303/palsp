@@ -123,9 +123,9 @@ constantDefinitionPart
     ;
 
 constantDefinition
-    : identifier (COLON typeIdentifier)? EQUAL constant
-    | identifier COLON arrayType EQUAL constant
-    | identifier COLON setType EQUAL constant
+    : identifier (COLON typeIdentifier)? EQUAL constant deprecatedHint?
+    | identifier COLON arrayType EQUAL constant deprecatedHint?
+    | identifier COLON setType EQUAL constant deprecatedHint?
     ;
 
 constantChr
@@ -200,6 +200,10 @@ resourceDefinition
     : identifier EQUAL stringExpression SEMI
     ;
 
+deprecatedHint
+    : DEPRECATED stringExpression
+    ;
+
 typeDefinitionPart
     : TYPE (typeDefinition SEMI)+
     ;
@@ -210,6 +214,8 @@ typeDefinition
         | forwardInterfaceType
         | functionType
         | procedureType
+        | aliasDistinctType
+        | aliasType
         | type_
     )
     ;
@@ -230,6 +236,14 @@ forwardClassType
 
 forwardInterfaceType
     : INTERFACE
+    ;
+
+aliasDistinctType
+    : TYPE typeIdentifier  // Should be: type SomeType
+    ;
+
+aliasType
+    : typeIdentifier       // Should be: SomeType
     ;
 
 classType
@@ -383,7 +397,13 @@ subrangeType
 
 typeIdentifier
     : identifier
-    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT)
+    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT | LONGWORD | WORD 
+      | BYTE | SHORTINT | SMALLINT | INT64 | UINT64 | SINGLE | DOUBLE | EXTENDED | COMP | CURRENCY
+      | ANSICHAR | WIDECHAR | ANSISTRING | WIDESTRING | UNICODESTRING | RAWBYTESTRING | UTF8STRING
+      | VARIANT | OLEVARIANT | POINTER | PCHAR | PANSICHAR | PWIDECHAR | PUNICODECHAR
+      | THANDLE | HWND | HDC | HICON | HBITMAP | HMENU | HINSTANCE | HMODULE | HKEY
+      | DWORD | QWORD | NATIVEINT | NATIVEUINT | CODEPAGE | TGUID | PGUID
+      | TEXTFILE | TEXT | SHORTSTRING | OPENSTRING)
     | arrayType
     ;
 
@@ -518,13 +538,11 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (
-        formalParameterList
-    )? procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)?  (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers SEMI (deprecatedHint SEMI)?
     ;
 
 functionHeader
-    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers SEMI (deprecatedHint SEMI)?
     ;
 
 procedureOrFunctionHeader
@@ -941,6 +959,10 @@ CHR
 
 CONST
     : 'CONST'
+    ;
+
+DEPRECATED
+    : 'DEPRECATED'
     ;
 
 DIV
@@ -1371,6 +1393,14 @@ LONGINT
     : 'LONGINT'
     ;
 
+LONGWORD
+    : 'LONGWORD'
+    ;
+
+WORD
+    : 'WORD'
+    ;
+
 OPERATOR
     : 'operator'
     ;
@@ -1445,4 +1475,180 @@ fragment HEX_CHAR_SEQ8
 
 fragment HEX_CHAR_SEQ4
     : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
+    ;
+
+BYTE
+    : 'BYTE'
+    ;
+
+SHORTINT  
+    : 'SHORTINT'
+    ;
+
+SMALLINT
+    : 'SMALLINT'
+    ;
+
+INT64
+    : 'INT64'
+    ;
+
+UINT64
+    : 'UINT64'
+    ;
+
+SINGLE
+    : 'SINGLE'
+    ;
+
+DOUBLE
+    : 'DOUBLE'
+    ;
+
+EXTENDED
+    : 'EXTENDED'
+    ;
+
+COMP
+    : 'COMP'
+    ;
+
+CURRENCY
+    : 'CURRENCY'
+    ;
+
+ANSICHAR
+    : 'ANSICHAR'
+    ;
+
+WIDECHAR
+    : 'WIDECHAR'
+    ;
+
+ANSISTRING
+    : 'ANSISTRING'
+    ;
+
+WIDESTRING
+    : 'WIDESTRING'
+    ;
+
+UNICODESTRING
+    : 'UNICODESTRING'
+    ;
+
+RAWBYTESTRING
+    : 'RAWBYTESTRING'
+    ;
+
+UTF8STRING
+    : 'UTF8STRING'
+    ;
+
+VARIANT
+    : 'VARIANT'
+    ;
+
+OLEVARIANT
+    : 'OLEVARIANT'
+    ;
+
+POINTER
+    : 'POINTER'
+    ;
+
+PCHAR
+    : 'PCHAR'
+    ;
+
+PANSICHAR
+    : 'PANSICHAR'
+    ;
+
+PWIDECHAR
+    : 'PWIDECHAR'
+    ;
+
+PUNICODECHAR
+    : 'PUNICODECHAR'
+    ;
+
+THANDLE
+    : 'THANDLE'
+    ;
+
+HWND
+    : 'HWND'
+    ;
+
+HDC
+    : 'HDC'
+    ;
+
+HICON
+    : 'HICON'
+    ;
+
+HBITMAP
+    : 'HBITMAP'
+    ;
+
+HMENU
+    : 'HMENU'
+    ;
+
+HINSTANCE
+    : 'HINSTANCE'
+    ;
+
+HMODULE
+    : 'HMODULE'
+    ;
+
+HKEY
+    : 'HKEY'
+    ;
+
+DWORD
+    : 'DWORD'
+    ;
+
+QWORD
+    : 'QWORD'
+    ;
+
+NATIVEINT
+    : 'NATIVEINT'
+    ;
+
+NATIVEUINT
+    : 'NATIVEUINT'
+    ;
+
+CODEPAGE
+    : 'CODEPAGE'
+    ;
+
+TGUID
+    : 'TGUID'
+    ;
+
+PGUID
+    : 'PGUID'
+    ;
+
+TEXTFILE
+    : 'TEXTFILE'
+    ;
+
+TEXT
+    : 'TEXT'
+    ;
+
+SHORTSTRING
+    : 'SHORTSTRING'
+    ;
+
+OPENSTRING
+    : 'OPENSTRING'
     ;

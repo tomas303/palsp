@@ -136,6 +136,10 @@ func (v *BasepascalVisitor) VisitResourceDefinition(ctx *ResourceDefinitionConte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitDeprecatedHint(ctx *DeprecatedHintContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -157,6 +161,14 @@ func (v *BasepascalVisitor) VisitForwardClassType(ctx *ForwardClassTypeContext) 
 }
 
 func (v *BasepascalVisitor) VisitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitAliasDistinctType(ctx *AliasDistinctTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitAliasType(ctx *AliasTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

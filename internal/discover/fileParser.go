@@ -228,80 +228,45 @@ func (pd *ParsedData) FindParsedLine(originalLine int) (int, bool) {
 	return parsedLine, true
 }
 
-type ParserPool struct {
-	parsers chan interface{} // Store actual PascalParser instances
-	streams chan *antlr.CommonTokenStream
-}
-
-var globalParserPool *ParserPool
-
-func init() {
-	globalParserPool = NewParserPool(4) // Pool size of 4
-}
-
-func NewParserPool(size int) *ParserPool {
-	pool := &ParserPool{
-		parsers: make(chan interface{}, size),
-		streams: make(chan *antlr.CommonTokenStream, size),
-	}
-
-	// Pre-populate pool with dummy instances
-	for i := 0; i < size; i++ {
-		dummyInput := antlr.NewInputStream("")
-		dummyLexer := parser.NewpascalLexer(dummyInput)
-		stream := antlr.NewCommonTokenStream(dummyLexer, antlr.TokenDefaultChannel)
-		p := parser.NewpascalParser(stream)
-
-		pool.streams <- stream
-		pool.parsers <- p // Store the actual PascalParser
-	}
-
-	return pool
-}
-
 func ParseCST(content string, debugInfo string, skipImplementation bool) *ParsedData {
+	// Get file path from debugInfo for preprocessing
 	filePath := debugInfo
 	if filePath == "" {
 		filePath = "unknown"
 	}
 
-	// Get parser and stream from pool
-	parserInterface := <-globalParserPool.parsers
-	stream := <-globalParserPool.streams
-
-	defer func() {
-		// Return to pool
-		globalParserPool.parsers <- parserInterface
-		globalParserPool.streams <- stream
-	}()
-
-	// Type assert to get the actual parser
-	pascalParser := parserInterface.(interface {
-		SetTokenStream(antlr.TokenStream)
-		RemoveErrorListeners()
-		AddParseListener(antlr.ParseTreeListener)
-		Source() parser.ISourceContext
-	})
-
 	// Create input stream from preprocessed content
+	//input := antlr.NewInputStream(preprocessed.Content)
 	input := newPascalCharStream(content, filePath, SymDB().GetSearchPaths(), SymDB().GetDefines(), skipImplementation)
 	lexer := parser.NewpascalLexer(input)
+
+	// Remove default error listeners and add custom one
 	lexer.RemoveErrorListeners()
+	lexer.AddErrorListener(NewZerologErrorListener(debugInfo))
 
-	// Reuse stream and parser
-	stream.SetTokenSource(lexer)
-	pascalParser.SetTokenStream(stream)
+	// Create token stream
+	stream := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+
+	// Create parser - use lowercase constructor
+	pascalParser := parser.NewpascalParser(stream)
+
+	// Remove default error listeners and add custom one
 	pascalParser.RemoveErrorListeners()
+	pascalParser.AddErrorListener(NewZerologErrorListener(debugInfo))
 
+	// Optionally add trace listener for debugging
 	if log.AntlrTrace.Debug().Enabled() {
-		pascalParser.AddParseListener(NewZerologTraceListener(pascalParser.(antlr.Parser), debugInfo))
+		pascalParser.AddParseListener(NewZerologTraceListener(pascalParser, debugInfo))
 	}
 
+	// Return the AST by invoking the Source rule
 	tree := pascalParser.Source()
 
-	return &ParsedData{
+	ParsedData := &ParsedData{
 		Tree:    tree,
 		Stream:  stream,
 		Regions: input.regions,
 	}
+
+	return ParsedData
 }

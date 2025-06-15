@@ -152,6 +152,14 @@ func (v *BasepascalVisitor) VisitTypeDefinition(ctx *TypeDefinitionContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitClassTypeOrForward(ctx *ClassTypeOrForwardContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitForwardDeclaration(ctx *ForwardDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }

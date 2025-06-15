@@ -215,9 +215,8 @@ typeDefinitionPart
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        classType                    // Full class definition (has END)
-        | interfaceType             // Full interface definition (has END)
-        | forwardDeclaration        // Forward declarations (have SEMI)
+        classTypeOrForward          // Handles both class cases
+        | interfaceTypeOrForward    // Handles both interface cases  
         | functionType
         | procedureType
         | metaClassType
@@ -225,6 +224,16 @@ typeDefinition
         | aliasType
         | type_
     )
+    ;
+
+classTypeOrForward
+    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? 
+      (classImplicitPublishedDeclaration (classDeclaration)* END)?
+    ;
+
+interfaceTypeOrForward
+    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? 
+      (interfaceDeclaration END)?
     ;
 
 forwardDeclaration

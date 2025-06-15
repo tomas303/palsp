@@ -237,6 +237,18 @@ func (s *BasepascalListener) EnterTypeDefinition(ctx *TypeDefinitionContext) {}
 // ExitTypeDefinition is called when production typeDefinition is exited.
 func (s *BasepascalListener) ExitTypeDefinition(ctx *TypeDefinitionContext) {}
 
+// EnterClassTypeOrForward is called when production classTypeOrForward is entered.
+func (s *BasepascalListener) EnterClassTypeOrForward(ctx *ClassTypeOrForwardContext) {}
+
+// ExitClassTypeOrForward is called when production classTypeOrForward is exited.
+func (s *BasepascalListener) ExitClassTypeOrForward(ctx *ClassTypeOrForwardContext) {}
+
+// EnterInterfaceTypeOrForward is called when production interfaceTypeOrForward is entered.
+func (s *BasepascalListener) EnterInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) {}
+
+// ExitInterfaceTypeOrForward is called when production interfaceTypeOrForward is exited.
+func (s *BasepascalListener) ExitInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) {}
+
 // EnterForwardDeclaration is called when production forwardDeclaration is entered.
 func (s *BasepascalListener) EnterForwardDeclaration(ctx *ForwardDeclarationContext) {}
 

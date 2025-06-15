@@ -116,6 +116,12 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#typeDefinition.
 	VisitTypeDefinition(ctx *TypeDefinitionContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#classTypeOrForward.
+	VisitClassTypeOrForward(ctx *ClassTypeOrForwardContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#interfaceTypeOrForward.
+	VisitInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#forwardDeclaration.
 	VisitForwardDeclaration(ctx *ForwardDeclarationContext) interface{}
 

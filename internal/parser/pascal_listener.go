@@ -116,6 +116,12 @@ type pascalListener interface {
 	// EnterTypeDefinition is called when entering the typeDefinition production.
 	EnterTypeDefinition(c *TypeDefinitionContext)
 
+	// EnterClassTypeOrForward is called when entering the classTypeOrForward production.
+	EnterClassTypeOrForward(c *ClassTypeOrForwardContext)
+
+	// EnterInterfaceTypeOrForward is called when entering the interfaceTypeOrForward production.
+	EnterInterfaceTypeOrForward(c *InterfaceTypeOrForwardContext)
+
 	// EnterForwardDeclaration is called when entering the forwardDeclaration production.
 	EnterForwardDeclaration(c *ForwardDeclarationContext)
 
@@ -640,6 +646,12 @@ type pascalListener interface {
 
 	// ExitTypeDefinition is called when exiting the typeDefinition production.
 	ExitTypeDefinition(c *TypeDefinitionContext)
+
+	// ExitClassTypeOrForward is called when exiting the classTypeOrForward production.
+	ExitClassTypeOrForward(c *ClassTypeOrForwardContext)
+
+	// ExitInterfaceTypeOrForward is called when exiting the interfaceTypeOrForward production.
+	ExitInterfaceTypeOrForward(c *InterfaceTypeOrForwardContext)
 
 	// ExitForwardDeclaration is called when exiting the forwardDeclaration production.
 	ExitForwardDeclaration(c *ForwardDeclarationContext)

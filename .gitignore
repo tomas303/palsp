@@ -3,3 +3,4 @@ internal/discover/test*.txt
 cmd/*bin*
 palsp.exe
 *.prof
+escape.txt

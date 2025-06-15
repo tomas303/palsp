@@ -62,10 +62,12 @@ func (t *ZerologTraceListener) VisitErrorNode(node antlr.ErrorNode) {
 }
 
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
+	currentToken := t.parser.GetTokenStream().LT(1)
 	t.getEvent(ctx).
 		Str("di", t.degubInfo).
 		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
-		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Str("token", currentToken.GetText()).
+		Int("tokenType", currentToken.GetTokenType()).
 		Send()
 }
 
@@ -78,10 +80,12 @@ func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
 }
 
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
+	currentToken := t.parser.GetTokenStream().LT(1)
 	t.getEvent(ctx).
 		Str("di", t.degubInfo).
 		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
-		Str("token", t.parser.GetTokenStream().LT(1).GetText()).
+		Str("token", currentToken.GetText()).
+		Int("tokenType", currentToken.GetTokenType()).
 		Send()
 }
 

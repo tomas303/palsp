@@ -48,6 +48,10 @@ func (v *BasepascalVisitor) VisitInterfaceBlock(ctx *InterfaceBlockContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitErrorInterfaceBlockPart(ctx *ErrorInterfaceBlockPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitImplementationBlock(ctx *ImplementationBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -148,6 +152,18 @@ func (v *BasepascalVisitor) VisitTypeDefinition(ctx *TypeDefinitionContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitForwardDeclaration(ctx *ForwardDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitClassType(ctx *ClassTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitInterfaceType(ctx *InterfaceTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitFunctionType(ctx *FunctionTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -156,11 +172,7 @@ func (v *BasepascalVisitor) VisitProcedureType(ctx *ProcedureTypeContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitForwardClassType(ctx *ForwardClassTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitForwardInterfaceType(ctx *ForwardInterfaceTypeContext) interface{} {
+func (v *BasepascalVisitor) VisitMetaClassType(ctx *MetaClassTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -169,10 +181,6 @@ func (v *BasepascalVisitor) VisitAliasDistinctType(ctx *AliasDistinctTypeContext
 }
 
 func (v *BasepascalVisitor) VisitAliasType(ctx *AliasTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassType(ctx *ClassTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -197,10 +205,6 @@ func (v *BasepascalVisitor) VisitClassDeclarationPart(ctx *ClassDeclarationPartC
 }
 
 func (v *BasepascalVisitor) VisitInterfaceGuidConst(ctx *InterfaceGuidConstContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitInterfaceType(ctx *InterfaceTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

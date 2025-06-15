@@ -80,9 +80,14 @@ interfaceBlock
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionHeader
+        | errorInterfaceBlockPart
     )*
     ;
 
+errorInterfaceBlockPart
+    : TYPE ~(IMPLEMENTATION | INITIALIZATION | FINALIZATION | END)+ 
+    ;
+    
 implementationBlock
     : (
         labelDeclarationPart
@@ -205,19 +210,36 @@ deprecatedHint
     ;
 
 typeDefinitionPart
-    : TYPE (typeDefinition SEMI)+
+    : TYPE typeDefinition (SEMI typeDefinition)* SEMI?
     ;
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        forwardClassType
-        | forwardInterfaceType
+        classType                    // Full class definition (has END)
+        | interfaceType             // Full interface definition (has END)
+        | forwardDeclaration        // Forward declarations (have SEMI)
         | functionType
         | procedureType
+        | metaClassType
         | aliasDistinctType
         | aliasType
         | type_
     )
+    ;
+
+forwardDeclaration
+    : CLASS                         // Forward class declaration
+    | INTERFACE                     // Forward interface declaration
+    ;
+
+classType
+    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? 
+      classImplicitPublishedDeclaration (classDeclaration)* END
+    ;
+
+interfaceType
+    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? 
+      interfaceDeclaration END
     ;
 
 functionType
@@ -230,12 +252,8 @@ procedureType
     | REFERENCE TO PROCEDURE (formalParameterList)? procedureOrFunctionHeaderModifiers
     ;
 
-forwardClassType
-    : CLASS
-    ;
-
-forwardInterfaceType
-    : INTERFACE
+metaClassType
+    : CLASS OF typeIdentifier
     ;
 
 aliasDistinctType
@@ -244,12 +262,6 @@ aliasDistinctType
 
 aliasType
     : typeIdentifier       // Should be: SomeType
-    ;
-
-classType
-    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classImplicitPublishedDeclaration (
-        classDeclaration
-    )* END
     ;
 
 classImplementsInterfaces
@@ -287,10 +299,6 @@ GUID_LITERAL
 
 interfaceGuidConst
     : GUID_LITERAL
-    ;
-
-interfaceType
-    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclaration END
     ;
 
 interfaceDeclaration

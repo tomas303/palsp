@@ -38,6 +38,9 @@ type pascalListener interface {
 	// EnterInterfaceBlock is called when entering the interfaceBlock production.
 	EnterInterfaceBlock(c *InterfaceBlockContext)
 
+	// EnterErrorInterfaceBlockPart is called when entering the errorInterfaceBlockPart production.
+	EnterErrorInterfaceBlockPart(c *ErrorInterfaceBlockPartContext)
+
 	// EnterImplementationBlock is called when entering the implementationBlock production.
 	EnterImplementationBlock(c *ImplementationBlockContext)
 
@@ -113,26 +116,29 @@ type pascalListener interface {
 	// EnterTypeDefinition is called when entering the typeDefinition production.
 	EnterTypeDefinition(c *TypeDefinitionContext)
 
+	// EnterForwardDeclaration is called when entering the forwardDeclaration production.
+	EnterForwardDeclaration(c *ForwardDeclarationContext)
+
+	// EnterClassType is called when entering the classType production.
+	EnterClassType(c *ClassTypeContext)
+
+	// EnterInterfaceType is called when entering the interfaceType production.
+	EnterInterfaceType(c *InterfaceTypeContext)
+
 	// EnterFunctionType is called when entering the functionType production.
 	EnterFunctionType(c *FunctionTypeContext)
 
 	// EnterProcedureType is called when entering the procedureType production.
 	EnterProcedureType(c *ProcedureTypeContext)
 
-	// EnterForwardClassType is called when entering the forwardClassType production.
-	EnterForwardClassType(c *ForwardClassTypeContext)
-
-	// EnterForwardInterfaceType is called when entering the forwardInterfaceType production.
-	EnterForwardInterfaceType(c *ForwardInterfaceTypeContext)
+	// EnterMetaClassType is called when entering the metaClassType production.
+	EnterMetaClassType(c *MetaClassTypeContext)
 
 	// EnterAliasDistinctType is called when entering the aliasDistinctType production.
 	EnterAliasDistinctType(c *AliasDistinctTypeContext)
 
 	// EnterAliasType is called when entering the aliasType production.
 	EnterAliasType(c *AliasTypeContext)
-
-	// EnterClassType is called when entering the classType production.
-	EnterClassType(c *ClassTypeContext)
 
 	// EnterClassImplementsInterfaces is called when entering the classImplementsInterfaces production.
 	EnterClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
@@ -151,9 +157,6 @@ type pascalListener interface {
 
 	// EnterInterfaceGuidConst is called when entering the interfaceGuidConst production.
 	EnterInterfaceGuidConst(c *InterfaceGuidConstContext)
-
-	// EnterInterfaceType is called when entering the interfaceType production.
-	EnterInterfaceType(c *InterfaceTypeContext)
 
 	// EnterInterfaceDeclaration is called when entering the interfaceDeclaration production.
 	EnterInterfaceDeclaration(c *InterfaceDeclarationContext)
@@ -560,6 +563,9 @@ type pascalListener interface {
 	// ExitInterfaceBlock is called when exiting the interfaceBlock production.
 	ExitInterfaceBlock(c *InterfaceBlockContext)
 
+	// ExitErrorInterfaceBlockPart is called when exiting the errorInterfaceBlockPart production.
+	ExitErrorInterfaceBlockPart(c *ErrorInterfaceBlockPartContext)
+
 	// ExitImplementationBlock is called when exiting the implementationBlock production.
 	ExitImplementationBlock(c *ImplementationBlockContext)
 
@@ -635,26 +641,29 @@ type pascalListener interface {
 	// ExitTypeDefinition is called when exiting the typeDefinition production.
 	ExitTypeDefinition(c *TypeDefinitionContext)
 
+	// ExitForwardDeclaration is called when exiting the forwardDeclaration production.
+	ExitForwardDeclaration(c *ForwardDeclarationContext)
+
+	// ExitClassType is called when exiting the classType production.
+	ExitClassType(c *ClassTypeContext)
+
+	// ExitInterfaceType is called when exiting the interfaceType production.
+	ExitInterfaceType(c *InterfaceTypeContext)
+
 	// ExitFunctionType is called when exiting the functionType production.
 	ExitFunctionType(c *FunctionTypeContext)
 
 	// ExitProcedureType is called when exiting the procedureType production.
 	ExitProcedureType(c *ProcedureTypeContext)
 
-	// ExitForwardClassType is called when exiting the forwardClassType production.
-	ExitForwardClassType(c *ForwardClassTypeContext)
-
-	// ExitForwardInterfaceType is called when exiting the forwardInterfaceType production.
-	ExitForwardInterfaceType(c *ForwardInterfaceTypeContext)
+	// ExitMetaClassType is called when exiting the metaClassType production.
+	ExitMetaClassType(c *MetaClassTypeContext)
 
 	// ExitAliasDistinctType is called when exiting the aliasDistinctType production.
 	ExitAliasDistinctType(c *AliasDistinctTypeContext)
 
 	// ExitAliasType is called when exiting the aliasType production.
 	ExitAliasType(c *AliasTypeContext)
-
-	// ExitClassType is called when exiting the classType production.
-	ExitClassType(c *ClassTypeContext)
 
 	// ExitClassImplementsInterfaces is called when exiting the classImplementsInterfaces production.
 	ExitClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
@@ -673,9 +682,6 @@ type pascalListener interface {
 
 	// ExitInterfaceGuidConst is called when exiting the interfaceGuidConst production.
 	ExitInterfaceGuidConst(c *InterfaceGuidConstContext)
-
-	// ExitInterfaceType is called when exiting the interfaceType production.
-	ExitInterfaceType(c *InterfaceTypeContext)
 
 	// ExitInterfaceDeclaration is called when exiting the interfaceDeclaration production.
 	ExitInterfaceDeclaration(c *InterfaceDeclarationContext)

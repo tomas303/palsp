@@ -242,6 +242,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#stringtype.
 	VisitStringtype(ctx *StringtypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#ansistringtype.
+	VisitAnsistringtype(ctx *AnsistringtypeContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#arrayType.
 	VisitArrayType(ctx *ArrayTypeContext) interface{}
 

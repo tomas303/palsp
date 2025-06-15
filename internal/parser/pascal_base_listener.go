@@ -497,6 +497,12 @@ func (s *BasepascalListener) EnterStringtype(ctx *StringtypeContext) {}
 // ExitStringtype is called when production stringtype is exited.
 func (s *BasepascalListener) ExitStringtype(ctx *StringtypeContext) {}
 
+// EnterAnsistringtype is called when production ansistringtype is entered.
+func (s *BasepascalListener) EnterAnsistringtype(ctx *AnsistringtypeContext) {}
+
+// ExitAnsistringtype is called when production ansistringtype is exited.
+func (s *BasepascalListener) ExitAnsistringtype(ctx *AnsistringtypeContext) {}
+
 // EnterArrayType is called when production arrayType is entered.
 func (s *BasepascalListener) EnterArrayType(ctx *ArrayTypeContext) {}
 

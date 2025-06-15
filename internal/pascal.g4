@@ -394,6 +394,7 @@ simpleType
     | subrangeType
     | typeIdentifier
     | stringtype
+    | ansistringtype
     ;
 
 scalarType
@@ -441,6 +442,10 @@ unpackedStructuredType
 
 stringtype
     : STRING LBRACK (identifier | unsignedNumber) RBRACK
+    ;
+
+ansistringtype
+    : ANSISTRING LBRACK (identifier | unsignedNumber) RBRACK
     ;
 
 arrayType

@@ -320,6 +320,10 @@ func (v *BasepascalVisitor) VisitStringtype(ctx *StringtypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitAnsistringtype(ctx *AnsistringtypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitArrayType(ctx *ArrayTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }

@@ -44,11 +44,15 @@ func (v *BasepascalVisitor) VisitIdentifierPart(ctx *IdentifierPartContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitInterfaceBlockMember(ctx *InterfaceBlockMemberContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitInterfaceBlock(ctx *InterfaceBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitErrorInterfaceBlockPart(ctx *ErrorInterfaceBlockPartContext) interface{} {
+func (v *BasepascalVisitor) VisitImplementationBlockMember(ctx *ImplementationBlockMemberContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -56,7 +60,11 @@ func (v *BasepascalVisitor) VisitImplementationBlock(ctx *ImplementationBlockCon
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitBlock(ctx *BlockContext) interface{} {
+func (v *BasepascalVisitor) VisitFuncBlockMemeber(ctx *FuncBlockMemeberContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitFuncBlock(ctx *FuncBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -152,19 +160,11 @@ func (v *BasepascalVisitor) VisitTypeDefinition(ctx *TypeDefinitionContext) inte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitClassTypeOrForward(ctx *ClassTypeOrForwardContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitForwardDeclaration(ctx *ForwardDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitClassType(ctx *ClassTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitClassTypeBlock(ctx *ClassTypeBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -177,10 +177,6 @@ func (v *BasepascalVisitor) VisitFunctionType(ctx *FunctionTypeContext) interfac
 }
 
 func (v *BasepascalVisitor) VisitProcedureType(ctx *ProcedureTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitMetaClassType(ctx *MetaClassTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -197,14 +193,6 @@ func (v *BasepascalVisitor) VisitClassImplementsInterfaces(ctx *ClassImplementsI
 }
 
 func (v *BasepascalVisitor) VisitAccessSpecifier(ctx *AccessSpecifierContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassDeclaration(ctx *ClassDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -340,11 +328,7 @@ func (v *BasepascalVisitor) VisitRecordType(ctx *RecordTypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordDeclaration(ctx *RecordDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordTypeBlock(ctx *RecordTypeBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -377,14 +361,6 @@ func (v *BasepascalVisitor) VisitRecordVariant(ctx *RecordVariantContext) interf
 }
 
 func (v *BasepascalVisitor) VisitHelperType(ctx *HelperTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitHelperDeclaration(ctx *HelperDeclarationContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

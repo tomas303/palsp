@@ -49,11 +49,11 @@ unit
     ;
 
 interfaceSection
-    : INTERFACE usesUnits? interfaceBlock
+    : INTERFACE usesUnits? interfaceBlock?
     ;
 
 implementationSection
-    : IMPLEMENTATION usesUnits? implementationBlock
+    : IMPLEMENTATION usesUnits? implementationBlock?
     ;
 
 initializationSection
@@ -72,7 +72,7 @@ identifierPart
     : (IDENT | INDEX | READ | WRITE) genericTemplate?
     ;
 
-interfaceBlock
+interfaceBlockMember
     : (
         labelDeclarationPart
         | constantDefinitionPart
@@ -80,15 +80,14 @@ interfaceBlock
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionHeader
-        | errorInterfaceBlockPart
-    )*
+    )
     ;
 
-errorInterfaceBlockPart
-    : TYPE ~(IMPLEMENTATION | INITIALIZATION | FINALIZATION | END)+ 
+interfaceBlock
+    : interfaceBlockMember (SEMI interfaceBlockMember)* SEMI?
     ;
-    
-implementationBlock
+
+implementationBlockMember
     : (
         labelDeclarationPart
         | constantDefinitionPart
@@ -96,19 +95,27 @@ implementationBlock
         | typeDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
-        | procedureOrFunctionHeader FORWARD SEMI
+        | procedureOrFunctionHeader SEMI FORWARD
         | classOperatorDeclaration
-    )*
+    )
     ;
 
-block
+implementationBlock
+    : implementationBlockMember (SEMI implementationBlockMember)* SEMI?
+    ;
+
+funcBlockMemeber
     : (
         labelDeclarationPart
         | constantDefinitionPart
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
         | classOperatorDeclaration
-    )*
+    )
+    ;
+
+funcBlock
+    : funcBlockMemeber (SEMI funcBlockMemeber)* SEMI?
     ;
 
 usesUnits
@@ -116,7 +123,7 @@ usesUnits
     ;
 
 labelDeclarationPart
-    : LABEL label (COMMA label)* SEMI
+    : LABEL label (COMMA label)*
     ;
 
 label
@@ -124,7 +131,7 @@ label
     ;
 
 constantDefinitionPart
-    : CONST (constantDefinition SEMI)+
+    : CONST constantDefinition (SEMI constantDefinition)*
     ;
 
 constantDefinition
@@ -165,7 +172,6 @@ recordField
     | identifier COLON arrayConstant
     ;
 
-
 unsignedNumber
     : unsignedInteger
     | unsignedReal
@@ -198,57 +204,60 @@ stringExpression
     ;
 
 resourceDefinitionPart
-    : RESOURCESTRING (resourceDefinition)+
+    : RESOURCESTRING resourceDefinition (SEMI resourceDefinition)*
     ;
 
 resourceDefinition
-    : identifier EQUAL stringExpression SEMI
+    : identifier EQUAL stringExpression
     ;
 
 deprecatedHint
     : DEPRECATED stringExpression
     ;
 
+// typeDefinitionPart
+//     : TYPE (
+//         //typeDefinition (SEMI typeDefinition)* SEMI?
+//         identifier EQUAL CLASS SEMI
+//         | identifier EQUAL CLASS OF typeIdentifier SEMI
+//         | identifier EQUAL INTERFACE SEMI
+//         | typeDefinition SEMI
+//         )+
+//     ;
+
 typeDefinitionPart
-    : TYPE typeDefinition (SEMI typeDefinition)* SEMI?
+    : TYPE typeDefinition (SEMI typeDefinition)*
     ;
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        classTypeOrForward          // Handles both class cases
-        | interfaceTypeOrForward    // Handles both interface cases  
+        classType
+        | interfaceType
         | functionType
         | procedureType
-        | metaClassType
         | aliasDistinctType
         | aliasType
         | type_
     )
     ;
 
-classTypeOrForward
-    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? 
-      (classImplicitPublishedDeclaration (classDeclaration)* END)?
-    ;
-
-interfaceTypeOrForward
-    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? 
-      (interfaceDeclaration END)?
-    ;
-
-forwardDeclaration
-    : CLASS                         // Forward class declaration
-    | INTERFACE                     // Forward interface declaration
-    ;
-
 classType
-    : CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? 
-      classImplicitPublishedDeclaration (classDeclaration)* END
+    : CLASS
+    | CLASS OF typeIdentifier
+    | CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
+        SEMI? accessSpecifier classTypeBlock?
+    )* SEMI? END
+    ;
+
+classTypeBlock
+    : classDeclarationPart (SEMI classDeclarationPart)*
     ;
 
 interfaceType
-    : INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? 
-      interfaceDeclaration END
+    : INTERFACE
+    | INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclarationPart? (
+        SEMI interfaceDeclarationPart
+    )* SEMI? END
     ;
 
 functionType
@@ -261,16 +270,12 @@ procedureType
     | REFERENCE TO PROCEDURE (formalParameterList)? procedureOrFunctionHeaderModifiers
     ;
 
-metaClassType
-    : CLASS OF typeIdentifier
-    ;
-
 aliasDistinctType
-    : TYPE typeIdentifier  // Should be: type SomeType
+    : TYPE typeIdentifier // Should be: type SomeType
     ;
 
 aliasType
-    : typeIdentifier       // Should be: SomeType
+    : typeIdentifier // Should be: SomeType
     ;
 
 classImplementsInterfaces
@@ -284,22 +289,14 @@ accessSpecifier
     | PUBLISHED
     ;
 
-classDeclaration
-    : accessSpecifier classDeclarationPart*
-    ;
-
-classImplicitPublishedDeclaration
-    : classDeclarationPart*
-    ;
-
 classDeclarationPart
-    : attributeSection? typedIdentifierList SEMI
+    : attributeSection? typedIdentifierList
     | typeDefinitionPart
     | constantDefinitionPart
     | functionHeader
     | procedureHeader
-    | propertyDeclaration SEMI (DEFAULT SEMI)?
-    | errorClassDeclarationPart SEMI
+    | propertyDeclaration (SEMI DEFAULT)?
+    | errorClassDeclarationPart
     ;
 
 GUID_LITERAL
@@ -317,8 +314,8 @@ interfaceDeclaration
 interfaceDeclarationPart
     : functionHeader
     | procedureHeader
-    | propertyDeclaration SEMI
-    | errorInterfaceDeclarationPart SEMI
+    | propertyDeclaration
+    | errorInterfaceDeclarationPart
     ;
 
 errorInterfaceDeclarationPart
@@ -415,13 +412,62 @@ subrangeType
 
 typeIdentifier
     : identifier
-    | (CHAR | BOOLEAN | INTEGER | REAL | STRING | CARDINAL | LONGBOOL | LONGINT | LONGWORD | WORD 
-      | BYTE | SHORTINT | SMALLINT | INT64 | UINT64 | SINGLE | DOUBLE | EXTENDED | COMP | CURRENCY
-      | ANSICHAR | WIDECHAR | ANSISTRING | WIDESTRING | UNICODESTRING | RAWBYTESTRING | UTF8STRING
-      | VARIANT | OLEVARIANT | POINTER | PCHAR | PANSICHAR | PWIDECHAR | PUNICODECHAR
-      | THANDLE | HWND | HDC | HICON | HBITMAP | HMENU | HINSTANCE | HMODULE | HKEY
-      | DWORD | QWORD | NATIVEINT | NATIVEUINT | CODEPAGE | TGUID | PGUID
-      | TEXTFILE | TEXT | SHORTSTRING | OPENSTRING)
+    | (
+        CHAR
+        | BOOLEAN
+        | INTEGER
+        | REAL
+        | STRING
+        | CARDINAL
+        | LONGBOOL
+        | LONGINT
+        | LONGWORD
+        | WORD
+        | BYTE
+        | SHORTINT
+        | SMALLINT
+        | INT64
+        | UINT64
+        | SINGLE
+        | DOUBLE
+        | EXTENDED
+        | COMP
+        | CURRENCY
+        | ANSICHAR
+        | WIDECHAR
+        | ANSISTRING
+        | WIDESTRING
+        | UNICODESTRING
+        | RAWBYTESTRING
+        | UTF8STRING
+        | VARIANT
+        | OLEVARIANT
+        | POINTER
+        | PCHAR
+        | PANSICHAR
+        | PWIDECHAR
+        | PUNICODECHAR
+        | THANDLE
+        | HWND
+        | HDC
+        | HICON
+        | HBITMAP
+        | HMENU
+        | HINSTANCE
+        | HMODULE
+        | HKEY
+        | DWORD
+        | QWORD
+        | NATIVEINT
+        | NATIVEUINT
+        | CODEPAGE
+        | TGUID
+        | PGUID
+        | TEXTFILE
+        | TEXT
+        | SHORTSTRING
+        | OPENSTRING
+    )
     | arrayType
     ;
 
@@ -464,27 +510,23 @@ indexType
     ;
 
 recordType
-    : RECORD recordImplicitPublishedDeclaration (recordDeclaration)* END
+    : RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END
     | RECORD recordParts? END
     ;
 
-recordDeclaration
-    : accessSpecifier recordDeclarationPart*
-    ;
-
-recordImplicitPublishedDeclaration
-    : recordDeclarationPart*
+recordTypeBlock
+    : recordDeclarationPart (SEMI recordDeclarationPart)*
     ;
 
 recordDeclarationPart
-    : attributeSection? typedIdentifierList SEMI
+    : attributeSection? typedIdentifierList
     | typeDefinitionPart
     | constantDefinitionPart
     | functionHeader
     | procedureHeader
     | classOperatorHeader
-    | propertyDeclaration SEMI (DEFAULT SEMI)?
-    | errorRecordDeclarationPart SEMI
+    | propertyDeclaration (SEMI DEFAULT)?
+    | errorRecordDeclarationPart
     ;
 
 errorRecordDeclarationPart
@@ -514,15 +556,9 @@ recordVariant
     ;
 
 helperType
-    : CLASS HELPER FOR typeIdentifier helperImplicitPublishedDeclaration (helperDeclaration)* END
-    ;
-
-helperDeclaration
-    : accessSpecifier helperDeclarationPart*
-    ;
-
-helperImplicitPublishedDeclaration
-    : helperDeclarationPart*
+    : CLASS HELPER FOR typeIdentifier accessSpecifier? helperDeclarationPart? (
+        SEMI helperDeclarationPart
+    )* (accessSpecifier helperDeclarationPart? (SEMI helperDeclarationPart)*) END
     ;
 
 helperDeclarationPart
@@ -530,8 +566,8 @@ helperDeclarationPart
     | constantDefinitionPart
     | functionHeader
     | procedureHeader
-    | propertyDeclaration SEMI (DEFAULT SEMI)?
-    | errorHelperDeclarationPart SEMI
+    | propertyDeclaration (SEMI DEFAULT)?
+    | errorHelperDeclarationPart
     ;
 
 errorHelperDeclarationPart
@@ -552,7 +588,7 @@ pointerType
     ;
 
 variableDeclarationPart
-    : VAR variableDeclaration (SEMI variableDeclaration)* SEMI
+    : VAR variableDeclaration (SEMI variableDeclaration)*
     ;
 
 variableDeclaration
@@ -560,11 +596,15 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (formalParameterList)?  (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers SEMI (deprecatedHint SEMI)?
+    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (
+        formalParameterList
+    )? (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers (SEMI deprecatedHint)?
     ;
 
 functionHeader
-    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers SEMI (deprecatedHint SEMI)?
+    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType (
+        SEMI deprecatedHint
+    )? procedureOrFunctionHeaderModifiers (SEMI deprecatedHint)?
     ;
 
 procedureOrFunctionHeader
@@ -614,15 +654,15 @@ resultType
     ;
 
 procedureOrFunctionBody
-    : block compoundStatement
+    : funcBlock? compoundStatement
     ;
 
 classOperatorHeader
-    : CLASS OPERATOR identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers SEMI
+    : CLASS OPERATOR identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers
     ;
 
 classOperatorDeclaration
-    : classOperatorHeader procedureOrFunctionBody SEMI
+    : classOperatorHeader procedureOrFunctionBody
     ;
 
 formalParameterList
@@ -1503,7 +1543,7 @@ BYTE
     : 'BYTE'
     ;
 
-SHORTINT  
+SHORTINT
     : 'SHORTINT'
     ;
 

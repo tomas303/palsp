@@ -75,17 +75,23 @@ func (s *BasepascalListener) EnterIdentifierPart(ctx *IdentifierPartContext) {}
 // ExitIdentifierPart is called when production identifierPart is exited.
 func (s *BasepascalListener) ExitIdentifierPart(ctx *IdentifierPartContext) {}
 
+// EnterInterfaceBlockMember is called when production interfaceBlockMember is entered.
+func (s *BasepascalListener) EnterInterfaceBlockMember(ctx *InterfaceBlockMemberContext) {}
+
+// ExitInterfaceBlockMember is called when production interfaceBlockMember is exited.
+func (s *BasepascalListener) ExitInterfaceBlockMember(ctx *InterfaceBlockMemberContext) {}
+
 // EnterInterfaceBlock is called when production interfaceBlock is entered.
 func (s *BasepascalListener) EnterInterfaceBlock(ctx *InterfaceBlockContext) {}
 
 // ExitInterfaceBlock is called when production interfaceBlock is exited.
 func (s *BasepascalListener) ExitInterfaceBlock(ctx *InterfaceBlockContext) {}
 
-// EnterErrorInterfaceBlockPart is called when production errorInterfaceBlockPart is entered.
-func (s *BasepascalListener) EnterErrorInterfaceBlockPart(ctx *ErrorInterfaceBlockPartContext) {}
+// EnterImplementationBlockMember is called when production implementationBlockMember is entered.
+func (s *BasepascalListener) EnterImplementationBlockMember(ctx *ImplementationBlockMemberContext) {}
 
-// ExitErrorInterfaceBlockPart is called when production errorInterfaceBlockPart is exited.
-func (s *BasepascalListener) ExitErrorInterfaceBlockPart(ctx *ErrorInterfaceBlockPartContext) {}
+// ExitImplementationBlockMember is called when production implementationBlockMember is exited.
+func (s *BasepascalListener) ExitImplementationBlockMember(ctx *ImplementationBlockMemberContext) {}
 
 // EnterImplementationBlock is called when production implementationBlock is entered.
 func (s *BasepascalListener) EnterImplementationBlock(ctx *ImplementationBlockContext) {}
@@ -93,11 +99,17 @@ func (s *BasepascalListener) EnterImplementationBlock(ctx *ImplementationBlockCo
 // ExitImplementationBlock is called when production implementationBlock is exited.
 func (s *BasepascalListener) ExitImplementationBlock(ctx *ImplementationBlockContext) {}
 
-// EnterBlock is called when production block is entered.
-func (s *BasepascalListener) EnterBlock(ctx *BlockContext) {}
+// EnterFuncBlockMemeber is called when production funcBlockMemeber is entered.
+func (s *BasepascalListener) EnterFuncBlockMemeber(ctx *FuncBlockMemeberContext) {}
 
-// ExitBlock is called when production block is exited.
-func (s *BasepascalListener) ExitBlock(ctx *BlockContext) {}
+// ExitFuncBlockMemeber is called when production funcBlockMemeber is exited.
+func (s *BasepascalListener) ExitFuncBlockMemeber(ctx *FuncBlockMemeberContext) {}
+
+// EnterFuncBlock is called when production funcBlock is entered.
+func (s *BasepascalListener) EnterFuncBlock(ctx *FuncBlockContext) {}
+
+// ExitFuncBlock is called when production funcBlock is exited.
+func (s *BasepascalListener) ExitFuncBlock(ctx *FuncBlockContext) {}
 
 // EnterUsesUnits is called when production usesUnits is entered.
 func (s *BasepascalListener) EnterUsesUnits(ctx *UsesUnitsContext) {}
@@ -237,29 +249,17 @@ func (s *BasepascalListener) EnterTypeDefinition(ctx *TypeDefinitionContext) {}
 // ExitTypeDefinition is called when production typeDefinition is exited.
 func (s *BasepascalListener) ExitTypeDefinition(ctx *TypeDefinitionContext) {}
 
-// EnterClassTypeOrForward is called when production classTypeOrForward is entered.
-func (s *BasepascalListener) EnterClassTypeOrForward(ctx *ClassTypeOrForwardContext) {}
-
-// ExitClassTypeOrForward is called when production classTypeOrForward is exited.
-func (s *BasepascalListener) ExitClassTypeOrForward(ctx *ClassTypeOrForwardContext) {}
-
-// EnterInterfaceTypeOrForward is called when production interfaceTypeOrForward is entered.
-func (s *BasepascalListener) EnterInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) {}
-
-// ExitInterfaceTypeOrForward is called when production interfaceTypeOrForward is exited.
-func (s *BasepascalListener) ExitInterfaceTypeOrForward(ctx *InterfaceTypeOrForwardContext) {}
-
-// EnterForwardDeclaration is called when production forwardDeclaration is entered.
-func (s *BasepascalListener) EnterForwardDeclaration(ctx *ForwardDeclarationContext) {}
-
-// ExitForwardDeclaration is called when production forwardDeclaration is exited.
-func (s *BasepascalListener) ExitForwardDeclaration(ctx *ForwardDeclarationContext) {}
-
 // EnterClassType is called when production classType is entered.
 func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}
 
 // ExitClassType is called when production classType is exited.
 func (s *BasepascalListener) ExitClassType(ctx *ClassTypeContext) {}
+
+// EnterClassTypeBlock is called when production classTypeBlock is entered.
+func (s *BasepascalListener) EnterClassTypeBlock(ctx *ClassTypeBlockContext) {}
+
+// ExitClassTypeBlock is called when production classTypeBlock is exited.
+func (s *BasepascalListener) ExitClassTypeBlock(ctx *ClassTypeBlockContext) {}
 
 // EnterInterfaceType is called when production interfaceType is entered.
 func (s *BasepascalListener) EnterInterfaceType(ctx *InterfaceTypeContext) {}
@@ -278,12 +278,6 @@ func (s *BasepascalListener) EnterProcedureType(ctx *ProcedureTypeContext) {}
 
 // ExitProcedureType is called when production procedureType is exited.
 func (s *BasepascalListener) ExitProcedureType(ctx *ProcedureTypeContext) {}
-
-// EnterMetaClassType is called when production metaClassType is entered.
-func (s *BasepascalListener) EnterMetaClassType(ctx *MetaClassTypeContext) {}
-
-// ExitMetaClassType is called when production metaClassType is exited.
-func (s *BasepascalListener) ExitMetaClassType(ctx *MetaClassTypeContext) {}
 
 // EnterAliasDistinctType is called when production aliasDistinctType is entered.
 func (s *BasepascalListener) EnterAliasDistinctType(ctx *AliasDistinctTypeContext) {}
@@ -308,20 +302,6 @@ func (s *BasepascalListener) EnterAccessSpecifier(ctx *AccessSpecifierContext) {
 
 // ExitAccessSpecifier is called when production accessSpecifier is exited.
 func (s *BasepascalListener) ExitAccessSpecifier(ctx *AccessSpecifierContext) {}
-
-// EnterClassDeclaration is called when production classDeclaration is entered.
-func (s *BasepascalListener) EnterClassDeclaration(ctx *ClassDeclarationContext) {}
-
-// ExitClassDeclaration is called when production classDeclaration is exited.
-func (s *BasepascalListener) ExitClassDeclaration(ctx *ClassDeclarationContext) {}
-
-// EnterClassImplicitPublishedDeclaration is called when production classImplicitPublishedDeclaration is entered.
-func (s *BasepascalListener) EnterClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) {
-}
-
-// ExitClassImplicitPublishedDeclaration is called when production classImplicitPublishedDeclaration is exited.
-func (s *BasepascalListener) ExitClassImplicitPublishedDeclaration(ctx *ClassImplicitPublishedDeclarationContext) {
-}
 
 // EnterClassDeclarationPart is called when production classDeclarationPart is entered.
 func (s *BasepascalListener) EnterClassDeclarationPart(ctx *ClassDeclarationPartContext) {}
@@ -527,19 +507,11 @@ func (s *BasepascalListener) EnterRecordType(ctx *RecordTypeContext) {}
 // ExitRecordType is called when production recordType is exited.
 func (s *BasepascalListener) ExitRecordType(ctx *RecordTypeContext) {}
 
-// EnterRecordDeclaration is called when production recordDeclaration is entered.
-func (s *BasepascalListener) EnterRecordDeclaration(ctx *RecordDeclarationContext) {}
+// EnterRecordTypeBlock is called when production recordTypeBlock is entered.
+func (s *BasepascalListener) EnterRecordTypeBlock(ctx *RecordTypeBlockContext) {}
 
-// ExitRecordDeclaration is called when production recordDeclaration is exited.
-func (s *BasepascalListener) ExitRecordDeclaration(ctx *RecordDeclarationContext) {}
-
-// EnterRecordImplicitPublishedDeclaration is called when production recordImplicitPublishedDeclaration is entered.
-func (s *BasepascalListener) EnterRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) {
-}
-
-// ExitRecordImplicitPublishedDeclaration is called when production recordImplicitPublishedDeclaration is exited.
-func (s *BasepascalListener) ExitRecordImplicitPublishedDeclaration(ctx *RecordImplicitPublishedDeclarationContext) {
-}
+// ExitRecordTypeBlock is called when production recordTypeBlock is exited.
+func (s *BasepascalListener) ExitRecordTypeBlock(ctx *RecordTypeBlockContext) {}
 
 // EnterRecordDeclarationPart is called when production recordDeclarationPart is entered.
 func (s *BasepascalListener) EnterRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
@@ -589,20 +561,6 @@ func (s *BasepascalListener) EnterHelperType(ctx *HelperTypeContext) {}
 
 // ExitHelperType is called when production helperType is exited.
 func (s *BasepascalListener) ExitHelperType(ctx *HelperTypeContext) {}
-
-// EnterHelperDeclaration is called when production helperDeclaration is entered.
-func (s *BasepascalListener) EnterHelperDeclaration(ctx *HelperDeclarationContext) {}
-
-// ExitHelperDeclaration is called when production helperDeclaration is exited.
-func (s *BasepascalListener) ExitHelperDeclaration(ctx *HelperDeclarationContext) {}
-
-// EnterHelperImplicitPublishedDeclaration is called when production helperImplicitPublishedDeclaration is entered.
-func (s *BasepascalListener) EnterHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) {
-}
-
-// ExitHelperImplicitPublishedDeclaration is called when production helperImplicitPublishedDeclaration is exited.
-func (s *BasepascalListener) ExitHelperImplicitPublishedDeclaration(ctx *HelperImplicitPublishedDeclarationContext) {
-}
 
 // EnterHelperDeclarationPart is called when production helperDeclarationPart is entered.
 func (s *BasepascalListener) EnterHelperDeclarationPart(ctx *HelperDeclarationPartContext) {}

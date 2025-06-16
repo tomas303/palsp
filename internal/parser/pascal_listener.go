@@ -35,17 +35,23 @@ type pascalListener interface {
 	// EnterIdentifierPart is called when entering the identifierPart production.
 	EnterIdentifierPart(c *IdentifierPartContext)
 
+	// EnterInterfaceBlockMember is called when entering the interfaceBlockMember production.
+	EnterInterfaceBlockMember(c *InterfaceBlockMemberContext)
+
 	// EnterInterfaceBlock is called when entering the interfaceBlock production.
 	EnterInterfaceBlock(c *InterfaceBlockContext)
 
-	// EnterErrorInterfaceBlockPart is called when entering the errorInterfaceBlockPart production.
-	EnterErrorInterfaceBlockPart(c *ErrorInterfaceBlockPartContext)
+	// EnterImplementationBlockMember is called when entering the implementationBlockMember production.
+	EnterImplementationBlockMember(c *ImplementationBlockMemberContext)
 
 	// EnterImplementationBlock is called when entering the implementationBlock production.
 	EnterImplementationBlock(c *ImplementationBlockContext)
 
-	// EnterBlock is called when entering the block production.
-	EnterBlock(c *BlockContext)
+	// EnterFuncBlockMemeber is called when entering the funcBlockMemeber production.
+	EnterFuncBlockMemeber(c *FuncBlockMemeberContext)
+
+	// EnterFuncBlock is called when entering the funcBlock production.
+	EnterFuncBlock(c *FuncBlockContext)
 
 	// EnterUsesUnits is called when entering the usesUnits production.
 	EnterUsesUnits(c *UsesUnitsContext)
@@ -116,17 +122,11 @@ type pascalListener interface {
 	// EnterTypeDefinition is called when entering the typeDefinition production.
 	EnterTypeDefinition(c *TypeDefinitionContext)
 
-	// EnterClassTypeOrForward is called when entering the classTypeOrForward production.
-	EnterClassTypeOrForward(c *ClassTypeOrForwardContext)
-
-	// EnterInterfaceTypeOrForward is called when entering the interfaceTypeOrForward production.
-	EnterInterfaceTypeOrForward(c *InterfaceTypeOrForwardContext)
-
-	// EnterForwardDeclaration is called when entering the forwardDeclaration production.
-	EnterForwardDeclaration(c *ForwardDeclarationContext)
-
 	// EnterClassType is called when entering the classType production.
 	EnterClassType(c *ClassTypeContext)
+
+	// EnterClassTypeBlock is called when entering the classTypeBlock production.
+	EnterClassTypeBlock(c *ClassTypeBlockContext)
 
 	// EnterInterfaceType is called when entering the interfaceType production.
 	EnterInterfaceType(c *InterfaceTypeContext)
@@ -136,9 +136,6 @@ type pascalListener interface {
 
 	// EnterProcedureType is called when entering the procedureType production.
 	EnterProcedureType(c *ProcedureTypeContext)
-
-	// EnterMetaClassType is called when entering the metaClassType production.
-	EnterMetaClassType(c *MetaClassTypeContext)
 
 	// EnterAliasDistinctType is called when entering the aliasDistinctType production.
 	EnterAliasDistinctType(c *AliasDistinctTypeContext)
@@ -151,12 +148,6 @@ type pascalListener interface {
 
 	// EnterAccessSpecifier is called when entering the accessSpecifier production.
 	EnterAccessSpecifier(c *AccessSpecifierContext)
-
-	// EnterClassDeclaration is called when entering the classDeclaration production.
-	EnterClassDeclaration(c *ClassDeclarationContext)
-
-	// EnterClassImplicitPublishedDeclaration is called when entering the classImplicitPublishedDeclaration production.
-	EnterClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
 
 	// EnterClassDeclarationPart is called when entering the classDeclarationPart production.
 	EnterClassDeclarationPart(c *ClassDeclarationPartContext)
@@ -257,11 +248,8 @@ type pascalListener interface {
 	// EnterRecordType is called when entering the recordType production.
 	EnterRecordType(c *RecordTypeContext)
 
-	// EnterRecordDeclaration is called when entering the recordDeclaration production.
-	EnterRecordDeclaration(c *RecordDeclarationContext)
-
-	// EnterRecordImplicitPublishedDeclaration is called when entering the recordImplicitPublishedDeclaration production.
-	EnterRecordImplicitPublishedDeclaration(c *RecordImplicitPublishedDeclarationContext)
+	// EnterRecordTypeBlock is called when entering the recordTypeBlock production.
+	EnterRecordTypeBlock(c *RecordTypeBlockContext)
 
 	// EnterRecordDeclarationPart is called when entering the recordDeclarationPart production.
 	EnterRecordDeclarationPart(c *RecordDeclarationPartContext)
@@ -286,12 +274,6 @@ type pascalListener interface {
 
 	// EnterHelperType is called when entering the helperType production.
 	EnterHelperType(c *HelperTypeContext)
-
-	// EnterHelperDeclaration is called when entering the helperDeclaration production.
-	EnterHelperDeclaration(c *HelperDeclarationContext)
-
-	// EnterHelperImplicitPublishedDeclaration is called when entering the helperImplicitPublishedDeclaration production.
-	EnterHelperImplicitPublishedDeclaration(c *HelperImplicitPublishedDeclarationContext)
 
 	// EnterHelperDeclarationPart is called when entering the helperDeclarationPart production.
 	EnterHelperDeclarationPart(c *HelperDeclarationPartContext)
@@ -569,17 +551,23 @@ type pascalListener interface {
 	// ExitIdentifierPart is called when exiting the identifierPart production.
 	ExitIdentifierPart(c *IdentifierPartContext)
 
+	// ExitInterfaceBlockMember is called when exiting the interfaceBlockMember production.
+	ExitInterfaceBlockMember(c *InterfaceBlockMemberContext)
+
 	// ExitInterfaceBlock is called when exiting the interfaceBlock production.
 	ExitInterfaceBlock(c *InterfaceBlockContext)
 
-	// ExitErrorInterfaceBlockPart is called when exiting the errorInterfaceBlockPart production.
-	ExitErrorInterfaceBlockPart(c *ErrorInterfaceBlockPartContext)
+	// ExitImplementationBlockMember is called when exiting the implementationBlockMember production.
+	ExitImplementationBlockMember(c *ImplementationBlockMemberContext)
 
 	// ExitImplementationBlock is called when exiting the implementationBlock production.
 	ExitImplementationBlock(c *ImplementationBlockContext)
 
-	// ExitBlock is called when exiting the block production.
-	ExitBlock(c *BlockContext)
+	// ExitFuncBlockMemeber is called when exiting the funcBlockMemeber production.
+	ExitFuncBlockMemeber(c *FuncBlockMemeberContext)
+
+	// ExitFuncBlock is called when exiting the funcBlock production.
+	ExitFuncBlock(c *FuncBlockContext)
 
 	// ExitUsesUnits is called when exiting the usesUnits production.
 	ExitUsesUnits(c *UsesUnitsContext)
@@ -650,17 +638,11 @@ type pascalListener interface {
 	// ExitTypeDefinition is called when exiting the typeDefinition production.
 	ExitTypeDefinition(c *TypeDefinitionContext)
 
-	// ExitClassTypeOrForward is called when exiting the classTypeOrForward production.
-	ExitClassTypeOrForward(c *ClassTypeOrForwardContext)
-
-	// ExitInterfaceTypeOrForward is called when exiting the interfaceTypeOrForward production.
-	ExitInterfaceTypeOrForward(c *InterfaceTypeOrForwardContext)
-
-	// ExitForwardDeclaration is called when exiting the forwardDeclaration production.
-	ExitForwardDeclaration(c *ForwardDeclarationContext)
-
 	// ExitClassType is called when exiting the classType production.
 	ExitClassType(c *ClassTypeContext)
+
+	// ExitClassTypeBlock is called when exiting the classTypeBlock production.
+	ExitClassTypeBlock(c *ClassTypeBlockContext)
 
 	// ExitInterfaceType is called when exiting the interfaceType production.
 	ExitInterfaceType(c *InterfaceTypeContext)
@@ -670,9 +652,6 @@ type pascalListener interface {
 
 	// ExitProcedureType is called when exiting the procedureType production.
 	ExitProcedureType(c *ProcedureTypeContext)
-
-	// ExitMetaClassType is called when exiting the metaClassType production.
-	ExitMetaClassType(c *MetaClassTypeContext)
 
 	// ExitAliasDistinctType is called when exiting the aliasDistinctType production.
 	ExitAliasDistinctType(c *AliasDistinctTypeContext)
@@ -685,12 +664,6 @@ type pascalListener interface {
 
 	// ExitAccessSpecifier is called when exiting the accessSpecifier production.
 	ExitAccessSpecifier(c *AccessSpecifierContext)
-
-	// ExitClassDeclaration is called when exiting the classDeclaration production.
-	ExitClassDeclaration(c *ClassDeclarationContext)
-
-	// ExitClassImplicitPublishedDeclaration is called when exiting the classImplicitPublishedDeclaration production.
-	ExitClassImplicitPublishedDeclaration(c *ClassImplicitPublishedDeclarationContext)
 
 	// ExitClassDeclarationPart is called when exiting the classDeclarationPart production.
 	ExitClassDeclarationPart(c *ClassDeclarationPartContext)
@@ -791,11 +764,8 @@ type pascalListener interface {
 	// ExitRecordType is called when exiting the recordType production.
 	ExitRecordType(c *RecordTypeContext)
 
-	// ExitRecordDeclaration is called when exiting the recordDeclaration production.
-	ExitRecordDeclaration(c *RecordDeclarationContext)
-
-	// ExitRecordImplicitPublishedDeclaration is called when exiting the recordImplicitPublishedDeclaration production.
-	ExitRecordImplicitPublishedDeclaration(c *RecordImplicitPublishedDeclarationContext)
+	// ExitRecordTypeBlock is called when exiting the recordTypeBlock production.
+	ExitRecordTypeBlock(c *RecordTypeBlockContext)
 
 	// ExitRecordDeclarationPart is called when exiting the recordDeclarationPart production.
 	ExitRecordDeclarationPart(c *RecordDeclarationPartContext)
@@ -820,12 +790,6 @@ type pascalListener interface {
 
 	// ExitHelperType is called when exiting the helperType production.
 	ExitHelperType(c *HelperTypeContext)
-
-	// ExitHelperDeclaration is called when exiting the helperDeclaration production.
-	ExitHelperDeclaration(c *HelperDeclarationContext)
-
-	// ExitHelperImplicitPublishedDeclaration is called when exiting the helperImplicitPublishedDeclaration production.
-	ExitHelperImplicitPublishedDeclaration(c *HelperImplicitPublishedDeclarationContext)
 
 	// ExitHelperDeclarationPart is called when exiting the helperDeclarationPart production.
 	ExitHelperDeclarationPart(c *HelperDeclarationPartContext)

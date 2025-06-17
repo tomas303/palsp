@@ -280,9 +280,7 @@ typeDefinitionPart
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        classType
-        | interfaceType
-        | functionType
+        functionType
         | procedureType
         | aliasDistinctType
         | aliasType
@@ -291,11 +289,12 @@ typeDefinition
     ;
 
 classType
-    : CLASS
-    | CLASS OF typeIdentifier
-    | CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
-        SEMI? accessSpecifier classTypeBlock?
-    )* SEMI? END
+    : CLASS OF typeIdentifier
+    | CLASS (
+        (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
+            SEMI? accessSpecifier classTypeBlock?
+        )* SEMI? END
+    )?
     ;
 
 classTypeBlock
@@ -303,10 +302,11 @@ classTypeBlock
     ;
 
 interfaceType
-    : INTERFACE
-    | INTERFACE (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclarationPart? (
-        SEMI interfaceDeclarationPart
-    )* SEMI? END
+    : INTERFACE (
+        (LPAREN identifier RPAREN)? GUID_LITERAL? interfaceDeclarationPart? (
+            SEMI interfaceDeclarationPart
+        )* SEMI? END
+    )?
     ;
 
 functionType
@@ -345,7 +345,6 @@ classDeclarationPart
     | functionHeader
     | procedureHeader
     | propertyDeclaration (SEMI DEFAULT)?
-    | errorClassDeclarationPart
     ;
 
 GUID_LITERAL
@@ -533,7 +532,10 @@ unpackedStructuredType
     ;
 
 stringtype
-    : stringTypeIdentifier (LBRACK (identifier | unsignedNumber) RBRACK)?
+    : stringTypeIdentifier (
+        LBRACK (identifier | unsignedNumber | hexConstant) RBRACK     // Square brackets
+        | LPAREN (identifier | unsignedNumber | hexConstant) RPAREN   // Parentheses
+    )?
     ;
 
 arrayType
@@ -1512,74 +1514,6 @@ ON
     : 'ON'
     ;
 
-fragment WHITESPACE
-    : [ \t\r\n]+
-    ;
-
-WS
-    : [ \t\r\n]+ -> skip
-    ;
-
-COMMENT_1
-    : '(*' .*? '*)' -> skip
-    ;
-
-COMMENT_2
-    : '{' .*? '}' -> skip
-    ;
-
-COMMENT_3
-    : '//' ~[\r\n]* -> skip
-    ;
-
-IDENT
-    : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
-    ;
-
-HEX_LITERAL
-    : '$' ('A' .. 'F' | '0' .. '9')+
-    ;
-
-STRING_LITERAL
-    : '\'' ('\'\'' | ~ ('\''))* '\''
-    ;
-
-STRING_CROSSHATCH_LITERAL
-    : '#' ([0-9]+ | HEX_LITERAL)
-    ;
-
-NUM_INT
-    : ('0' .. '9')+
-    ;
-
-NUM_REAL
-    : ('0' .. '9')+ (('.' ('0' .. '9')+ (EXPONENT)?)? | EXPONENT)
-    ;
-
-fragment EXPONENT
-    : ('E') ('+' | '-')? ('0' .. '9')+
-    ;
-
-UTF8BOM
-    : '\uFEFF' -> skip
-    ;
-
-fragment HEX_CHAR
-    : ('A' .. 'F' | '0' .. '9')
-    ;
-
-fragment HEX_CHAR_SEQ12
-    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
-    ;
-
-fragment HEX_CHAR_SEQ8
-    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
-    ;
-
-fragment HEX_CHAR_SEQ4
-    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
-    ;
-
 BYTE
     : 'BYTE'
     ;
@@ -1754,4 +1688,72 @@ SHORTSTRING
 
 OPENSTRING
     : 'OPENSTRING'
+    ;
+
+fragment WHITESPACE
+    : [ \t\r\n]+
+    ;
+
+WS
+    : [ \t\r\n]+ -> skip
+    ;
+
+COMMENT_1
+    : '(*' .*? '*)' -> skip
+    ;
+
+COMMENT_2
+    : '{' .*? '}' -> skip
+    ;
+
+COMMENT_3
+    : '//' ~[\r\n]* -> skip
+    ;
+
+IDENT
+    : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
+    ;
+
+HEX_LITERAL
+    : '$' ('A' .. 'F' | '0' .. '9')+
+    ;
+
+STRING_LITERAL
+    : '\'' ('\'\'' | ~ ('\''))* '\''
+    ;
+
+STRING_CROSSHATCH_LITERAL
+    : '#' ([0-9]+ | HEX_LITERAL)
+    ;
+
+NUM_INT
+    : ('0' .. '9')+
+    ;
+
+NUM_REAL
+    : ('0' .. '9')+ (('.' ('0' .. '9')+ (EXPONENT)?)? | EXPONENT)
+    ;
+
+fragment EXPONENT
+    : ('E') ('+' | '-')? ('0' .. '9')+
+    ;
+
+UTF8BOM
+    : '\uFEFF' -> skip
+    ;
+
+fragment HEX_CHAR
+    : ('A' .. 'F' | '0' .. '9')
+    ;
+
+fragment HEX_CHAR_SEQ12
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
+    ;
+
+fragment HEX_CHAR_SEQ8
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
+    ;
+
+fragment HEX_CHAR_SEQ4
+    : HEX_CHAR HEX_CHAR HEX_CHAR HEX_CHAR
     ;

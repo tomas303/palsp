@@ -515,9 +515,6 @@ func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
 	if ctx.REAL() != nil {
 		return "real"
 	}
-	if ctx.STRING() != nil {
-		return "string"
-	}
 	if ctx.CARDINAL() != nil {
 		return "cardinal"
 	}
@@ -526,6 +523,12 @@ func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
 	}
 	if ctx.LONGINT() != nil {
 		return "longint"
+	}
+	if ctx.Stringtype() != nil {
+		return "string"
+	}
+	if ctx.ArrayType() != nil {
+		return "array"
 	}
 	return ""
 }

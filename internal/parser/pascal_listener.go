@@ -221,6 +221,9 @@ type pascalListener interface {
 	// EnterSubrangeType is called when entering the subrangeType production.
 	EnterSubrangeType(c *SubrangeTypeContext)
 
+	// EnterStringTypeIdentifier is called when entering the stringTypeIdentifier production.
+	EnterStringTypeIdentifier(c *StringTypeIdentifierContext)
+
 	// EnterTypeIdentifier is called when entering the typeIdentifier production.
 	EnterTypeIdentifier(c *TypeIdentifierContext)
 
@@ -232,9 +235,6 @@ type pascalListener interface {
 
 	// EnterStringtype is called when entering the stringtype production.
 	EnterStringtype(c *StringtypeContext)
-
-	// EnterAnsistringtype is called when entering the ansistringtype production.
-	EnterAnsistringtype(c *AnsistringtypeContext)
 
 	// EnterArrayType is called when entering the arrayType production.
 	EnterArrayType(c *ArrayTypeContext)
@@ -737,6 +737,9 @@ type pascalListener interface {
 	// ExitSubrangeType is called when exiting the subrangeType production.
 	ExitSubrangeType(c *SubrangeTypeContext)
 
+	// ExitStringTypeIdentifier is called when exiting the stringTypeIdentifier production.
+	ExitStringTypeIdentifier(c *StringTypeIdentifierContext)
+
 	// ExitTypeIdentifier is called when exiting the typeIdentifier production.
 	ExitTypeIdentifier(c *TypeIdentifierContext)
 
@@ -748,9 +751,6 @@ type pascalListener interface {
 
 	// ExitStringtype is called when exiting the stringtype production.
 	ExitStringtype(c *StringtypeContext)
-
-	// ExitAnsistringtype is called when exiting the ansistringtype production.
-	ExitAnsistringtype(c *AnsistringtypeContext)
 
 	// ExitArrayType is called when exiting the arrayType production.
 	ExitArrayType(c *ArrayTypeContext)

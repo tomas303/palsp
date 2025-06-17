@@ -69,7 +69,66 @@ identifier
     ;
 
 identifierPart
-    : (IDENT | INDEX | READ | WRITE) genericTemplate?
+    : (
+        IDENT
+        | INDEX
+        | READ
+        | WRITE
+        | CHAR
+        | BOOLEAN
+        | INTEGER
+        | REAL
+        | STRING
+        | CARDINAL
+        | LONGBOOL
+        | LONGINT
+        | LONGWORD
+        | WORD
+        | BYTE
+        | SHORTINT
+        | SMALLINT
+        | INT64
+        | UINT64
+        | SINGLE
+        | DOUBLE
+        | EXTENDED
+        | COMP
+        | CURRENCY
+        | ANSICHAR
+        | WIDECHAR
+        | ANSISTRING
+        | WIDESTRING
+        | UNICODESTRING
+        | RAWBYTESTRING
+        | UTF8STRING
+        | VARIANT
+        | OLEVARIANT
+        | POINTER
+        | PCHAR
+        | PANSICHAR
+        | PWIDECHAR
+        | PUNICODECHAR
+        | THANDLE
+        | HWND
+        | HDC
+        | HICON
+        | HBITMAP
+        | HMENU
+        | HINSTANCE
+        | HMODULE
+        | HKEY
+        | DWORD
+        | QWORD
+        | NATIVEINT
+        | NATIVEUINT
+        | CODEPAGE
+        | TGUID
+        | PGUID
+        | TEXTFILE
+        | TEXT
+        | SHORTSTRING
+        | OPENSTRING
+    ) genericTemplate?
     ;
 
 interfaceBlockMember
@@ -215,16 +274,6 @@ deprecatedHint
     : DEPRECATED stringExpression
     ;
 
-// typeDefinitionPart
-//     : TYPE (
-//         //typeDefinition (SEMI typeDefinition)* SEMI?
-//         identifier EQUAL CLASS SEMI
-//         | identifier EQUAL CLASS OF typeIdentifier SEMI
-//         | identifier EQUAL INTERFACE SEMI
-//         | typeDefinition SEMI
-//         )+
-//     ;
-
 typeDefinitionPart
     : TYPE typeDefinition (SEMI typeDefinition)*
     ;
@@ -271,11 +320,11 @@ procedureType
     ;
 
 aliasDistinctType
-    : TYPE typeIdentifier // Should be: type SomeType
+    : TYPE typeIdentifier
     ;
 
 aliasType
-    : typeIdentifier // Should be: SomeType
+    : typeIdentifier
     ;
 
 classImplementsInterfaces
@@ -290,7 +339,7 @@ accessSpecifier
     ;
 
 classDeclarationPart
-    : attributeSection? typedIdentifierList
+    : CLASS? VAR? attributeSection? typedIdentifierList
     | typeDefinitionPart
     | constantDefinitionPart
     | functionHeader
@@ -319,11 +368,11 @@ interfaceDeclarationPart
     ;
 
 errorInterfaceDeclarationPart
-    : ~(END)+ // Consume tokens until a likely statement boundary
+    : ~(END)+
     ;
 
 errorClassDeclarationPart
-    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+
     ;
 
 propertyDeclaration
@@ -391,7 +440,6 @@ simpleType
     | subrangeType
     | typeIdentifier
     | stringtype
-    | ansistringtype
     ;
 
 scalarType
@@ -410,6 +458,10 @@ subrangeType
     : simpleExpression DOTDOT simpleExpression
     ;
 
+stringTypeIdentifier
+    : (STRING | ANSISTRING | WIDESTRING | UNICODESTRING | RAWBYTESTRING | UTF8STRING | SHORTSTRING)
+    ;
+
 typeIdentifier
     : identifier
     | (
@@ -417,7 +469,6 @@ typeIdentifier
         | BOOLEAN
         | INTEGER
         | REAL
-        | STRING
         | CARDINAL
         | LONGBOOL
         | LONGINT
@@ -435,11 +486,6 @@ typeIdentifier
         | CURRENCY
         | ANSICHAR
         | WIDECHAR
-        | ANSISTRING
-        | WIDESTRING
-        | UNICODESTRING
-        | RAWBYTESTRING
-        | UTF8STRING
         | VARIANT
         | OLEVARIANT
         | POINTER
@@ -465,9 +511,9 @@ typeIdentifier
         | PGUID
         | TEXTFILE
         | TEXT
-        | SHORTSTRING
         | OPENSTRING
     )
+    | stringtype
     | arrayType
     ;
 
@@ -487,11 +533,7 @@ unpackedStructuredType
     ;
 
 stringtype
-    : STRING LBRACK (identifier | unsignedNumber) RBRACK
-    ;
-
-ansistringtype
-    : ANSISTRING LBRACK (identifier | unsignedNumber) RBRACK
+    : stringTypeIdentifier (LBRACK (identifier | unsignedNumber) RBRACK)?
     ;
 
 arrayType
@@ -519,7 +561,7 @@ recordTypeBlock
     ;
 
 recordDeclarationPart
-    : attributeSection? typedIdentifierList
+    : CLASS? VAR? attributeSection? typedIdentifierList
     | typeDefinitionPart
     | constantDefinitionPart
     | functionHeader
@@ -530,7 +572,7 @@ recordDeclarationPart
     ;
 
 errorRecordDeclarationPart
-    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+
     ;
 
 recordParts
@@ -571,7 +613,7 @@ helperDeclarationPart
     ;
 
 errorHelperDeclarationPart
-    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+ // Consume tokens until a likely statement boundary
+    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+
     ;
 
 setType
@@ -680,7 +722,6 @@ formalParameterSection
 
 parameterGroup
     : identifierList (COLON typeIdentifier)? defaultValue?
-    // | (VAR | CONST) identifierList
     ;
 
 identifierList
@@ -706,7 +747,7 @@ statement
     ;
 
 errorStatement
-    : ~('END' | ';')+ // Consume tokens until a likely statement boundary
+    : ~('END' | ';')+
     ;
 
 unlabelledStatement

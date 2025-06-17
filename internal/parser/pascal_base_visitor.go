@@ -292,6 +292,10 @@ func (v *BasepascalVisitor) VisitSubrangeType(ctx *SubrangeTypeContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitStringTypeIdentifier(ctx *StringTypeIdentifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitTypeIdentifier(ctx *TypeIdentifierContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -305,10 +309,6 @@ func (v *BasepascalVisitor) VisitUnpackedStructuredType(ctx *UnpackedStructuredT
 }
 
 func (v *BasepascalVisitor) VisitStringtype(ctx *StringtypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitAnsistringtype(ctx *AnsistringtypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

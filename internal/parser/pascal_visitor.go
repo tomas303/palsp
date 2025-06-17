@@ -221,6 +221,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#subrangeType.
 	VisitSubrangeType(ctx *SubrangeTypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#stringTypeIdentifier.
+	VisitStringTypeIdentifier(ctx *StringTypeIdentifierContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#typeIdentifier.
 	VisitTypeIdentifier(ctx *TypeIdentifierContext) interface{}
 
@@ -232,9 +235,6 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#stringtype.
 	VisitStringtype(ctx *StringtypeContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#ansistringtype.
-	VisitAnsistringtype(ctx *AnsistringtypeContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#arrayType.
 	VisitArrayType(ctx *ArrayTypeContext) interface{}

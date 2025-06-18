@@ -271,7 +271,7 @@ resourceDefinition
     ;
 
 deprecatedHint
-    : DEPRECATED stringExpression
+    : DEPRECATED stringExpression?
     ;
 
 typeDefinitionPart
@@ -290,6 +290,7 @@ typeDefinition
 
 classType
     : CLASS OF typeIdentifier
+    | CLASS (LPAREN identifier RPAREN)
     | CLASS (
         (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
             SEMI? accessSpecifier classTypeBlock?
@@ -554,8 +555,8 @@ indexType
     ;
 
 recordType
-    : RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END
-    | RECORD recordParts? END
+    : RECORD recordParts? SEMI? END deprecatedHint?
+    | RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END deprecatedHint?
     ;
 
 recordTypeBlock
@@ -596,7 +597,7 @@ tag
     ;
 
 recordVariant
-    : constList COLON LPAREN recordParts RPAREN
+    : constList COLON LPAREN recordParts SEMI? RPAREN
     ;
 
 helperType

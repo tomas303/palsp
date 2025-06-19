@@ -21,6 +21,12 @@ func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
 		builder.WriteString(buildTypeIdentifier(ctx.PointerType().TypeIdentifier()))
 		return builder.String()
 	}
+	if ctx.FunctionType() != nil {
+		return buildFunctionTypeDef(ctx.FunctionType())
+	}
+	if ctx.ProcedureType() != nil {
+		return buildProcedureTypeDef(ctx.ProcedureType())
+	}
 	return ""
 }
 
@@ -287,14 +293,6 @@ func buildTypeDef(ctx *parser.TypeDefinitionContext) string {
 
 	if ctx.Type_() != nil {
 		return buildUnderscoreTypeDef(ctx.Type_())
-	}
-
-	if ctx.FunctionType() != nil {
-		return buildFunctionTypeDef(ctx.FunctionType())
-	}
-
-	if ctx.ProcedureType() != nil {
-		return buildProcedureTypeDef(ctx.ProcedureType())
 	}
 
 	return ""

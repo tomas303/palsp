@@ -280,8 +280,6 @@ typeDefinitionPart
 
 typeDefinition
     : attributeSection? identifier EQUAL (
-        functionType
-        | procedureType
         | aliasDistinctType
         | aliasType
         | type_
@@ -345,7 +343,7 @@ classDeclarationPart
     | constantDefinitionPart
     | functionHeader
     | procedureHeader
-    | propertyDeclaration (SEMI DEFAULT)?
+    | CLASS? propertyDeclaration (SEMI DEFAULT)?
     ;
 
 GUID_LITERAL
@@ -433,6 +431,8 @@ type_
     : simpleType
     | structuredType
     | pointerType
+    | functionType
+    | procedureType
     ;
 
 simpleType
@@ -559,6 +559,14 @@ recordType
     | RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END deprecatedHint?
     ;
 
+
+    // | CLASS (
+    //     (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
+    //         SEMI? accessSpecifier classTypeBlock?
+    //     )* SEMI? END
+    // )?
+
+
 recordTypeBlock
     : recordDeclarationPart (SEMI recordDeclarationPart)*
     ;
@@ -570,12 +578,7 @@ recordDeclarationPart
     | functionHeader
     | procedureHeader
     | classOperatorHeader
-    | propertyDeclaration (SEMI DEFAULT)?
-    | errorRecordDeclarationPart
-    ;
-
-errorRecordDeclarationPart
-    : ~(STRICT | PRIVATE | PROTECTED | PUBLIC | PUBLISHED | END)+
+    | CLASS? propertyDeclaration (SEMI DEFAULT)?
     ;
 
 recordParts

@@ -254,9 +254,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#recordDeclarationPart.
 	VisitRecordDeclarationPart(ctx *RecordDeclarationPartContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#errorRecordDeclarationPart.
-	VisitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#recordParts.
 	VisitRecordParts(ctx *RecordPartsContext) interface{}
 

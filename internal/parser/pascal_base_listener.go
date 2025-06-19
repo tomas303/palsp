@@ -519,13 +519,6 @@ func (s *BasepascalListener) EnterRecordDeclarationPart(ctx *RecordDeclarationPa
 // ExitRecordDeclarationPart is called when production recordDeclarationPart is exited.
 func (s *BasepascalListener) ExitRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
 
-// EnterErrorRecordDeclarationPart is called when production errorRecordDeclarationPart is entered.
-func (s *BasepascalListener) EnterErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) {
-}
-
-// ExitErrorRecordDeclarationPart is called when production errorRecordDeclarationPart is exited.
-func (s *BasepascalListener) ExitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) {}
-
 // EnterRecordParts is called when production recordParts is entered.
 func (s *BasepascalListener) EnterRecordParts(ctx *RecordPartsContext) {}
 

@@ -336,10 +336,6 @@ func (v *BasepascalVisitor) VisitRecordDeclarationPart(ctx *RecordDeclarationPar
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitErrorRecordDeclarationPart(ctx *ErrorRecordDeclarationPartContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitRecordParts(ctx *RecordPartsContext) interface{} {
 	return v.VisitChildren(ctx)
 }

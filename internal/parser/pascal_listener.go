@@ -254,9 +254,6 @@ type pascalListener interface {
 	// EnterRecordDeclarationPart is called when entering the recordDeclarationPart production.
 	EnterRecordDeclarationPart(c *RecordDeclarationPartContext)
 
-	// EnterErrorRecordDeclarationPart is called when entering the errorRecordDeclarationPart production.
-	EnterErrorRecordDeclarationPart(c *ErrorRecordDeclarationPartContext)
-
 	// EnterRecordParts is called when entering the recordParts production.
 	EnterRecordParts(c *RecordPartsContext)
 
@@ -769,9 +766,6 @@ type pascalListener interface {
 
 	// ExitRecordDeclarationPart is called when exiting the recordDeclarationPart production.
 	ExitRecordDeclarationPart(c *RecordDeclarationPartContext)
-
-	// ExitErrorRecordDeclarationPart is called when exiting the errorRecordDeclarationPart production.
-	ExitErrorRecordDeclarationPart(c *ErrorRecordDeclarationPartContext)
 
 	// ExitRecordParts is called when exiting the recordParts production.
 	ExitRecordParts(c *RecordPartsContext)

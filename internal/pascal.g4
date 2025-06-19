@@ -662,15 +662,15 @@ procedureOrFunctionHeader
 
 procedureOrFunctionHeaderModifiers
     : (
-        SEMI (
-            ABSTRACT
+        SEMI? (
+            CDECL
+            | STDCALL
+            | ABSTRACT
             | VIRTUAL
             | OVERRIDE
             | REINTRODUCE
             | OVERLOAD
             | INLINE
-            | STDCALL
-            | CDECL
             | STATIC
         )
     )*

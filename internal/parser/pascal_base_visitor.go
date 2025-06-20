@@ -152,6 +152,10 @@ func (v *BasepascalVisitor) VisitDeprecatedHint(ctx *DeprecatedHintContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitPlatformHint(ctx *PlatformHintContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }

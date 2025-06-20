@@ -237,6 +237,12 @@ func (s *BasepascalListener) EnterDeprecatedHint(ctx *DeprecatedHintContext) {}
 // ExitDeprecatedHint is called when production deprecatedHint is exited.
 func (s *BasepascalListener) ExitDeprecatedHint(ctx *DeprecatedHintContext) {}
 
+// EnterPlatformHint is called when production platformHint is entered.
+func (s *BasepascalListener) EnterPlatformHint(ctx *PlatformHintContext) {}
+
+// ExitPlatformHint is called when production platformHint is exited.
+func (s *BasepascalListener) ExitPlatformHint(ctx *PlatformHintContext) {}
+
 // EnterTypeDefinitionPart is called when production typeDefinitionPart is entered.
 func (s *BasepascalListener) EnterTypeDefinitionPart(ctx *TypeDefinitionPartContext) {}
 

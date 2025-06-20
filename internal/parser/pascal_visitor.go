@@ -116,6 +116,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#deprecatedHint.
 	VisitDeprecatedHint(ctx *DeprecatedHintContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#platformHint.
+	VisitPlatformHint(ctx *PlatformHintContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#typeDefinitionPart.
 	VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{}
 

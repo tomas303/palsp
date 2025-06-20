@@ -274,6 +274,10 @@ deprecatedHint
     : DEPRECATED stringExpression?
     ;
 
+platformHint
+    : PLATFORM EQUAL (unsignedConstant | FALSE | TRUE)
+    ;
+
 typeDefinitionPart
     : TYPE typeDefinition (SEMI typeDefinition)*
     ;
@@ -672,6 +676,7 @@ procedureOrFunctionHeaderModifiers
             | OVERLOAD
             | INLINE
             | STATIC
+            | PLATFORM
         )
     )*
     ;
@@ -743,7 +748,7 @@ defaultValue
     ;
 
 typedIdentifierList
-    : identifierList COLON type_
+    : identifierList COLON type_ platformHint? deprecatedHint?
     ;
 
 statement
@@ -1037,6 +1042,8 @@ attributeList
 attributeItem
     : identifier (LPAREN parameterList RPAREN)?
     ;
+
+
 
 AND
     : 'AND'
@@ -1692,6 +1699,10 @@ SHORTSTRING
 
 OPENSTRING
     : 'OPENSTRING'
+    ;
+
+PLATFORM
+    : 'PLATFORM'
     ;
 
 fragment WHITESPACE

@@ -116,6 +116,9 @@ type pascalListener interface {
 	// EnterDeprecatedHint is called when entering the deprecatedHint production.
 	EnterDeprecatedHint(c *DeprecatedHintContext)
 
+	// EnterPlatformHint is called when entering the platformHint production.
+	EnterPlatformHint(c *PlatformHintContext)
+
 	// EnterTypeDefinitionPart is called when entering the typeDefinitionPart production.
 	EnterTypeDefinitionPart(c *TypeDefinitionPartContext)
 
@@ -628,6 +631,9 @@ type pascalListener interface {
 
 	// ExitDeprecatedHint is called when exiting the deprecatedHint production.
 	ExitDeprecatedHint(c *DeprecatedHintContext)
+
+	// ExitPlatformHint is called when exiting the platformHint production.
+	ExitPlatformHint(c *PlatformHintContext)
 
 	// ExitTypeDefinitionPart is called when exiting the typeDefinitionPart production.
 	ExitTypeDefinitionPart(c *TypeDefinitionPartContext)

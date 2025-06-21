@@ -128,6 +128,8 @@ identifierPart
         | TEXT
         | SHORTSTRING
         | OPENSTRING
+        | PLATFORM
+        | ALIGN
     ) genericTemplate?
     ;
 
@@ -287,20 +289,16 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? identifier EQUAL (
-        | aliasDistinctType
-        | aliasType
-        | type_
-    )
+    : attributeSection? identifier EQUAL ( | aliasDistinctType | aliasType | type_)
     ;
 
 classType
     : CLASS OF typeIdentifier
     | CLASS (LPAREN identifier RPAREN)
     | CLASS (
-        (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
-            SEMI? accessSpecifier classTypeBlock?
-        )* SEMI? END
+        (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? (
+            accessSpecifier? classTypeBlock SEMI?
+        )* END
     )?
     ;
 
@@ -542,8 +540,8 @@ unpackedStructuredType
 
 stringtype
     : stringTypeIdentifier (
-        LBRACK (identifier | unsignedNumber | hexConstant) RBRACK     // Square brackets
-        | LPAREN (identifier | unsignedNumber | hexConstant) RPAREN   // Parentheses
+        LBRACK (identifier | unsignedNumber | hexConstant) RBRACK   // Square brackets
+        | LPAREN (identifier | unsignedNumber | hexConstant) RPAREN // Parentheses
     )?
     ;
 
@@ -1038,8 +1036,6 @@ attributeList
 attributeItem
     : identifier (LPAREN parameterList RPAREN)?
     ;
-
-
 
 AND
     : 'AND'

@@ -156,6 +156,10 @@ func (v *BasepascalVisitor) VisitPlatformHint(ctx *PlatformHintContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitAlignHint(ctx *AlignHintContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }

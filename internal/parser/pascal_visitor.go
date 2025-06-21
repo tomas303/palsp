@@ -119,6 +119,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#platformHint.
 	VisitPlatformHint(ctx *PlatformHintContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#alignHint.
+	VisitAlignHint(ctx *AlignHintContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#typeDefinitionPart.
 	VisitTypeDefinitionPart(ctx *TypeDefinitionPartContext) interface{}
 

@@ -119,6 +119,9 @@ type pascalListener interface {
 	// EnterPlatformHint is called when entering the platformHint production.
 	EnterPlatformHint(c *PlatformHintContext)
 
+	// EnterAlignHint is called when entering the alignHint production.
+	EnterAlignHint(c *AlignHintContext)
+
 	// EnterTypeDefinitionPart is called when entering the typeDefinitionPart production.
 	EnterTypeDefinitionPart(c *TypeDefinitionPartContext)
 
@@ -634,6 +637,9 @@ type pascalListener interface {
 
 	// ExitPlatformHint is called when exiting the platformHint production.
 	ExitPlatformHint(c *PlatformHintContext)
+
+	// ExitAlignHint is called when exiting the alignHint production.
+	ExitAlignHint(c *AlignHintContext)
 
 	// ExitTypeDefinitionPart is called when exiting the typeDefinitionPart production.
 	ExitTypeDefinitionPart(c *TypeDefinitionPartContext)

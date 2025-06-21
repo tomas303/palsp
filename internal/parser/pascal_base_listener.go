@@ -243,6 +243,12 @@ func (s *BasepascalListener) EnterPlatformHint(ctx *PlatformHintContext) {}
 // ExitPlatformHint is called when production platformHint is exited.
 func (s *BasepascalListener) ExitPlatformHint(ctx *PlatformHintContext) {}
 
+// EnterAlignHint is called when production alignHint is entered.
+func (s *BasepascalListener) EnterAlignHint(ctx *AlignHintContext) {}
+
+// ExitAlignHint is called when production alignHint is exited.
+func (s *BasepascalListener) ExitAlignHint(ctx *AlignHintContext) {}
+
 // EnterTypeDefinitionPart is called when production typeDefinitionPart is entered.
 func (s *BasepascalListener) EnterTypeDefinitionPart(ctx *TypeDefinitionPartContext) {}
 

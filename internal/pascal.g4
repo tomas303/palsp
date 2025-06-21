@@ -194,9 +194,9 @@ constantDefinitionPart
     ;
 
 constantDefinition
-    : identifier (COLON typeIdentifier)? EQUAL constant deprecatedHint?
-    | identifier COLON arrayType EQUAL constant deprecatedHint?
-    | identifier COLON setType EQUAL constant deprecatedHint?
+    : identifier (COLON typeIdentifier)? EQUAL constant platformHint? deprecatedHint?
+    | identifier COLON arrayType EQUAL constant platformHint? deprecatedHint?
+    | identifier COLON setType EQUAL constant platformHint? deprecatedHint?
     ;
 
 constantChr
@@ -275,7 +275,11 @@ deprecatedHint
     ;
 
 platformHint
-    : PLATFORM EQUAL (unsignedConstant | FALSE | TRUE)
+    : PLATFORM (EQUAL (unsignedConstant | FALSE | TRUE))?
+    ;
+
+alignHint
+    : ALIGN unsignedInteger?
     ;
 
 typeDefinitionPart
@@ -559,17 +563,9 @@ indexType
     ;
 
 recordType
-    : RECORD recordParts? SEMI? END deprecatedHint?
-    | RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END deprecatedHint?
+    : RECORD recordParts? SEMI? END alignHint? platformHint? deprecatedHint?
+    | RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END alignHint? platformHint? deprecatedHint?
     ;
-
-
-    // | CLASS (
-    //     (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? classTypeBlock? (
-    //         SEMI? accessSpecifier classTypeBlock?
-    //     )* SEMI? END
-    // )?
-
 
 recordTypeBlock
     : recordDeclarationPart (SEMI recordDeclarationPart)*
@@ -1703,6 +1699,10 @@ OPENSTRING
 
 PLATFORM
     : 'PLATFORM'
+    ;
+
+ALIGN
+    : 'ALIGN'
     ;
 
 fragment WHITESPACE

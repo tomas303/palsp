@@ -340,10 +340,14 @@ func (v *pascalCharStream) handleDirective(directive defineType, value []rune) r
 		return rsPush
 	case defineDI:
 		// Convert rune slice to string for define operations
-		v.defineCtx.Define(string(value))
+		if v.defineCtx.IsActive() {
+			v.defineCtx.Define(string(value))
+		}
 	case undefDI:
 		// Convert rune slice to string for undef operations
-		v.defineCtx.Undef(string(value))
+		if v.defineCtx.IsActive() {
+			v.defineCtx.Undef(string(value))
+		}
 	case ifdefDI:
 		// Use rune-based expression evaluation
 		result := v.defParser.evaluateExpressionRunes(value, v.defineCtx)

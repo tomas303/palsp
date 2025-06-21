@@ -358,7 +358,19 @@ func (v *pascalCharStream) handleDirective(directive defineType, value []rune) r
 		v.defineCtx.stack = append(v.defineCtx.stack, !result && v.defineCtx.IsActive())
 	case elseDI:
 		if len(v.defineCtx.stack) > 0 {
+			// Simply flip the current level
 			v.defineCtx.stack[len(v.defineCtx.stack)-1] = !v.defineCtx.stack[len(v.defineCtx.stack)-1]
+		}
+	case elseifDI:
+		if len(v.defineCtx.stack) > 0 {
+			// ELSEIF: evaluate the new condition only if current was false
+			if !v.defineCtx.stack[len(v.defineCtx.stack)-1] {
+				result := v.defParser.evaluateExpressionRunes(value, v.defineCtx)
+				v.defineCtx.stack[len(v.defineCtx.stack)-1] = result
+			} else {
+				// If current was true, ELSEIF is false
+				v.defineCtx.stack[len(v.defineCtx.stack)-1] = false
+			}
 		}
 	case endifDI:
 		v.defineCtx.PopIf()
@@ -490,6 +502,7 @@ const (
 	ifdefDI
 	ifndefDI
 	elseDI
+	elseifDI
 	endifDI
 )
 
@@ -646,16 +659,16 @@ func (p *defineParser) ParseDirectiveFromRunes(content []rune, offset int) (defi
 		return elseDI, nil, totalLen
 
 	case "ELSEIF":
-		// Modern Delphi ELSEIF
+		// Modern Delphi ELSEIF with expression
 		valueStart := keywordEnd
 		for valueStart < len(directiveContent) && isSpace(directiveContent[valueStart]) {
 			valueStart++
 		}
 		if valueStart < len(directiveContent) {
 			expression := directiveContent[valueStart:]
-			return elseDI, expression, totalLen // Treat as else for now
+			return elseifDI, expression, totalLen
 		}
-		return elseDI, nil, totalLen
+		return elseifDI, nil, totalLen
 
 	case "ENDIF", "IFEND":
 		return endifDI, nil, totalLen

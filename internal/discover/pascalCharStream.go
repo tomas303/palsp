@@ -34,7 +34,12 @@ func NewDefineContext() *defineContext {
 }
 
 func (d *defineContext) IsActive() bool {
-	return d.stack[len(d.stack)-1]
+	for _, active := range d.stack {
+		if !active {
+			return false
+		}
+	}
+	return true
 }
 
 func (d *defineContext) Define(name string) {

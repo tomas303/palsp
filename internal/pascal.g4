@@ -172,6 +172,7 @@ funcBlockMemeber
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
         | classOperatorDeclaration
+        | TYPE? typeDefinition
     )
     ;
 
@@ -631,11 +632,11 @@ procedureOrFunctionDeclaration
     ;
 
 procedureDeclaration
-    : procedureHeader procedureOrFunctionBody SEMI
+    : procedureHeader SEMI procedureOrFunctionBody
     ;
 
 functionDeclaration
-    : functionHeader procedureOrFunctionBody SEMI
+    : functionHeader SEMI procedureOrFunctionBody
     ;
 
 procedureLambdaDeclaration

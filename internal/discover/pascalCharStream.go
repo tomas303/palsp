@@ -321,21 +321,23 @@ func (v *pascalCharStream) fillTo(target int) {
 func (v *pascalCharStream) handleDirective(directive defineType, value []rune) regionStackMove {
 	switch directive {
 	case includeDI:
-		// Handle include directive - convert rune slice to string for file operations
-		filename := string(value)
-		source := v.sourceStack[len(v.sourceStack)-1]
-		includeFile, err := v.readInclude(filename, source.FileCtx.Filename)
-		if err != nil {
-			// fmt.Printf("Error reading include file %s: %v\n", filename, err)
-			return rsNeutral // Skip this include if error occurs
+		if v.defineCtx.IsActive() {
+			// Handle include directive - convert rune slice to string for file operations
+			filename := string(value)
+			source := v.sourceStack[len(v.sourceStack)-1]
+			includeFile, err := v.readInclude(filename, source.FileCtx.Filename)
+			if err != nil {
+				// fmt.Printf("Error reading include file %s: %v\n", filename, err)
+				return rsNeutral // Skip this include if error occurs
+			}
+			includeSource := &SourceFrame{
+				FileCtx:  includeFile,
+				Offset:   0,
+				LinesCnt: 0,
+			}
+			v.sourceStack = append(v.sourceStack, includeSource)
+			return rsPush
 		}
-		includeSource := &SourceFrame{
-			FileCtx:  includeFile,
-			Offset:   0,
-			LinesCnt: 0,
-		}
-		v.sourceStack = append(v.sourceStack, includeSource)
-		return rsPush
 	case defineDI:
 		// Convert rune slice to string for define operations
 		if v.defineCtx.IsActive() {

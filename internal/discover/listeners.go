@@ -333,15 +333,12 @@ func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionCo
 		fieldtype = buildUnderscoreTypeDef(ctx.Type_())
 	}
 	if fieldtype == "" {
-		if ctx.Constant() != nil {
-			if ctx.Constant().UnsignedConstant() != nil {
-				if ctx.Constant().UnsignedConstant().String_() != nil {
-					fieldtype = "string"
-				} else if ctx.Constant().UnsignedConstant().UnsignedNumber() != nil {
-					fieldtype = "integer"
-				}
-			}
-		}
+		// todo : finish later
+		// if ctx.Constant() != nil {
+		// 	if ctx.Constant().Identifier() != nil {
+		// 		fieldtype = buildIdentifier(ctx.Constant().Identifier())
+		// 	}
+		// }
 	}
 	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), ConstantSymbol, fieldtype, ctxStartPos(ctx.Identifier()))
 }

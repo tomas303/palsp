@@ -210,8 +210,8 @@ hexConstant
     ;
 
 constant
-    : unsignedConstant
-    | identifier
+    // : unsignedConstant
+    : identifier
     | scalarType
     | arrayConstant (PLUS (arrayConstant | identifier))*
     | recordConstant

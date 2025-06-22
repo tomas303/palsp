@@ -286,18 +286,16 @@ func (v *pascalCharStream) fillTo(target int) {
 		}
 
 		if v.skipImplementation && len(v.sourceStack) == 1 {
-			isImplementaion, implLen, _ := v.defParser.ParseImplementationFromRunes(
+			isImplementation := v.defParser.ParseImplementationFromRunes(
 				source.FileCtx.Content,
 				source.Offset,
 			)
-			if isImplementaion {
-				// Skip the entire implementation section
-				v.buffer = append(v.buffer, source.FileCtx.Content[source.Offset:source.Offset+implLen]...)
-				source.Offset += implLen
-				unitend := "\nend."
+			if isImplementation {
+				// Skip to the end of the file when we hit implementation
+				unitend := "\nimplementation\nend."
 				v.buffer = append(v.buffer, []rune(unitend)...)
-				source.Offset += len(unitend)
-				source.LinesCnt += 1 // Count the "end." line
+				source.Offset = len(source.FileCtx.Content) // Skip to end
+				source.LinesCnt += 1                        // Count the "end." line
 				break
 			}
 		}
@@ -1182,41 +1180,42 @@ func (p *defineParser) ParseCommentFromRunes(content []rune, offset int) (bool, 
 	return false, 0, 0
 }
 
-func (p *defineParser) ParseImplementationFromRunes(content []rune, offset int) (bool, int, int) {
+func (p *defineParser) ParseImplementationFromRunes(content []rune, offset int) bool {
 	if offset >= len(content) {
-		return false, 0, 0
+		return false
 	}
 
-	ch := content[offset]
+	// Check if we're at the start of "implementation" keyword
+	implKeyword := []rune("implementation")
 
-	// Check for implementation section: (* ... *)
-	if ch == '(' && offset+1 < len(content) && content[offset+1] == '*' {
-		end := offset + 2
-		lineCount := 0
+	// Check if there's enough content for the keyword
+	if offset+len(implKeyword) > len(content) {
+		return false
+	}
 
-		// Look for closing *)
-		for end+1 < len(content) {
-			if content[end] == '*' && content[end+1] == ')' {
-				end += 2 // Include the closing *)
-				return true, end - offset, lineCount
-			}
-
-			if content[end] == '\n' {
-				lineCount++
-			} else if content[end] == '\r' {
-				lineCount++
-				// Handle \r\n sequences - don't double count
-				if end+1 < len(content) && content[end+1] == '\n' {
-					end++
-				}
-			}
-			end++
+	// Case-insensitive comparison
+	for i, r := range implKeyword {
+		char := content[offset+i]
+		if p.toLower(char) != p.toLower(r) {
+			return false
 		}
-
-		// Unclosed (* implementation section - consume to end of file
-		return true, len(content) - offset, lineCount
 	}
 
-	// No implementation section found
-	return false, 0, 0
+	// Make sure it's a complete word (not part of another identifier)
+	if offset+len(implKeyword) < len(content) {
+		nextChar := content[offset+len(implKeyword)]
+		if isLetterOrDigit(nextChar) || nextChar == '_' {
+			return false // Part of longer identifier like "implementationHelper"
+		}
+	}
+
+	// Also check that it's preceded by word boundary (not part of another word)
+	if offset > 0 {
+		prevChar := content[offset-1]
+		if isLetterOrDigit(prevChar) || prevChar == '_' {
+			return false // Part of longer identifier like "myImplementation"
+		}
+	}
+
+	return true
 }

@@ -230,9 +230,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#stringTypeIdentifier.
 	VisitStringTypeIdentifier(ctx *StringTypeIdentifierContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#typeIdentifier.
-	VisitTypeIdentifier(ctx *TypeIdentifierContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#structuredType.
 	VisitStructuredType(ctx *StructuredTypeContext) interface{}
 
@@ -254,20 +251,17 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#recordType.
 	VisitRecordType(ctx *RecordTypeContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordTypeBlock.
-	VisitRecordTypeBlock(ctx *RecordTypeBlockContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordContent.
+	VisitRecordContent(ctx *RecordContentContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordDeclarationPart.
-	VisitRecordDeclarationPart(ctx *RecordDeclarationPartContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordSection.
+	VisitRecordSection(ctx *RecordSectionContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordParts.
-	VisitRecordParts(ctx *RecordPartsContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordFieldsSection.
+	VisitRecordFieldsSection(ctx *RecordFieldsSectionContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#recordFixedPart.
-	VisitRecordFixedPart(ctx *RecordFixedPartContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#recordVariantPart.
-	VisitRecordVariantPart(ctx *RecordVariantPartContext) interface{}
+	// Visit a parse tree produced by pascalParser#recordVariantSection.
+	VisitRecordVariantSection(ctx *RecordVariantSectionContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#tag.
 	VisitTag(ctx *TagContext) interface{}

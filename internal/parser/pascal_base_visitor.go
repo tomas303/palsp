@@ -304,10 +304,6 @@ func (v *BasepascalVisitor) VisitStringTypeIdentifier(ctx *StringTypeIdentifierC
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitTypeIdentifier(ctx *TypeIdentifierContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitStructuredType(ctx *StructuredTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -336,23 +332,19 @@ func (v *BasepascalVisitor) VisitRecordType(ctx *RecordTypeContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordTypeBlock(ctx *RecordTypeBlockContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordContent(ctx *RecordContentContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordDeclarationPart(ctx *RecordDeclarationPartContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordSection(ctx *RecordSectionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordParts(ctx *RecordPartsContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordFieldsSection(ctx *RecordFieldsSectionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitRecordFixedPart(ctx *RecordFixedPartContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitRecordVariantPart(ctx *RecordVariantPartContext) interface{} {
+func (v *BasepascalVisitor) VisitRecordVariantSection(ctx *RecordVariantSectionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

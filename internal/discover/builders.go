@@ -18,7 +18,7 @@ func buildUnderscoreTypeDef(ctx parser.IType_Context) string {
 	if ctx.PointerType() != nil {
 		var builder strings.Builder
 		builder.WriteString("^")
-		builder.WriteString(buildTypeIdentifier(ctx.PointerType().TypeIdentifier()))
+		builder.WriteString(buildIdentifier(ctx.PointerType().Identifier()))
 		return builder.String()
 	}
 	if ctx.FunctionType() != nil {
@@ -56,8 +56,8 @@ func buildSimpleTypeDef(ctx parser.ISimpleTypeContext) string {
 			builder.WriteString(buildSimpleExpression(ctx.SubrangeType().SimpleExpression(1)))
 		}
 	}
-	if ctx.TypeIdentifier() != nil {
-		builder.WriteString(buildTypeIdentifier(ctx.TypeIdentifier()))
+	if ctx.Identifier() != nil {
+		builder.WriteString(buildIdentifier(ctx.Identifier()))
 	}
 	if ctx.Stringtype() != nil {
 		builder.WriteString("string")
@@ -112,70 +112,71 @@ func buildStructuredTypeDef(ctx parser.IStructuredTypeContext) string {
 
 func buildRecordTypeDef(ctx parser.IRecordTypeContext) string {
 	var builder strings.Builder
+	// todo: later add record parts
 	builder.WriteString("record\n")
-	builder.WriteString(buildRecordParts(ctx.RecordParts()))
+	// builder.WriteString(buildRecordParts(ctx.RecordParts()))
 	builder.WriteString("end")
 	return builder.String()
 }
 
-func buildRecordParts(ctx parser.IRecordPartsContext) string {
-	var builder strings.Builder
-	if ctx != nil {
-		if ctx.RecordFixedPart() != nil {
-			builder.WriteString(buildRecordFixedPart(ctx.RecordFixedPart()))
-			if ctx.RecordVariantPart() != nil {
-				builder.WriteString(buildRecordVariantPart(ctx.RecordVariantPart()))
-			}
-		} else if ctx.RecordVariantPart() != nil {
-			builder.WriteString(buildRecordVariantPart(ctx.RecordVariantPart()))
-		}
-	}
-	return builder.String()
-}
+// func buildRecordParts(ctx parser.IRecordPartsContext) string {
+// 	var builder strings.Builder
+// 	if ctx != nil {
+// 		if ctx.RecordFixedPart() != nil {
+// 			builder.WriteString(buildRecordFixedPart(ctx.RecordFixedPart()))
+// 			if ctx.RecordVariantPart() != nil {
+// 				builder.WriteString(buildRecordVariantPart(ctx.RecordVariantPart()))
+// 			}
+// 		} else if ctx.RecordVariantPart() != nil {
+// 			builder.WriteString(buildRecordVariantPart(ctx.RecordVariantPart()))
+// 		}
+// 	}
+// 	return builder.String()
+// }
 
-func buildRecordFixedPart(ctx parser.IRecordFixedPartContext) string {
-	var builder strings.Builder
-	for _, typeIdlist := range ctx.AllTypedIdentifierList() {
-		names, typedef := buildTypedIdentifierList(typeIdlist)
-		builder.WriteString(strings.Join(names, ","))
-		builder.WriteString(": ")
-		builder.WriteString(typedef)
-		builder.WriteString(";\n")
-	}
-	return builder.String()
-}
+// func buildRecordFixedPart(ctx parser.IRecordFixedPartContext) string {
+// 	var builder strings.Builder
+// 	for _, typeIdlist := range ctx.AllTypedIdentifierList() {
+// 		names, typedef := buildTypedIdentifierList(typeIdlist)
+// 		builder.WriteString(strings.Join(names, ","))
+// 		builder.WriteString(": ")
+// 		builder.WriteString(typedef)
+// 		builder.WriteString(";\n")
+// 	}
+// 	return builder.String()
+// }
 
-func buildRecordVariantPart(ctx parser.IRecordVariantPartContext) string {
-	var builder strings.Builder
-	builder.WriteString("case ")
-	builder.WriteString(ctx.Tag().GetText())
-	builder.WriteString(" of\n")
-	for _, variant := range ctx.AllRecordVariant() {
-		builder.WriteString(buildRecordVariant(variant))
-	}
-	return builder.String()
-}
+// func buildRecordVariantPart(ctx parser.IRecordVariantPartContext) string {
+// 	var builder strings.Builder
+// 	builder.WriteString("case ")
+// 	builder.WriteString(ctx.Tag().GetText())
+// 	builder.WriteString(" of\n")
+// 	for _, variant := range ctx.AllRecordVariant() {
+// 		builder.WriteString(buildRecordVariant(variant))
+// 	}
+// 	return builder.String()
+// }
 
-func buildRecordVariant(ctx parser.IRecordVariantContext) string {
-	var builder strings.Builder
-	constList := buildConstList(ctx.ConstList())
-	if constList != "" {
-		builder.WriteString(constList)
-		builder.WriteString(": ")
-	}
-	parts := buildRecordParts(ctx.RecordParts())
-	if parts != "" {
-		builder.WriteString("(\n")
-		builder.WriteString(parts)
-		builder.WriteString(");\n")
-	}
-	return builder.String()
-}
+// func buildRecordVariant(ctx parser.IRecordVariantContext) string {
+// 	var builder strings.Builder
+// 	constList := buildConstList(ctx.ConstList())
+// 	if constList != "" {
+// 		builder.WriteString(constList)
+// 		builder.WriteString(": ")
+// 	}
+// 	parts := buildRecordParts(ctx.RecordParts())
+// 	if parts != "" {
+// 		builder.WriteString("(\n")
+// 		builder.WriteString(parts)
+// 		builder.WriteString(");\n")
+// 	}
+// 	return builder.String()
+// }
 
 func buildHelperTypeDef(ctx parser.IHelperTypeContext) string {
 	var builder strings.Builder
 	builder.WriteString("class helper for ")
-	builder.WriteString(buildTypeIdentifier(ctx.TypeIdentifier()))
+	builder.WriteString(buildUnderscoreTypeDef(ctx.Type_()))
 	builder.WriteString(" end")
 	return builder.String()
 }
@@ -223,7 +224,7 @@ func buildClassTypeDef(ctx parser.IClassTypeContext) string {
 	if ctx.LPAREN() != nil && ctx.RPAREN() != nil {
 		implements := []string{}
 		if ctx.ClassImplementsInterfaces() != nil {
-			for _, identifier := range ctx.ClassImplementsInterfaces().AllTypeIdentifier() {
+			for _, identifier := range ctx.ClassImplementsInterfaces().AllIdentifier() {
 				implements = append(implements, identifier.GetText())
 			}
 		}
@@ -251,7 +252,7 @@ func buildFunctionTypeDef(ctx parser.IFunctionTypeContext) string {
 	params := buildParameterList(ctx.FormalParameterList())
 	resultType := ""
 	if ctx.ResultType() != nil {
-		resultType = ctx.ResultType().TypeIdentifier().GetText()
+		resultType = buildUnderscoreTypeDef(ctx.ResultType().Type_())
 	}
 
 	if resultType != "" {
@@ -308,9 +309,9 @@ func buildParameterGroup(ctx parser.IParameterGroupContext) string {
 				builder.WriteString(", ")
 			}
 		}
-		if ctx.TypeIdentifier() != nil {
+		if ctx.Type_() != nil {
 			builder.WriteString(": ")
-			builder.WriteString(ctx.TypeIdentifier().GetText())
+			builder.WriteString(buildUnderscoreTypeDef(ctx.Type_()))
 		}
 		if ctx.DefaultValue() != nil {
 			builder.WriteString(" = ")
@@ -362,9 +363,9 @@ func buildOneParameter(paramSectionCtx parser.IFormalParameterSectionContext, pa
 	}
 	builder.WriteString(paramCtx.GetText())
 	if paramSectionCtx.ParameterGroup() != nil {
-		if paramSectionCtx.ParameterGroup().TypeIdentifier() != nil {
+		if paramSectionCtx.ParameterGroup().Type_() != nil {
 			builder.WriteString(": ")
-			builder.WriteString(paramSectionCtx.ParameterGroup().TypeIdentifier().GetText())
+			builder.WriteString(buildUnderscoreTypeDef(paramSectionCtx.ParameterGroup().Type_()))
 		}
 		if paramSectionCtx.ParameterGroup().DefaultValue() != nil {
 			builder.WriteString(" = ")
@@ -437,6 +438,7 @@ func getLastIdent(ctx parser.IIdentifierContext) string {
 
 func buildIdentifierPart(ctx parser.IIdentifierPartContext) string {
 	var builder strings.Builder
+	// todo: later add rest
 	if ctx.IDENT() != nil {
 		builder.WriteString(ctx.IDENT().GetText())
 	}
@@ -448,6 +450,27 @@ func buildIdentifierPart(ctx parser.IIdentifierPartContext) string {
 	}
 	if ctx.WRITE() != nil {
 		builder.WriteString(ctx.WRITE().GetText())
+	}
+	if ctx.CHAR() != nil {
+		builder.WriteString("char")
+	}
+	if ctx.BOOLEAN() != nil {
+		builder.WriteString("boolean")
+	}
+	if ctx.INTEGER() != nil {
+		builder.WriteString("integer")
+	}
+	if ctx.REAL() != nil {
+		builder.WriteString("real")
+	}
+	if ctx.CARDINAL() != nil {
+		builder.WriteString("cardinal")
+	}
+	if ctx.LONGBOOL() != nil {
+		builder.WriteString("longbool")
+	}
+	if ctx.LONGINT() != nil {
+		builder.WriteString("longint")
 	}
 	if ctx.GenericTemplate() != nil {
 		builder.WriteString(buildGenericTemplate(ctx.GenericTemplate()))
@@ -488,47 +511,13 @@ func buildGenericTemplate(ctx parser.IGenericTemplateContext) string {
 	builder.WriteString("<")
 	typeidentifiers := ctx.GenericTemplateList().AllGenericTypeParameter()
 	for i, typeParam := range typeidentifiers {
-		builder.WriteString(buildTypeIdentifier(typeParam.TypeIdentifier()))
+		builder.WriteString(buildIdentifier(typeParam.Identifier()))
 		if i < len(typeidentifiers)-1 {
 			builder.WriteString(",")
 		}
 	}
 	builder.WriteString(">")
 	return builder.String()
-}
-
-func buildTypeIdentifier(ctx parser.ITypeIdentifierContext) string {
-	if ctx.Identifier() != nil {
-		return buildIdentifier(ctx.Identifier())
-	}
-	if ctx.CHAR() != nil {
-		return "char"
-	}
-	if ctx.BOOLEAN() != nil {
-		return "boolean"
-	}
-	if ctx.INTEGER() != nil {
-		return "integer"
-	}
-	if ctx.REAL() != nil {
-		return "real"
-	}
-	if ctx.CARDINAL() != nil {
-		return "cardinal"
-	}
-	if ctx.LONGBOOL() != nil {
-		return "longbool"
-	}
-	if ctx.LONGINT() != nil {
-		return "longint"
-	}
-	if ctx.Stringtype() != nil {
-		return "string"
-	}
-	if ctx.ArrayType() != nil {
-		return "array"
-	}
-	return ""
 }
 
 func buildTypedIdentifierList(ctx parser.ITypedIdentifierListContext) ([]string, string) {
@@ -615,11 +604,11 @@ func buildFunctionHeader(ctx parser.IFunctionHeaderContext) string {
 	builder.WriteString("(")
 	builder.WriteString(buildParameterList(ctx.FormalParameterList()))
 	builder.WriteString(")")
-	if ctx.ResultType() == nil || ctx.ResultType().TypeIdentifier() == nil {
+	if ctx.ResultType() == nil || ctx.ResultType().Type_() == nil {
 		builder.WriteString(": unknown")
 	} else {
 		builder.WriteString(": ")
-		builder.WriteString(buildTypeIdentifier(ctx.ResultType().TypeIdentifier()))
+		builder.WriteString(buildUnderscoreTypeDef(ctx.ResultType().Type_()))
 	}
 	builder.WriteString(buildProcedureOrFunctionHeaderModifiers(ctx.ProcedureOrFunctionHeaderModifiers()))
 	return builder.String()
@@ -631,9 +620,9 @@ func buildProperty(ctx *parser.PropertyDeclarationContext) string {
 	if ctx.Identifier() != nil {
 		builder.WriteString(buildIdentifier(ctx.Identifier()))
 	}
-	if ctx.TypeIdentifier() != nil {
+	if ctx.Type_() != nil {
 		builder.WriteString(": ")
-		builder.WriteString(buildTypeIdentifier(ctx.TypeIdentifier()))
+		builder.WriteString(buildUnderscoreTypeDef(ctx.Type_()))
 	}
 	return builder.String()
 }

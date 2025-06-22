@@ -329,8 +329,8 @@ func (s *scopesListener) ExitVariableDeclarationStatement(ctx *parser.VariableDe
 
 func (s *scopesListener) ExitConstantDefinition(ctx *parser.ConstantDefinitionContext) {
 	fieldtype := ""
-	if ctx.TypeIdentifier() != nil {
-		fieldtype = buildTypeIdentifier(ctx.TypeIdentifier())
+	if ctx.Type_() != nil {
+		fieldtype = buildUnderscoreTypeDef(ctx.Type_())
 	}
 	if fieldtype == "" {
 		if ctx.Constant() != nil {
@@ -427,7 +427,7 @@ func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 		return
 	}
 	if ctx.ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.ResultType().TypeIdentifier()), ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.ResultType().Type_()), ctxStartPos(ctx.Identifier()))
 	}
 	s.endScope()
 	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.Identifier()))
@@ -437,7 +437,7 @@ func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclaratio
 	s.inDeclaration = true
 
 	if ctx.FunctionHeader().ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildTypeIdentifier(ctx.FunctionHeader().ResultType().TypeIdentifier()), ctxStartPos(ctx.FunctionHeader().Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.FunctionHeader().ResultType().Type_()), ctxStartPos(ctx.FunctionHeader().Identifier()))
 	}
 	s.collector.AddSymbol(getLastIdent(ctx.FunctionHeader().Identifier()), FunctionSymbol, buildFunctionHeader(ctx.FunctionHeader()), ctxStartPos(ctx.FunctionHeader().Identifier()))
 
@@ -454,7 +454,7 @@ func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) 
 	var kind SymbolKind
 	if ctx.Type_() != nil && ctx.Type_().StructuredType() != nil {
 		if ctx.Type_().StructuredType().HelperType() != nil {
-			tmp := buildTypeIdentifier(ctx.Type_().StructuredType().HelperType().TypeIdentifier())
+			tmp := buildUnderscoreTypeDef(ctx.Type_().StructuredType().HelperType().Type_())
 			ancestor = &tmp
 			kind = HelperSymbol
 		} else if ctx.Type_().StructuredType().ClassType() != nil {

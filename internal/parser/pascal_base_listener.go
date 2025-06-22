@@ -471,12 +471,6 @@ func (s *BasepascalListener) EnterStringTypeIdentifier(ctx *StringTypeIdentifier
 // ExitStringTypeIdentifier is called when production stringTypeIdentifier is exited.
 func (s *BasepascalListener) ExitStringTypeIdentifier(ctx *StringTypeIdentifierContext) {}
 
-// EnterTypeIdentifier is called when production typeIdentifier is entered.
-func (s *BasepascalListener) EnterTypeIdentifier(ctx *TypeIdentifierContext) {}
-
-// ExitTypeIdentifier is called when production typeIdentifier is exited.
-func (s *BasepascalListener) ExitTypeIdentifier(ctx *TypeIdentifierContext) {}
-
 // EnterStructuredType is called when production structuredType is entered.
 func (s *BasepascalListener) EnterStructuredType(ctx *StructuredTypeContext) {}
 
@@ -519,35 +513,29 @@ func (s *BasepascalListener) EnterRecordType(ctx *RecordTypeContext) {}
 // ExitRecordType is called when production recordType is exited.
 func (s *BasepascalListener) ExitRecordType(ctx *RecordTypeContext) {}
 
-// EnterRecordTypeBlock is called when production recordTypeBlock is entered.
-func (s *BasepascalListener) EnterRecordTypeBlock(ctx *RecordTypeBlockContext) {}
+// EnterRecordContent is called when production recordContent is entered.
+func (s *BasepascalListener) EnterRecordContent(ctx *RecordContentContext) {}
 
-// ExitRecordTypeBlock is called when production recordTypeBlock is exited.
-func (s *BasepascalListener) ExitRecordTypeBlock(ctx *RecordTypeBlockContext) {}
+// ExitRecordContent is called when production recordContent is exited.
+func (s *BasepascalListener) ExitRecordContent(ctx *RecordContentContext) {}
 
-// EnterRecordDeclarationPart is called when production recordDeclarationPart is entered.
-func (s *BasepascalListener) EnterRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
+// EnterRecordSection is called when production recordSection is entered.
+func (s *BasepascalListener) EnterRecordSection(ctx *RecordSectionContext) {}
 
-// ExitRecordDeclarationPart is called when production recordDeclarationPart is exited.
-func (s *BasepascalListener) ExitRecordDeclarationPart(ctx *RecordDeclarationPartContext) {}
+// ExitRecordSection is called when production recordSection is exited.
+func (s *BasepascalListener) ExitRecordSection(ctx *RecordSectionContext) {}
 
-// EnterRecordParts is called when production recordParts is entered.
-func (s *BasepascalListener) EnterRecordParts(ctx *RecordPartsContext) {}
+// EnterRecordFieldsSection is called when production recordFieldsSection is entered.
+func (s *BasepascalListener) EnterRecordFieldsSection(ctx *RecordFieldsSectionContext) {}
 
-// ExitRecordParts is called when production recordParts is exited.
-func (s *BasepascalListener) ExitRecordParts(ctx *RecordPartsContext) {}
+// ExitRecordFieldsSection is called when production recordFieldsSection is exited.
+func (s *BasepascalListener) ExitRecordFieldsSection(ctx *RecordFieldsSectionContext) {}
 
-// EnterRecordFixedPart is called when production recordFixedPart is entered.
-func (s *BasepascalListener) EnterRecordFixedPart(ctx *RecordFixedPartContext) {}
+// EnterRecordVariantSection is called when production recordVariantSection is entered.
+func (s *BasepascalListener) EnterRecordVariantSection(ctx *RecordVariantSectionContext) {}
 
-// ExitRecordFixedPart is called when production recordFixedPart is exited.
-func (s *BasepascalListener) ExitRecordFixedPart(ctx *RecordFixedPartContext) {}
-
-// EnterRecordVariantPart is called when production recordVariantPart is entered.
-func (s *BasepascalListener) EnterRecordVariantPart(ctx *RecordVariantPartContext) {}
-
-// ExitRecordVariantPart is called when production recordVariantPart is exited.
-func (s *BasepascalListener) ExitRecordVariantPart(ctx *RecordVariantPartContext) {}
+// ExitRecordVariantSection is called when production recordVariantSection is exited.
+func (s *BasepascalListener) ExitRecordVariantSection(ctx *RecordVariantSectionContext) {}
 
 // EnterTag is called when production tag is entered.
 func (s *BasepascalListener) EnterTag(ctx *TagContext) {}

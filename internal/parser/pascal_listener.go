@@ -230,9 +230,6 @@ type pascalListener interface {
 	// EnterStringTypeIdentifier is called when entering the stringTypeIdentifier production.
 	EnterStringTypeIdentifier(c *StringTypeIdentifierContext)
 
-	// EnterTypeIdentifier is called when entering the typeIdentifier production.
-	EnterTypeIdentifier(c *TypeIdentifierContext)
-
 	// EnterStructuredType is called when entering the structuredType production.
 	EnterStructuredType(c *StructuredTypeContext)
 
@@ -254,20 +251,17 @@ type pascalListener interface {
 	// EnterRecordType is called when entering the recordType production.
 	EnterRecordType(c *RecordTypeContext)
 
-	// EnterRecordTypeBlock is called when entering the recordTypeBlock production.
-	EnterRecordTypeBlock(c *RecordTypeBlockContext)
+	// EnterRecordContent is called when entering the recordContent production.
+	EnterRecordContent(c *RecordContentContext)
 
-	// EnterRecordDeclarationPart is called when entering the recordDeclarationPart production.
-	EnterRecordDeclarationPart(c *RecordDeclarationPartContext)
+	// EnterRecordSection is called when entering the recordSection production.
+	EnterRecordSection(c *RecordSectionContext)
 
-	// EnterRecordParts is called when entering the recordParts production.
-	EnterRecordParts(c *RecordPartsContext)
+	// EnterRecordFieldsSection is called when entering the recordFieldsSection production.
+	EnterRecordFieldsSection(c *RecordFieldsSectionContext)
 
-	// EnterRecordFixedPart is called when entering the recordFixedPart production.
-	EnterRecordFixedPart(c *RecordFixedPartContext)
-
-	// EnterRecordVariantPart is called when entering the recordVariantPart production.
-	EnterRecordVariantPart(c *RecordVariantPartContext)
+	// EnterRecordVariantSection is called when entering the recordVariantSection production.
+	EnterRecordVariantSection(c *RecordVariantSectionContext)
 
 	// EnterTag is called when entering the tag production.
 	EnterTag(c *TagContext)
@@ -749,9 +743,6 @@ type pascalListener interface {
 	// ExitStringTypeIdentifier is called when exiting the stringTypeIdentifier production.
 	ExitStringTypeIdentifier(c *StringTypeIdentifierContext)
 
-	// ExitTypeIdentifier is called when exiting the typeIdentifier production.
-	ExitTypeIdentifier(c *TypeIdentifierContext)
-
 	// ExitStructuredType is called when exiting the structuredType production.
 	ExitStructuredType(c *StructuredTypeContext)
 
@@ -773,20 +764,17 @@ type pascalListener interface {
 	// ExitRecordType is called when exiting the recordType production.
 	ExitRecordType(c *RecordTypeContext)
 
-	// ExitRecordTypeBlock is called when exiting the recordTypeBlock production.
-	ExitRecordTypeBlock(c *RecordTypeBlockContext)
+	// ExitRecordContent is called when exiting the recordContent production.
+	ExitRecordContent(c *RecordContentContext)
 
-	// ExitRecordDeclarationPart is called when exiting the recordDeclarationPart production.
-	ExitRecordDeclarationPart(c *RecordDeclarationPartContext)
+	// ExitRecordSection is called when exiting the recordSection production.
+	ExitRecordSection(c *RecordSectionContext)
 
-	// ExitRecordParts is called when exiting the recordParts production.
-	ExitRecordParts(c *RecordPartsContext)
+	// ExitRecordFieldsSection is called when exiting the recordFieldsSection production.
+	ExitRecordFieldsSection(c *RecordFieldsSectionContext)
 
-	// ExitRecordFixedPart is called when exiting the recordFixedPart production.
-	ExitRecordFixedPart(c *RecordFixedPartContext)
-
-	// ExitRecordVariantPart is called when exiting the recordVariantPart production.
-	ExitRecordVariantPart(c *RecordVariantPartContext)
+	// ExitRecordVariantSection is called when exiting the recordVariantSection production.
+	ExitRecordVariantSection(c *RecordVariantSectionContext)
 
 	// ExitTag is called when exiting the tag production.
 	ExitTag(c *TagContext)

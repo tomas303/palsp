@@ -49,11 +49,11 @@ unit
     ;
 
 interfaceSection
-    : INTERFACE usesUnits? interfaceBlock?
+    : INTERFACE usesUnits? interfaceBlock
     ;
 
 implementationSection
-    : IMPLEMENTATION usesUnits? implementationBlock?
+    : IMPLEMENTATION usesUnits? implementationBlock
     ;
 
 initializationSection
@@ -138,14 +138,14 @@ interfaceBlockMember
         labelDeclarationPart
         | constantDefinitionPart
         | resourceDefinitionPart
-        | typeDefinitionPart
+        | TYPE? typeDefinition  // type is complex rule and sometimes typeDefinitionPart just didn't work(didn't follow semi there but skip back to this section)
         | variableDeclarationPart
         | procedureOrFunctionHeader
     )
     ;
 
 interfaceBlock
-    : interfaceBlockMember (SEMI interfaceBlockMember)* SEMI?
+    : (interfaceBlockMember SEMI)*
     ;
 
 implementationBlockMember
@@ -153,7 +153,7 @@ implementationBlockMember
         labelDeclarationPart
         | constantDefinitionPart
         | resourceDefinitionPart
-        | typeDefinitionPart
+        | TYPE? typeDefinition
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
         | procedureOrFunctionHeader SEMI FORWARD
@@ -162,7 +162,7 @@ implementationBlockMember
     ;
 
 implementationBlock
-    : implementationBlockMember (SEMI implementationBlockMember)* SEMI?
+    : (implementationBlockMember SEMI)*
     ;
 
 funcBlockMemeber
@@ -196,7 +196,7 @@ constantDefinitionPart
     ;
 
 constantDefinition
-    : identifier (COLON typeIdentifier)? EQUAL constant platformHint? deprecatedHint?
+    : identifier (COLON type_)? EQUAL constant platformHint? deprecatedHint?
     | identifier COLON arrayType EQUAL constant platformHint? deprecatedHint?
     | identifier COLON setType EQUAL constant platformHint? deprecatedHint?
     ;
@@ -289,11 +289,11 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? identifier EQUAL ( | aliasDistinctType | aliasType | type_)
+    : attributeSection? identifier EQUAL (aliasDistinctType | aliasType | type_)
     ;
 
 classType
-    : CLASS OF typeIdentifier
+    : CLASS OF identifier
     | CLASS (LPAREN identifier RPAREN)
     | CLASS (
         (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? (
@@ -325,15 +325,15 @@ procedureType
     ;
 
 aliasDistinctType
-    : TYPE typeIdentifier
+    : TYPE type_
     ;
 
 aliasType
-    : typeIdentifier
+    : type_
     ;
 
 classImplementsInterfaces
-    : (COMMA typeIdentifier)*
+    : (COMMA identifier)*
     ;
 
 accessSpecifier
@@ -380,7 +380,7 @@ errorClassDeclarationPart
     ;
 
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON typeIdentifier propertyReadDeclaration? propertyWriteDeclaration?
+    : PROPERTY identifier propertyIndexParameters? COLON type_ propertyReadDeclaration? propertyWriteDeclaration?
         propertyDefaultValueDeclaration? propertyIndexDeclaration? (SEMI DEFAULT)?
     | PROPERTY identifier propertyDefaultValueDeclaration?
     ;
@@ -418,7 +418,7 @@ genericTemplateList
     ;
 
 genericTypeParameter
-    : typeIdentifier (COLON genericConstraints)?
+    : identifier (COLON genericConstraints)?
     ;
 
 genericConstraints
@@ -429,8 +429,8 @@ genericConstraint
     : CONSTRUCTOR
     | CLASS
     | RECORD
-    | CLASS OF typeIdentifier
-    | typeIdentifier
+    | CLASS OF identifier
+    | identifier
     ;
 
 type_
@@ -444,7 +444,7 @@ type_
 simpleType
     : scalarType
     | subrangeType
-    | typeIdentifier
+    | identifier
     | stringtype
     ;
 
@@ -468,60 +468,12 @@ stringTypeIdentifier
     : (STRING | ANSISTRING | WIDESTRING | UNICODESTRING | RAWBYTESTRING | UTF8STRING | SHORTSTRING)
     ;
 
-typeIdentifier
-    : identifier
-    | (
-        CHAR
-        | BOOLEAN
-        | INTEGER
-        | REAL
-        | CARDINAL
-        | LONGBOOL
-        | LONGINT
-        | LONGWORD
-        | WORD
-        | BYTE
-        | SHORTINT
-        | SMALLINT
-        | INT64
-        | UINT64
-        | SINGLE
-        | DOUBLE
-        | EXTENDED
-        | COMP
-        | CURRENCY
-        | ANSICHAR
-        | WIDECHAR
-        | VARIANT
-        | OLEVARIANT
-        | POINTER
-        | PCHAR
-        | PANSICHAR
-        | PWIDECHAR
-        | PUNICODECHAR
-        | THANDLE
-        | HWND
-        | HDC
-        | HICON
-        | HBITMAP
-        | HMENU
-        | HINSTANCE
-        | HMODULE
-        | HKEY
-        | DWORD
-        | QWORD
-        | NATIVEINT
-        | NATIVEUINT
-        | CODEPAGE
-        | TGUID
-        | PGUID
-        | TEXTFILE
-        | TEXT
-        | OPENSTRING
-    )
-    | stringtype
-    | arrayType
-    ;
+// typeIdentifier
+//     // : identifier
+//     // | stringtype
+//     // | arrayType
+//     : type_
+//     ;
 
 structuredType
     : PACKED unpackedStructuredType
@@ -542,7 +494,7 @@ stringtype
     : stringTypeIdentifier (
         LBRACK (identifier | unsignedNumber | hexConstant) RBRACK   // Square brackets
         | LPAREN (identifier | unsignedNumber | hexConstant) RPAREN // Parentheses
-    )?
+    )
     ;
 
 arrayType
@@ -561,48 +513,45 @@ indexType
     ;
 
 recordType
-    : RECORD recordParts? SEMI? END alignHint? platformHint? deprecatedHint?
-    | RECORD recordTypeBlock? (SEMI? accessSpecifier recordTypeBlock?)* SEMI? END alignHint? platformHint? deprecatedHint?
+    : RECORD recordContent? END alignHint? platformHint? deprecatedHint?
     ;
 
-recordTypeBlock
-    : recordDeclarationPart (SEMI recordDeclarationPart)*
+recordContent
+    : recordSection (SEMI recordSection)* SEMI?
     ;
 
-recordDeclarationPart
-    : CLASS? VAR? attributeSection? typedIdentifierList
-    | typeDefinitionPart
-    | constantDefinitionPart
-    | functionHeader
-    | procedureHeader
-    | classOperatorHeader
-    | CLASS? propertyDeclaration (SEMI DEFAULT)?
+recordSection
+    : accessSpecifier? (
+        : recordFieldsSection                        // Both: field declarations
+        | recordVariantSection                       // Old-style: variant parts
+        | typeDefinitionPart                         // New-style: nested types
+        | constantDefinitionPart                     // New-style: constants
+        | functionHeader                             // New-style: methods
+        | procedureHeader                            // New-style: methods
+        | classOperatorHeader                        // New-style: operators
+        | CLASS? propertyDeclaration (SEMI DEFAULT)? // New-style: properties
+    )
     ;
 
-recordParts
-    : recordFixedPart (SEMI recordVariantPart)?
-    | recordVariantPart
+recordFieldsSection
+    : CLASS? VAR? attributeSection? typedIdentifierList // Fields (both styles)
     ;
 
-recordFixedPart
-    : typedIdentifierList (SEMI typedIdentifierList)* SEMI?
-    ;
-
-recordVariantPart
-    : CASE tag OF recordVariant (SEMI recordVariant)*
+recordVariantSection
+    : CASE tag OF recordVariant (SEMI recordVariant)* // Variants (old-style)
     ;
 
 tag
-    : identifier COLON typeIdentifier
-    | typeIdentifier
+    : identifier COLON identifier
+    | identifier
     ;
 
 recordVariant
-    : constList COLON LPAREN recordParts SEMI? RPAREN
+    : constList COLON LPAREN recordContent RPAREN
     ;
 
 helperType
-    : CLASS HELPER FOR typeIdentifier accessSpecifier? helperDeclarationPart? (
+    : CLASS HELPER FOR type_ accessSpecifier? helperDeclarationPart? (
         SEMI helperDeclarationPart
     )* (accessSpecifier helperDeclarationPart? (SEMI helperDeclarationPart)*) END
     ;
@@ -630,7 +579,7 @@ fileType
     ;
 
 pointerType
-    : DEREFERENCE typeIdentifier
+    : DEREFERENCE identifier
     ;
 
 variableDeclarationPart
@@ -671,6 +620,7 @@ procedureOrFunctionHeaderModifiers
             | INLINE
             | STATIC
             | PLATFORM
+            | VARARGS
         )
     )*
     ;
@@ -697,7 +647,7 @@ functionLambdaDeclaration
     ;
 
 resultType
-    : typeIdentifier
+    : type_
     ;
 
 procedureOrFunctionBody
@@ -726,7 +676,7 @@ formalParameterSection
     ;
 
 parameterGroup
-    : identifierList (COLON typeIdentifier)? defaultValue?
+    : identifierList (COLON type_)? defaultValue?
     ;
 
 identifierList
@@ -795,8 +745,8 @@ variableDesignator
     ;
 
 typeCast
-    : typeIdentifier LPAREN expression RPAREN
-    | LPAREN expression AS typeIdentifier RPAREN
+    : identifier LPAREN expression RPAREN
+    | LPAREN expression AS identifier RPAREN
     ;
 
 propertyDesignator
@@ -858,7 +808,7 @@ factor
     | NOT factor
     | bool_
     | factor LBRACK expression (COMMA expression)* RBRACK
-    | AT? typeIdentifier (LPAREN expression RPAREN)? (DEREFERENCE)*
+    | AT? identifier (LPAREN expression RPAREN)? (DEREFERENCE)*
     | factor (DOT expression)+
     | identifier
     | functionLambdaDeclaration
@@ -1010,7 +960,7 @@ tryExceptStatement
     ;
 
 exceptionCase
-    : ON identifier COLON typeIdentifier DO statements
+    : ON identifier COLON identifier DO statements
     ;
 
 exceptionElse
@@ -1699,6 +1649,10 @@ PLATFORM
 
 ALIGN
     : 'ALIGN'
+    ;
+
+VARARGS
+    : 'VARARGS'
     ;
 
 fragment WHITESPACE

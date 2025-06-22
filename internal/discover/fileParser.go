@@ -253,10 +253,12 @@ func ParseCST(content string, debugInfo string, skipImplementation bool) *Parsed
 
 	// Create parser - use lowercase constructor
 	pascalParser := parser.NewpascalParser(stream)
+	pascalParser.GetInterpreter().SetPredictionMode(antlr.PredictionModeLLExactAmbigDetection)
 
 	// Remove default error listeners and add custom one
 	pascalParser.RemoveErrorListeners()
 	pascalParser.AddErrorListener(NewZerologErrorListener(debugInfo))
+	pascalParser.AddErrorListener(NewAmbiguityErrorListener(debugInfo))
 
 	// Optionally add trace listener for debugging
 	if log.AntlrTrace.Debug().Enabled() {
@@ -273,4 +275,48 @@ func ParseCST(content string, debugInfo string, skipImplementation bool) *Parsed
 	}
 
 	return ParsedData
+}
+
+type AmbiguityErrorListener struct {
+	antlr.DefaultErrorListener
+	debugInfo string
+}
+
+func NewAmbiguityErrorListener(debugInfo string) *AmbiguityErrorListener {
+	return &AmbiguityErrorListener{debugInfo: debugInfo}
+}
+
+func (l *AmbiguityErrorListener) ReportAmbiguity(recognizer antlr.Parser, dfa *antlr.DFA,
+	startIndex, stopIndex int, exact bool, ambigAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
+
+	log.AntlrTrace.Warn().
+		Str("di", l.debugInfo).
+		Int("startIndex", startIndex).
+		Int("stopIndex", stopIndex).
+		Bool("exact", exact).
+		Str("ambigAlts", ambigAlts.String()).
+		Str("rule", recognizer.GetRuleNames()[recognizer.GetParserRuleContext().GetRuleIndex()]).
+		Msg("AMBIGUITY DETECTED")
+}
+
+func (l *AmbiguityErrorListener) ReportAttemptingFullContext(recognizer antlr.Parser, dfa *antlr.DFA,
+	startIndex, stopIndex int, conflictingAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
+
+	log.AntlrTrace.Info().
+		Str("di", l.debugInfo).
+		Int("startIndex", startIndex).
+		Int("stopIndex", stopIndex).
+		Str("conflictingAlts", conflictingAlts.String()).
+		Msg("ATTEMPTING FULL CONTEXT")
+}
+
+func (l *AmbiguityErrorListener) ReportContextSensitivity(recognizer antlr.Parser, dfa *antlr.DFA,
+	startIndex, stopIndex, prediction int, configs *antlr.ATNConfigSet) {
+
+	log.AntlrTrace.Info().
+		Str("di", l.debugInfo).
+		Int("startIndex", startIndex).
+		Int("stopIndex", stopIndex).
+		Int("prediction", prediction).
+		Msg("CONTEXT SENSITIVITY")
 }

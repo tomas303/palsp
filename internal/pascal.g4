@@ -211,9 +211,7 @@ hexConstant
     ;
 
 constant
-    // : unsignedConstant
-    : identifier
-    | scalarType
+    : scalarType
     | arrayConstant (PLUS (arrayConstant | identifier))*
     | recordConstant
     | simpleExpression
@@ -230,7 +228,6 @@ recordConstant
 
 recordField
     : identifier COLON constant
-    | identifier COLON constant DOTDOT constant
     | identifier COLON arrayConstant
     ;
 
@@ -588,7 +585,7 @@ variableDeclarationPart
     ;
 
 variableDeclaration
-    : attributeSection? typedIdentifierList (EQUAL simpleExpression)?
+    : attributeSection? typedIdentifierList (EQUAL constant)?
     ;
 
 procedureHeader

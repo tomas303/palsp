@@ -285,20 +285,20 @@ func (v *pascalCharStream) fillTo(target int) {
 			continue
 		}
 
-		if v.skipImplementation && len(v.sourceStack) == 1 {
-			isImplementation := v.defParser.ParseImplementationFromRunes(
-				source.FileCtx.Content,
-				source.Offset,
-			)
-			if isImplementation {
-				// Skip to the end of the file when we hit implementation
-				unitend := "\nimplementation\nend."
-				v.buffer = append(v.buffer, []rune(unitend)...)
-				source.Offset = len(source.FileCtx.Content) // Skip to end
-				source.LinesCnt += 1                        // Count the "end." line
-				break
-			}
-		}
+		// if v.skipImplementation && len(v.sourceStack) == 1 {
+		// 	isImplementation := v.defParser.ParseImplementationFromRunes(
+		// 		source.FileCtx.Content,
+		// 		source.Offset,
+		// 	)
+		// 	if isImplementation {
+		// 		// Skip to the end of the file when we hit implementation
+		// 		unitend := "\nimplementation\nend."
+		// 		v.buffer = append(v.buffer, []rune(unitend)...)
+		// 		source.Offset = len(source.FileCtx.Content) // Skip to end
+		// 		source.LinesCnt += 1                        // Count the "end." line
+		// 		break
+		// 	}
+		// }
 
 		// normal character processing
 		if v.defineCtx.IsActive() {

@@ -845,12 +845,6 @@ func (s *BasepascalListener) EnterFunctionDesignator(ctx *FunctionDesignatorCont
 // ExitFunctionDesignator is called when production functionDesignator is exited.
 func (s *BasepascalListener) ExitFunctionDesignator(ctx *FunctionDesignatorContext) {}
 
-// EnterDefaultDesignator is called when production defaultDesignator is entered.
-func (s *BasepascalListener) EnterDefaultDesignator(ctx *DefaultDesignatorContext) {}
-
-// ExitDefaultDesignator is called when production defaultDesignator is exited.
-func (s *BasepascalListener) ExitDefaultDesignator(ctx *DefaultDesignatorContext) {}
-
 // EnterParameterList is called when production parameterList is entered.
 func (s *BasepascalListener) EnterParameterList(ctx *ParameterListContext) {}
 

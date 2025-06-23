@@ -130,6 +130,7 @@ identifierPart
         | OPENSTRING
         | PLATFORM
         | ALIGN
+        | DEFAULT
     ) genericTemplate?
     ;
 
@@ -138,7 +139,8 @@ interfaceBlockMember
         labelDeclarationPart
         | constantDefinitionPart
         | resourceDefinitionPart
-        | TYPE? typeDefinition  // type is complex rule and sometimes typeDefinitionPart just didn't work(didn't follow semi there but skip back to this section)
+        | TYPE? typeDefinition 
+            // type is complex rule and sometimes typeDefinitionPart just didn't work(didn't follow semi there but skip back to this section)
         | variableDeclarationPart
         | procedureOrFunctionHeader
     )
@@ -378,8 +380,8 @@ errorClassDeclarationPart
     ;
 
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON type_ propertyReadDeclaration? propertyWriteDeclaration?
-        propertyDefaultValueDeclaration? propertyIndexDeclaration? (SEMI DEFAULT)?
+    : PROPERTY identifier propertyIndexParameters? COLON type_ propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration?
+        propertyIndexDeclaration? (SEMI DEFAULT)?
     | PROPERTY identifier propertyDefaultValueDeclaration?
     ;
 
@@ -549,9 +551,9 @@ recordVariant
     ;
 
 helperType
-    : CLASS HELPER FOR type_ accessSpecifier? helperDeclarationPart? (
-        SEMI helperDeclarationPart
-    )* (accessSpecifier helperDeclarationPart? (SEMI helperDeclarationPart)*) END
+    : CLASS HELPER FOR type_ accessSpecifier? helperDeclarationPart? (SEMI helperDeclarationPart)* (
+        accessSpecifier helperDeclarationPart? (SEMI helperDeclarationPart)*
+    ) END
     ;
 
 helperDeclarationPart
@@ -734,7 +736,7 @@ variableDeclarationStatement
     ;
 
 variableDesignator
-    : (typeCast | AT identifier | functionDesignator) (
+    : (typeCast | (AT | INHERITED)? functionDesignator) (
         LBRACK expression (COMMA expression)* RBRACK
         | LBRACK2 expression (COMMA expression)* RBRACK2
         | DOT functionDesignator
@@ -797,18 +799,12 @@ signedFactor
     ;
 
 factor
-    : INHERITED? functionDesignator
-    | defaultDesignator
-    | variableDesignator (AS identifier)?
+    : variableDesignator (AS identifier)? // todo probably keep one designator to cover complex code other then declaration
     | LPAREN expression RPAREN
     | unsignedConstant
     | set_
     | NOT factor
     | bool_
-    | factor LBRACK expression (COMMA expression)* RBRACK
-    | AT? identifier (LPAREN expression RPAREN)? (DEREFERENCE)*
-    | factor (DOT expression)+
-    | identifier
     | functionLambdaDeclaration
     | procedureLambdaDeclaration
     ;
@@ -822,11 +818,7 @@ unsignedConstant
     ;
 
 functionDesignator
-    : (identifier) (LPAREN parameterList? RPAREN)?
-    ;
-
-defaultDesignator
-    : DEFAULT (LPAREN parameterList RPAREN)?
+    : identifier (LPAREN parameterList? RPAREN)?
     ;
 
 parameterList

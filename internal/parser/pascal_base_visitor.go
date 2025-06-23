@@ -548,10 +548,6 @@ func (v *BasepascalVisitor) VisitFunctionDesignator(ctx *FunctionDesignatorConte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitDefaultDesignator(ctx *DefaultDesignatorContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitParameterList(ctx *ParameterListContext) interface{} {
 	return v.VisitChildren(ctx)
 }

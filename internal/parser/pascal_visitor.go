@@ -413,9 +413,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#functionDesignator.
 	VisitFunctionDesignator(ctx *FunctionDesignatorContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#defaultDesignator.
-	VisitDefaultDesignator(ctx *DefaultDesignatorContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#parameterList.
 	VisitParameterList(ctx *ParameterListContext) interface{}
 

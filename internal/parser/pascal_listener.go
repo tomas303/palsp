@@ -356,9 +356,6 @@ type pascalListener interface {
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
 
-	// EnterErrorStatement is called when entering the errorStatement production.
-	EnterErrorStatement(c *ErrorStatementContext)
-
 	// EnterUnlabelledStatement is called when entering the unlabelledStatement production.
 	EnterUnlabelledStatement(c *UnlabelledStatementContext)
 
@@ -425,9 +422,6 @@ type pascalListener interface {
 	// EnterElement is called when entering the element production.
 	EnterElement(c *ElementContext)
 
-	// EnterProcedureStatement is called when entering the procedureStatement production.
-	EnterProcedureStatement(c *ProcedureStatementContext)
-
 	// EnterMethodCallStatement is called when entering the methodCallStatement production.
 	EnterMethodCallStatement(c *MethodCallStatementContext)
 
@@ -466,6 +460,12 @@ type pascalListener interface {
 
 	// EnterCaseStatement is called when entering the caseStatement production.
 	EnterCaseStatement(c *CaseStatementContext)
+
+	// EnterCaseConstRange is called when entering the caseConstRange production.
+	EnterCaseConstRange(c *CaseConstRangeContext)
+
+	// EnterCaseConstList is called when entering the caseConstList production.
+	EnterCaseConstList(c *CaseConstListContext)
 
 	// EnterCaseListElement is called when entering the caseListElement production.
 	EnterCaseListElement(c *CaseListElementContext)
@@ -866,9 +866,6 @@ type pascalListener interface {
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)
 
-	// ExitErrorStatement is called when exiting the errorStatement production.
-	ExitErrorStatement(c *ErrorStatementContext)
-
 	// ExitUnlabelledStatement is called when exiting the unlabelledStatement production.
 	ExitUnlabelledStatement(c *UnlabelledStatementContext)
 
@@ -935,9 +932,6 @@ type pascalListener interface {
 	// ExitElement is called when exiting the element production.
 	ExitElement(c *ElementContext)
 
-	// ExitProcedureStatement is called when exiting the procedureStatement production.
-	ExitProcedureStatement(c *ProcedureStatementContext)
-
 	// ExitMethodCallStatement is called when exiting the methodCallStatement production.
 	ExitMethodCallStatement(c *MethodCallStatementContext)
 
@@ -976,6 +970,12 @@ type pascalListener interface {
 
 	// ExitCaseStatement is called when exiting the caseStatement production.
 	ExitCaseStatement(c *CaseStatementContext)
+
+	// ExitCaseConstRange is called when exiting the caseConstRange production.
+	ExitCaseConstRange(c *CaseConstRangeContext)
+
+	// ExitCaseConstList is called when exiting the caseConstList production.
+	ExitCaseConstList(c *CaseConstListContext)
 
 	// ExitCaseListElement is called when exiting the caseListElement production.
 	ExitCaseListElement(c *CaseListElementContext)

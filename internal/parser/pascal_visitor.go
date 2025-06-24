@@ -356,9 +356,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#statement.
 	VisitStatement(ctx *StatementContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#errorStatement.
-	VisitErrorStatement(ctx *ErrorStatementContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#unlabelledStatement.
 	VisitUnlabelledStatement(ctx *UnlabelledStatementContext) interface{}
 
@@ -425,9 +422,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#element.
 	VisitElement(ctx *ElementContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#procedureStatement.
-	VisitProcedureStatement(ctx *ProcedureStatementContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#methodCallStatement.
 	VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{}
 
@@ -466,6 +460,12 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#caseStatement.
 	VisitCaseStatement(ctx *CaseStatementContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#caseConstRange.
+	VisitCaseConstRange(ctx *CaseConstRangeContext) interface{}
+
+	// Visit a parse tree produced by pascalParser#caseConstList.
+	VisitCaseConstList(ctx *CaseConstListContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#caseListElement.
 	VisitCaseListElement(ctx *CaseListElementContext) interface{}

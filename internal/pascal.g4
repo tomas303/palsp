@@ -139,8 +139,8 @@ interfaceBlockMember
         labelDeclarationPart
         | constantDefinitionPart
         | resourceDefinitionPart
-        | TYPE? typeDefinition 
-            // type is complex rule and sometimes typeDefinitionPart just didn't work(didn't follow semi there but skip back to this section)
+        | TYPE? typeDefinition
+        // type is complex rule and sometimes typeDefinitionPart just didn't work(didn't follow semi there but skip back to this section)
         | variableDeclarationPart
         | procedureOrFunctionHeader
     )
@@ -698,11 +698,6 @@ typedIdentifierList
 statement
     : label COLON unlabelledStatement
     | unlabelledStatement
-    | errorStatement
-    ;
-
-errorStatement
-    : ~('END' | ';')+
     ;
 
 unlabelledStatement
@@ -713,7 +708,6 @@ unlabelledStatement
 simpleStatement
     : assignmentStatement
     | methodCallStatement
-    | procedureStatement
     | gotoStatement
     | inheritedStatement
     | typeCast
@@ -736,7 +730,7 @@ variableDeclarationStatement
     ;
 
 variableDesignator
-    : (typeCast | (AT | INHERITED)? functionDesignator) (
+    : (typeCast | (AT | INHERITED)? functionDesignator | identifier) (
         LBRACK expression (COMMA expression)* RBRACK
         | LBRACK2 expression (COMMA expression)* RBRACK2
         | DOT functionDesignator
@@ -799,7 +793,9 @@ signedFactor
     ;
 
 factor
-    : variableDesignator (AS identifier)? // todo probably keep one designator to cover complex code other then declaration
+    // : variableDesignator (AS identifier)? // todo probably keep one designator to cover complex code other then declaration
+    // : identifier
+    : methodCallStatement
     | LPAREN expression RPAREN
     | unsignedConstant
     | set_
@@ -839,12 +835,8 @@ element
     : expression (DOTDOT expression)?
     ;
 
-procedureStatement
-    : identifier (LPAREN parameterList? RPAREN)?
-    ;
-
 methodCallStatement
-    : variableDesignator (DOT variableDesignator)* DOT identifier (LPAREN parameterList RPAREN)?
+    : identifier (LPAREN parameterList RPAREN)? (DOT identifier (LPAREN parameterList RPAREN)?)*
     ;
 
 actualParameter
@@ -904,8 +896,18 @@ caseStatement
     : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? SEMI? END
     ;
 
+caseConstRange
+    : constant DOTDOT constant
+    ;
+
+caseConstList
+    : (constant | caseConstRange) (COMMA (constant | caseConstRange))*
+    ;
+
+
+
 caseListElement
-    : constList COLON statement
+    : caseConstList COLON statement
     ;
 
 repetetiveStatement

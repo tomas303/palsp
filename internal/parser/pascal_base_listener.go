@@ -729,12 +729,6 @@ func (s *BasepascalListener) EnterStatement(ctx *StatementContext) {}
 // ExitStatement is called when production statement is exited.
 func (s *BasepascalListener) ExitStatement(ctx *StatementContext) {}
 
-// EnterErrorStatement is called when production errorStatement is entered.
-func (s *BasepascalListener) EnterErrorStatement(ctx *ErrorStatementContext) {}
-
-// ExitErrorStatement is called when production errorStatement is exited.
-func (s *BasepascalListener) ExitErrorStatement(ctx *ErrorStatementContext) {}
-
 // EnterUnlabelledStatement is called when production unlabelledStatement is entered.
 func (s *BasepascalListener) EnterUnlabelledStatement(ctx *UnlabelledStatementContext) {}
 
@@ -869,12 +863,6 @@ func (s *BasepascalListener) EnterElement(ctx *ElementContext) {}
 // ExitElement is called when production element is exited.
 func (s *BasepascalListener) ExitElement(ctx *ElementContext) {}
 
-// EnterProcedureStatement is called when production procedureStatement is entered.
-func (s *BasepascalListener) EnterProcedureStatement(ctx *ProcedureStatementContext) {}
-
-// ExitProcedureStatement is called when production procedureStatement is exited.
-func (s *BasepascalListener) ExitProcedureStatement(ctx *ProcedureStatementContext) {}
-
 // EnterMethodCallStatement is called when production methodCallStatement is entered.
 func (s *BasepascalListener) EnterMethodCallStatement(ctx *MethodCallStatementContext) {}
 
@@ -952,6 +940,18 @@ func (s *BasepascalListener) EnterCaseStatement(ctx *CaseStatementContext) {}
 
 // ExitCaseStatement is called when production caseStatement is exited.
 func (s *BasepascalListener) ExitCaseStatement(ctx *CaseStatementContext) {}
+
+// EnterCaseConstRange is called when production caseConstRange is entered.
+func (s *BasepascalListener) EnterCaseConstRange(ctx *CaseConstRangeContext) {}
+
+// ExitCaseConstRange is called when production caseConstRange is exited.
+func (s *BasepascalListener) ExitCaseConstRange(ctx *CaseConstRangeContext) {}
+
+// EnterCaseConstList is called when production caseConstList is entered.
+func (s *BasepascalListener) EnterCaseConstList(ctx *CaseConstListContext) {}
+
+// ExitCaseConstList is called when production caseConstList is exited.
+func (s *BasepascalListener) ExitCaseConstList(ctx *CaseConstListContext) {}
 
 // EnterCaseListElement is called when production caseListElement is entered.
 func (s *BasepascalListener) EnterCaseListElement(ctx *CaseListElementContext) {}

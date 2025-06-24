@@ -7,6 +7,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"runtime/pprof"
 	"syscall"
 
@@ -21,6 +22,10 @@ func init() {
 }
 
 func main() {
+	// Optimize for parsing workload
+	debug.SetGCPercent(400)                      // GC when heap grows 4x
+	debug.SetMemoryLimit(8 * 1024 * 1024 * 1024) // 8GB limit
+
 	port := flag.String("port", "", "Port to run the LSP server on (leave empty for stdio)")
 	logLevelMain := flag.String("log-level-main", "none", "Log level (debug, info, warn, error, none)")
 	logFileMain := flag.String("log-file-main", "", "Log file path (defaults to stderr)")

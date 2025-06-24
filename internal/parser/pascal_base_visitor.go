@@ -472,10 +472,6 @@ func (v *BasepascalVisitor) VisitStatement(ctx *StatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitErrorStatement(ctx *ErrorStatementContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitUnlabelledStatement(ctx *UnlabelledStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -564,10 +560,6 @@ func (v *BasepascalVisitor) VisitElement(ctx *ElementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitProcedureStatement(ctx *ProcedureStatementContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -617,6 +609,14 @@ func (v *BasepascalVisitor) VisitIfStatement(ctx *IfStatementContext) interface{
 }
 
 func (v *BasepascalVisitor) VisitCaseStatement(ctx *CaseStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitCaseConstRange(ctx *CaseConstRangeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BasepascalVisitor) VisitCaseConstList(ctx *CaseConstListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

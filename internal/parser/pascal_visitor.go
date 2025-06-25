@@ -404,6 +404,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#factor.
 	VisitFactor(ctx *FactorContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#postfixOp.
+	VisitPostfixOp(ctx *PostfixOpContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#unsignedConstant.
 	VisitUnsignedConstant(ctx *UnsignedConstantContext) interface{}
 

@@ -404,6 +404,9 @@ type pascalListener interface {
 	// EnterFactor is called when entering the factor production.
 	EnterFactor(c *FactorContext)
 
+	// EnterPostfixOp is called when entering the postfixOp production.
+	EnterPostfixOp(c *PostfixOpContext)
+
 	// EnterUnsignedConstant is called when entering the unsignedConstant production.
 	EnterUnsignedConstant(c *UnsignedConstantContext)
 
@@ -910,6 +913,9 @@ type pascalListener interface {
 
 	// ExitFactor is called when exiting the factor production.
 	ExitFactor(c *FactorContext)
+
+	// ExitPostfixOp is called when exiting the postfixOp production.
+	ExitPostfixOp(c *PostfixOpContext)
 
 	// ExitUnsignedConstant is called when exiting the unsignedConstant production.
 	ExitUnsignedConstant(c *UnsignedConstantContext)

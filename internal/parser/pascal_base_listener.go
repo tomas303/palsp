@@ -827,6 +827,12 @@ func (s *BasepascalListener) EnterFactor(ctx *FactorContext) {}
 // ExitFactor is called when production factor is exited.
 func (s *BasepascalListener) ExitFactor(ctx *FactorContext) {}
 
+// EnterPostfixOp is called when production postfixOp is entered.
+func (s *BasepascalListener) EnterPostfixOp(ctx *PostfixOpContext) {}
+
+// ExitPostfixOp is called when production postfixOp is exited.
+func (s *BasepascalListener) ExitPostfixOp(ctx *PostfixOpContext) {}
+
 // EnterUnsignedConstant is called when production unsignedConstant is entered.
 func (s *BasepascalListener) EnterUnsignedConstant(ctx *UnsignedConstantContext) {}
 

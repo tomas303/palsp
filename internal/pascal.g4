@@ -714,7 +714,7 @@ simpleStatement
     | expression
     | gotoStatement
     | inheritedStatement
-    | typeCast
+    // | typeCast
     | emptyStatement_
     | raiseExceptionStatement
     | variableDeclarationStatement
@@ -787,8 +787,7 @@ signedFactor
     ;
 
 factor
-    : identifier
-    | LPAREN expression RPAREN
+    : LPAREN expression RPAREN
     | unsignedConstant
     | set_
     | NOT factor
@@ -797,9 +796,15 @@ factor
     | procedureLambdaDeclaration
     | DEREFERENCE factor                    // ^ prefix
     | AT factor                             // @ prefix  
-    | factor DOT identifier                 // . postfix (member access)
-    | factor LBRACK expression RBRACK       // [] postfix (array access)
-    | factor LPAREN parameterList? RPAREN   // () postfix (function call)
+    | factor postfixOp                      // All postfix operations
+    | typeCast
+    | identifier                            // Move to end for precedence
+    ;
+
+postfixOp
+    : DOT identifier                        // . postfix (member access)
+    | LBRACK expression RBRACK              // [] postfix (array access)
+    | LPAREN parameterList? RPAREN          // () postfix (function call)
     ;
 
 unsignedConstant

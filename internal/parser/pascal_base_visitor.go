@@ -536,6 +536,10 @@ func (v *BasepascalVisitor) VisitFactor(ctx *FactorContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitPostfixOp(ctx *PostfixOpContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitUnsignedConstant(ctx *UnsignedConstantContext) interface{} {
 	return v.VisitChildren(ctx)
 }

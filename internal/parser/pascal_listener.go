@@ -32,6 +32,9 @@ type pascalListener interface {
 	// EnterIdentifier is called when entering the identifier production.
 	EnterIdentifier(c *IdentifierContext)
 
+	// EnterQualifiedIdentifier is called when entering the qualifiedIdentifier production.
+	EnterQualifiedIdentifier(c *QualifiedIdentifierContext)
+
 	// EnterIdentifierPart is called when entering the identifierPart production.
 	EnterIdentifierPart(c *IdentifierPartContext)
 
@@ -371,9 +374,6 @@ type pascalListener interface {
 	// EnterVariableDeclarationStatement is called when entering the variableDeclarationStatement production.
 	EnterVariableDeclarationStatement(c *VariableDeclarationStatementContext)
 
-	// EnterVariableDesignator is called when entering the variableDesignator production.
-	EnterVariableDesignator(c *VariableDesignatorContext)
-
 	// EnterTypeCast is called when entering the typeCast production.
 	EnterTypeCast(c *TypeCastContext)
 
@@ -421,9 +421,6 @@ type pascalListener interface {
 
 	// EnterElement is called when entering the element production.
 	EnterElement(c *ElementContext)
-
-	// EnterMethodCallStatement is called when entering the methodCallStatement production.
-	EnterMethodCallStatement(c *MethodCallStatementContext)
 
 	// EnterActualParameter is called when entering the actualParameter production.
 	EnterActualParameter(c *ActualParameterContext)
@@ -541,6 +538,9 @@ type pascalListener interface {
 
 	// ExitIdentifier is called when exiting the identifier production.
 	ExitIdentifier(c *IdentifierContext)
+
+	// ExitQualifiedIdentifier is called when exiting the qualifiedIdentifier production.
+	ExitQualifiedIdentifier(c *QualifiedIdentifierContext)
 
 	// ExitIdentifierPart is called when exiting the identifierPart production.
 	ExitIdentifierPart(c *IdentifierPartContext)
@@ -881,9 +881,6 @@ type pascalListener interface {
 	// ExitVariableDeclarationStatement is called when exiting the variableDeclarationStatement production.
 	ExitVariableDeclarationStatement(c *VariableDeclarationStatementContext)
 
-	// ExitVariableDesignator is called when exiting the variableDesignator production.
-	ExitVariableDesignator(c *VariableDesignatorContext)
-
 	// ExitTypeCast is called when exiting the typeCast production.
 	ExitTypeCast(c *TypeCastContext)
 
@@ -931,9 +928,6 @@ type pascalListener interface {
 
 	// ExitElement is called when exiting the element production.
 	ExitElement(c *ElementContext)
-
-	// ExitMethodCallStatement is called when exiting the methodCallStatement production.
-	ExitMethodCallStatement(c *MethodCallStatementContext)
 
 	// ExitActualParameter is called when exiting the actualParameter production.
 	ExitActualParameter(c *ActualParameterContext)

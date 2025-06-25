@@ -32,6 +32,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#identifier.
 	VisitIdentifier(ctx *IdentifierContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#qualifiedIdentifier.
+	VisitQualifiedIdentifier(ctx *QualifiedIdentifierContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#identifierPart.
 	VisitIdentifierPart(ctx *IdentifierPartContext) interface{}
 
@@ -371,9 +374,6 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#variableDeclarationStatement.
 	VisitVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) interface{}
 
-	// Visit a parse tree produced by pascalParser#variableDesignator.
-	VisitVariableDesignator(ctx *VariableDesignatorContext) interface{}
-
 	// Visit a parse tree produced by pascalParser#typeCast.
 	VisitTypeCast(ctx *TypeCastContext) interface{}
 
@@ -421,9 +421,6 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#element.
 	VisitElement(ctx *ElementContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#methodCallStatement.
-	VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#actualParameter.
 	VisitActualParameter(ctx *ActualParameterContext) interface{}

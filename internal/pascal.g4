@@ -45,7 +45,7 @@ program
     ;
 
 unit
-    : UNIT identifier SEMI interfaceSection implementationSection? initializationSection? finalizationSection? END DOT EOF
+    : UNIT qualifiedIdentifier SEMI interfaceSection implementationSection? initializationSection? finalizationSection? END DOT EOF
     ;
 
 interfaceSection
@@ -65,8 +65,12 @@ finalizationSection
     ;
 
 identifier
-    : identifierPart (DOT identifierPart)*
+    : identifierPart //(DOT identifierPart)*
     ;
+
+ qualifiedIdentifier
+    : identifier (DOT identifier)*
+    ;   
 
 identifierPart
     : (
@@ -289,7 +293,7 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? identifier EQUAL (aliasDistinctType | aliasType | type_)
+    : attributeSection? qualifiedIdentifier EQUAL (aliasDistinctType | aliasType | type_)
     ;
 
 classType
@@ -591,13 +595,13 @@ variableDeclaration
     ;
 
 procedureHeader
-    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) identifier (
+    : attributeSection? CLASS? (PROCEDURE | CONSTRUCTOR | DESTRUCTOR) qualifiedIdentifier (
         formalParameterList
     )? (SEMI deprecatedHint)? procedureOrFunctionHeaderModifiers (SEMI deprecatedHint)?
     ;
 
 functionHeader
-    : attributeSection? CLASS? FUNCTION identifier (formalParameterList)? COLON resultType (
+    : attributeSection? CLASS? FUNCTION qualifiedIdentifier (formalParameterList)? COLON resultType (
         SEMI deprecatedHint
     )? procedureOrFunctionHeaderModifiers (SEMI deprecatedHint)?
     ;
@@ -655,7 +659,7 @@ procedureOrFunctionBody
     ;
 
 classOperatorHeader
-    : CLASS OPERATOR identifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers
+    : CLASS OPERATOR qualifiedIdentifier (formalParameterList)? COLON resultType procedureOrFunctionHeaderModifiers
     ;
 
 classOperatorDeclaration
@@ -707,7 +711,7 @@ unlabelledStatement
 
 simpleStatement
     : assignmentStatement
-    | methodCallStatement
+    | expression
     | gotoStatement
     | inheritedStatement
     | typeCast
@@ -717,8 +721,7 @@ simpleStatement
     ;
 
 assignmentStatement
-    : variableDesignator ASSIGN expression
-    | propertyDesignator ASSIGN expression
+    : expression ASSIGN expression
     ;
 
 raiseExceptionStatement
@@ -727,15 +730,6 @@ raiseExceptionStatement
 
 variableDeclarationStatement
     : VAR identifierList (COLON type_)? (ASSIGN expression)?
-    ;
-
-variableDesignator
-    : (typeCast | (AT | INHERITED)? functionDesignator | identifier) (
-        LBRACK expression (COMMA expression)* RBRACK
-        | LBRACK2 expression (COMMA expression)* RBRACK2
-        | DOT functionDesignator
-        | DEREFERENCE+
-    )*
     ;
 
 typeCast
@@ -793,9 +787,7 @@ signedFactor
     ;
 
 factor
-    // : variableDesignator (AS identifier)? // todo probably keep one designator to cover complex code other then declaration
-    // : identifier
-    : methodCallStatement
+    : identifier
     | LPAREN expression RPAREN
     | unsignedConstant
     | set_
@@ -803,6 +795,11 @@ factor
     | bool_
     | functionLambdaDeclaration
     | procedureLambdaDeclaration
+    | DEREFERENCE factor                    // ^ prefix
+    | AT factor                             // @ prefix  
+    | factor DOT identifier                 // . postfix (member access)
+    | factor LBRACK expression RBRACK       // [] postfix (array access)
+    | factor LPAREN parameterList? RPAREN   // () postfix (function call)
     ;
 
 unsignedConstant
@@ -833,10 +830,6 @@ elementList
 
 element
     : expression (DOTDOT expression)?
-    ;
-
-methodCallStatement
-    : identifier (LPAREN parameterList RPAREN)? (DOT identifier (LPAREN parameterList RPAREN)?)*
     ;
 
 actualParameter
@@ -964,7 +957,7 @@ tryFinallyStatement
     ;
 
 withStatementVariableList
-    : variableDesignator (COMMA variableDesignator)*
+    : expression (COMMA expression)*
     ;
 
 attributeSection

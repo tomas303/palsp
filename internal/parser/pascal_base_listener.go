@@ -69,6 +69,12 @@ func (s *BasepascalListener) EnterIdentifier(ctx *IdentifierContext) {}
 // ExitIdentifier is called when production identifier is exited.
 func (s *BasepascalListener) ExitIdentifier(ctx *IdentifierContext) {}
 
+// EnterQualifiedIdentifier is called when production qualifiedIdentifier is entered.
+func (s *BasepascalListener) EnterQualifiedIdentifier(ctx *QualifiedIdentifierContext) {}
+
+// ExitQualifiedIdentifier is called when production qualifiedIdentifier is exited.
+func (s *BasepascalListener) ExitQualifiedIdentifier(ctx *QualifiedIdentifierContext) {}
+
 // EnterIdentifierPart is called when production identifierPart is entered.
 func (s *BasepascalListener) EnterIdentifierPart(ctx *IdentifierPartContext) {}
 
@@ -761,12 +767,6 @@ func (s *BasepascalListener) EnterVariableDeclarationStatement(ctx *VariableDecl
 func (s *BasepascalListener) ExitVariableDeclarationStatement(ctx *VariableDeclarationStatementContext) {
 }
 
-// EnterVariableDesignator is called when production variableDesignator is entered.
-func (s *BasepascalListener) EnterVariableDesignator(ctx *VariableDesignatorContext) {}
-
-// ExitVariableDesignator is called when production variableDesignator is exited.
-func (s *BasepascalListener) ExitVariableDesignator(ctx *VariableDesignatorContext) {}
-
 // EnterTypeCast is called when production typeCast is entered.
 func (s *BasepascalListener) EnterTypeCast(ctx *TypeCastContext) {}
 
@@ -862,12 +862,6 @@ func (s *BasepascalListener) EnterElement(ctx *ElementContext) {}
 
 // ExitElement is called when production element is exited.
 func (s *BasepascalListener) ExitElement(ctx *ElementContext) {}
-
-// EnterMethodCallStatement is called when production methodCallStatement is entered.
-func (s *BasepascalListener) EnterMethodCallStatement(ctx *MethodCallStatementContext) {}
-
-// ExitMethodCallStatement is called when production methodCallStatement is exited.
-func (s *BasepascalListener) ExitMethodCallStatement(ctx *MethodCallStatementContext) {}
 
 // EnterActualParameter is called when production actualParameter is entered.
 func (s *BasepascalListener) EnterActualParameter(ctx *ActualParameterContext) {}

@@ -40,6 +40,10 @@ func (v *BasepascalVisitor) VisitIdentifier(ctx *IdentifierContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitQualifiedIdentifier(ctx *QualifiedIdentifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitIdentifierPart(ctx *IdentifierPartContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -492,10 +496,6 @@ func (v *BasepascalVisitor) VisitVariableDeclarationStatement(ctx *VariableDecla
 	return v.VisitChildren(ctx)
 }
 
-func (v *BasepascalVisitor) VisitVariableDesignator(ctx *VariableDesignatorContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BasepascalVisitor) VisitTypeCast(ctx *TypeCastContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -557,10 +557,6 @@ func (v *BasepascalVisitor) VisitElementList(ctx *ElementListContext) interface{
 }
 
 func (v *BasepascalVisitor) VisitElement(ctx *ElementContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitMethodCallStatement(ctx *MethodCallStatementContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

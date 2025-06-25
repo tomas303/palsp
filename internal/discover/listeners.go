@@ -15,7 +15,7 @@ type positionable interface {
 }
 
 type identfiable interface {
-	Identifier() parser.IIdentifierContext
+	QualifiedIdentifier() parser.IQualifiedIdentifierContext
 }
 
 // Helper function to create a Position from any context that has GetStart()
@@ -275,17 +275,17 @@ func (s *scopesListener) SetDebugInfo(debugInfo string) {
 }
 
 func (s *scopesListener) beginScope(ctxScope positionable, ctxIdentifier identfiable, kind SymbolKind) {
-	id := strings.ToLower(buildIdentifier(ctxIdentifier.Identifier()))
+	id := strings.ToLower(buildQualifiedIdentifier(ctxIdentifier.QualifiedIdentifier()))
 	s.scopePath.push(id)
 	s.infoStack.push(&scopeInfo{startPos: ctxStartPos(ctxScope), stopPos: ctxStopPos(ctxScope), path: s.scopePath.joinByDot(), kind: kind})
 	s.collector.BeginScope(id, s.infoStack.peek())
 }
 
 func (s *scopesListener) beginTypeScope(ctxScope positionable, ctxIdentifier identfiable, ancestor *string, kind SymbolKind) {
-	id := strings.ToLower(buildIdentifier(ctxIdentifier.Identifier()))
+	id := strings.ToLower(buildQualifiedIdentifier(ctxIdentifier.QualifiedIdentifier()))
 	s.scopePath.push(id)
 	s.infoStack.push(&scopeInfo{startPos: ctxStartPos(ctxScope), stopPos: ctxStopPos(ctxScope), ancestor: ancestor, path: s.scopePath.joinByDot(), kind: kind})
-	s.collector.BeginScope(buildIdentifier(ctxIdentifier.Identifier()), s.infoStack.peek())
+	s.collector.BeginScope(buildQualifiedIdentifier(ctxIdentifier.QualifiedIdentifier()), s.infoStack.peek())
 }
 
 func (s *scopesListener) endScope() *scopeInfo {
@@ -398,12 +398,12 @@ func (s *scopesListener) ExitProcedureHeader(ctx *parser.ProcedureHeaderContext)
 		return
 	}
 	s.endScope()
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), ProcedureSymbol, buildProcedureHeader(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(getLastQualifiedIdent(ctx.QualifiedIdentifier()), ProcedureSymbol, buildProcedureHeader(ctx), ctxStartPos(ctx.QualifiedIdentifier()))
 }
 
 func (s *scopesListener) EnterProcedureDeclaration(ctx *parser.ProcedureDeclarationContext) {
 	s.inDeclaration = true
-	s.collector.AddSymbol(getLastIdent(ctx.ProcedureHeader().Identifier()), ProcedureSymbol, buildProcedureHeader(ctx.ProcedureHeader()), ctxStartPos(ctx.ProcedureHeader().Identifier()))
+	s.collector.AddSymbol(getLastQualifiedIdent(ctx.ProcedureHeader().QualifiedIdentifier()), ProcedureSymbol, buildProcedureHeader(ctx.ProcedureHeader()), ctxStartPos(ctx.ProcedureHeader().QualifiedIdentifier()))
 	s.beginScope(ctx, ctx.ProcedureHeader(), ProcedureSymbol)
 }
 
@@ -424,19 +424,19 @@ func (s *scopesListener) ExitFunctionHeader(ctx *parser.FunctionHeaderContext) {
 		return
 	}
 	if ctx.ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.ResultType().Type_()), ctxStartPos(ctx.Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.ResultType().Type_()), ctxStartPos(ctx.QualifiedIdentifier()))
 	}
 	s.endScope()
-	s.collector.AddSymbol(getLastIdent(ctx.Identifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(getLastQualifiedIdent(ctx.QualifiedIdentifier()), FunctionSymbol, buildFunctionHeader(ctx), ctxStartPos(ctx.QualifiedIdentifier()))
 }
 
 func (s *scopesListener) EnterFunctionDeclaration(ctx *parser.FunctionDeclarationContext) {
 	s.inDeclaration = true
 
 	if ctx.FunctionHeader().ResultType() != nil {
-		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.FunctionHeader().ResultType().Type_()), ctxStartPos(ctx.FunctionHeader().Identifier()))
+		s.collector.AddSymbol("result", FunctionResult, buildUnderscoreTypeDef(ctx.FunctionHeader().ResultType().Type_()), ctxStartPos(ctx.FunctionHeader().QualifiedIdentifier()))
 	}
-	s.collector.AddSymbol(getLastIdent(ctx.FunctionHeader().Identifier()), FunctionSymbol, buildFunctionHeader(ctx.FunctionHeader()), ctxStartPos(ctx.FunctionHeader().Identifier()))
+	s.collector.AddSymbol(getLastQualifiedIdent(ctx.FunctionHeader().QualifiedIdentifier()), FunctionSymbol, buildFunctionHeader(ctx.FunctionHeader()), ctxStartPos(ctx.FunctionHeader().QualifiedIdentifier()))
 
 	s.beginScope(ctx, ctx.FunctionHeader(), FunctionSymbol)
 }
@@ -475,7 +475,7 @@ func (s *scopesListener) EnterTypeDefinition(ctx *parser.TypeDefinitionContext) 
 
 func (s *scopesListener) ExitTypeDefinition(ctx *parser.TypeDefinitionContext) {
 	si := s.endScope()
-	s.collector.AddSymbol(buildIdentifier(ctx.Identifier()), si.kind, buildTypeDef(ctx), ctxStartPos(ctx.Identifier()))
+	s.collector.AddSymbol(buildQualifiedIdentifier(ctx.QualifiedIdentifier()), si.kind, buildTypeDef(ctx), ctxStartPos(ctx.QualifiedIdentifier()))
 }
 
 // Helper function to get min of two integers

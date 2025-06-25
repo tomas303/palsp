@@ -425,8 +425,20 @@ func buildProcedureOrFunctionHeaderModifiers(ctx parser.IProcedureOrFunctionHead
 }
 
 func getLastIdent(ctx parser.IIdentifierContext) string {
+	// if ctx != nil {
+	// 	identTokens := ctx.AllIdentifierPart()
+	// 	if len(identTokens) == 0 {
+	// 		return ""
+	// 	}
+	// 	lastIdent := identTokens[len(identTokens)-1]
+	// 	return lastIdent.GetText()
+	// }
+	return ""
+}
+
+func getLastQualifiedIdent(ctx parser.IQualifiedIdentifierContext) string {
 	if ctx != nil {
-		identTokens := ctx.AllIdentifierPart()
+		identTokens := ctx.AllIdentifier()
 		if len(identTokens) == 0 {
 			return ""
 		}
@@ -481,11 +493,25 @@ func buildIdentifierPart(ctx parser.IIdentifierPartContext) string {
 func buildIdentifier(ctx parser.IIdentifierContext) string {
 	var builder strings.Builder
 	if ctx != nil {
-		for i, part := range ctx.AllIdentifierPart() {
+		// for i, part := range ctx.AllIdentifierPart() {
+		// 	if i > 0 {
+		// 		builder.WriteString(".")
+		// 	}
+		// 	builder.WriteString(buildIdentifierPart(part))
+		// }
+		builder.WriteString(buildIdentifierPart(ctx.IdentifierPart()))
+	}
+	return builder.String()
+}
+
+func buildQualifiedIdentifier(ctx parser.IQualifiedIdentifierContext) string {
+	var builder strings.Builder
+	if ctx != nil {
+		for i, part := range ctx.AllIdentifier() {
 			if i > 0 {
 				builder.WriteString(".")
 			}
-			builder.WriteString(buildIdentifierPart(part))
+			builder.WriteString(buildIdentifier(part))
 		}
 	}
 	return builder.String()
@@ -582,8 +608,8 @@ func buildProcedureHeader(ctx parser.IProcedureHeaderContext) string {
 	} else if ctx.DESTRUCTOR() != nil {
 		builder.WriteString("destructor ")
 	}
-	if ctx.Identifier() != nil {
-		builder.WriteString(buildIdentifier(ctx.Identifier()))
+	if ctx.QualifiedIdentifier() != nil {
+		builder.WriteString(buildQualifiedIdentifier(ctx.QualifiedIdentifier()))
 	}
 	builder.WriteString("(")
 	builder.WriteString(buildParameterList(ctx.FormalParameterList()))
@@ -598,8 +624,8 @@ func buildFunctionHeader(ctx parser.IFunctionHeaderContext) string {
 		builder.WriteString("class ")
 	}
 	builder.WriteString("function ")
-	if ctx.Identifier() != nil {
-		builder.WriteString(buildIdentifier(ctx.Identifier()))
+	if ctx.QualifiedIdentifier() != nil {
+		builder.WriteString(buildQualifiedIdentifier(ctx.QualifiedIdentifier()))
 	}
 	builder.WriteString("(")
 	builder.WriteString(buildParameterList(ctx.FormalParameterList()))

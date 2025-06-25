@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"palsp/internal/log"
 	"palsp/internal/parser"
+	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 	"github.com/rs/zerolog"
@@ -35,13 +36,13 @@ func (l *ZerologErrorListener) SyntaxError(recognizer antlr.Recognizer, offendin
 // trace listener that logs enter/exit events(based on original ANTLR TraceListener)
 type ZerologTraceListener struct {
 	parser    antlr.Parser
-	degubInfo string
+	debugInfo string
 }
 
 func NewZerologTraceListener(parser antlr.Parser, debugInfo string) *ZerologTraceListener {
 	tl := new(ZerologTraceListener)
 	tl.parser = parser
-	tl.degubInfo = debugInfo
+	tl.debugInfo = debugInfo
 	return tl
 }
 func (t *ZerologTraceListener) getEvent(ctx antlr.ParserRuleContext) *zerolog.Event {
@@ -54,7 +55,7 @@ func (t *ZerologTraceListener) getEvent(ctx antlr.ParserRuleContext) *zerolog.Ev
 
 func (t *ZerologTraceListener) VisitErrorNode(node antlr.ErrorNode) {
 	log.AntlrTrace.Error().
-		Str("di", t.degubInfo).
+		Str("di", t.debugInfo).
 		Str("errorNode", node.GetText()).
 		Str("interval", fmt.Sprintf("%v", node.GetSourceInterval())).
 		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
@@ -64,7 +65,7 @@ func (t *ZerologTraceListener) VisitErrorNode(node antlr.ErrorNode) {
 func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 	currentToken := t.parser.GetTokenStream().LT(1)
 	t.getEvent(ctx).
-		Str("di", t.degubInfo).
+		Str("di", t.debugInfo).
 		Str("enter", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", currentToken.GetText()).
 		Int("tokenType", currentToken.GetTokenType()).
@@ -73,7 +74,7 @@ func (t *ZerologTraceListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 
 func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
 	t.getEvent(t.parser.GetParserRuleContext()).
-		Str("di", t.degubInfo).
+		Str("di", t.debugInfo).
 		Str("consume", fmt.Sprint(node.GetSymbol())).
 		Str("rule", t.parser.GetRuleNames()[t.parser.GetParserRuleContext().GetRuleIndex()]).
 		Send()
@@ -82,7 +83,7 @@ func (t *ZerologTraceListener) VisitTerminal(node antlr.TerminalNode) {
 func (t *ZerologTraceListener) ExitEveryRule(ctx antlr.ParserRuleContext) {
 	currentToken := t.parser.GetTokenStream().LT(1)
 	t.getEvent(ctx).
-		Str("di", t.degubInfo).
+		Str("di", t.debugInfo).
 		Str("exit", t.parser.GetRuleNames()[ctx.GetRuleIndex()]).
 		Str("token", currentToken.GetText()).
 		Int("tokenType", currentToken.GetTokenType()).
@@ -289,14 +290,59 @@ func NewAmbiguityErrorListener(debugInfo string) *AmbiguityErrorListener {
 func (l *AmbiguityErrorListener) ReportAmbiguity(recognizer antlr.Parser, dfa *antlr.DFA,
 	startIndex, stopIndex int, exact bool, ambigAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
 
+	tokenStream := recognizer.GetTokenStream()
+
+	// Extract ambiguous content
+	ambiguousText := l.getTokenText(tokenStream, startIndex, stopIndex)
+	contextBefore := l.getContextBefore(tokenStream, startIndex, 3)
+	contextAfter := l.getContextAfter(tokenStream, stopIndex, 3)
+
+	// Get line/column info if available
+	startToken := tokenStream.Get(startIndex)
+	line := startToken.GetLine()
+	column := startToken.GetColumn()
+
+	// Get current rule name
+	ruleName := "unknown"
+	if ctx := recognizer.GetParserRuleContext(); ctx != nil && ctx.GetRuleIndex() >= 0 {
+		ruleName = recognizer.GetRuleNames()[ctx.GetRuleIndex()]
+	}
+
 	log.AntlrTrace.Warn().
 		Str("di", l.debugInfo).
-		Int("startIndex", startIndex).
-		Int("stopIndex", stopIndex).
-		Bool("exact", exact).
+		Str("pos", fmt.Sprintf("[%d:%d]", line, column)).
+		Str("rule", ruleName).
 		Str("ambigAlts", ambigAlts.String()).
-		Str("rule", recognizer.GetRuleNames()[recognizer.GetParserRuleContext().GetRuleIndex()]).
+		Str("exact", fmt.Sprintf("%t", exact)).
+		Str("context", fmt.Sprintf("...%s [%s] %s...", contextBefore, ambiguousText, contextAfter)).
 		Msg("AMBIGUITY DETECTED")
+}
+
+// Helper methods
+func (l *AmbiguityErrorListener) getTokenText(stream antlr.TokenStream, start, stop int) string {
+	if start < 0 || stop >= stream.Size() || start > stop {
+		return ""
+	}
+
+	var tokens []string
+	for i := start; i <= stop; i++ {
+		tokens = append(tokens, stream.Get(i).GetText())
+	}
+	return strings.Join(tokens, " ")
+}
+
+func (l *AmbiguityErrorListener) getContextBefore(stream antlr.TokenStream, start, size int) string {
+	if start <= size {
+		return ""
+	}
+	return l.getTokenText(stream, start-size, start-1)
+}
+
+func (l *AmbiguityErrorListener) getContextAfter(stream antlr.TokenStream, stop, size int) string {
+	if stop+size >= stream.Size() {
+		return ""
+	}
+	return l.getTokenText(stream, stop+1, stop+size)
 }
 
 func (l *AmbiguityErrorListener) ReportAttemptingFullContext(recognizer antlr.Parser, dfa *antlr.DFA,

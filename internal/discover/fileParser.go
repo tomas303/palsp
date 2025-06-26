@@ -348,21 +348,59 @@ func (l *AmbiguityErrorListener) getContextAfter(stream antlr.TokenStream, stop,
 func (l *AmbiguityErrorListener) ReportAttemptingFullContext(recognizer antlr.Parser, dfa *antlr.DFA,
 	startIndex, stopIndex int, conflictingAlts *antlr.BitSet, configs *antlr.ATNConfigSet) {
 
+	tokenStream := recognizer.GetTokenStream()
+
+	// Extract context content
+	contextText := l.getTokenText(tokenStream, startIndex, stopIndex)
+	contextBefore := l.getContextBefore(tokenStream, startIndex, 3)
+	contextAfter := l.getContextAfter(tokenStream, stopIndex, 3)
+
+	// Get line/column info if available
+	startToken := tokenStream.Get(startIndex)
+	line := startToken.GetLine()
+	column := startToken.GetColumn()
+
+	// Get current rule name
+	ruleName := "unknown"
+	if ctx := recognizer.GetParserRuleContext(); ctx != nil && ctx.GetRuleIndex() >= 0 {
+		ruleName = recognizer.GetRuleNames()[ctx.GetRuleIndex()]
+	}
+
 	log.AntlrTrace.Info().
 		Str("di", l.debugInfo).
-		Int("startIndex", startIndex).
-		Int("stopIndex", stopIndex).
+		Str("pos", fmt.Sprintf("[%d:%d]", line, column)).
+		Str("rule", ruleName).
 		Str("conflictingAlts", conflictingAlts.String()).
+		Str("context", fmt.Sprintf("...%s [%s] %s...", contextBefore, contextText, contextAfter)).
 		Msg("ATTEMPTING FULL CONTEXT")
 }
 
 func (l *AmbiguityErrorListener) ReportContextSensitivity(recognizer antlr.Parser, dfa *antlr.DFA,
 	startIndex, stopIndex, prediction int, configs *antlr.ATNConfigSet) {
 
+	tokenStream := recognizer.GetTokenStream()
+
+	// Extract context content
+	contextText := l.getTokenText(tokenStream, startIndex, stopIndex)
+	contextBefore := l.getContextBefore(tokenStream, startIndex, 3)
+	contextAfter := l.getContextAfter(tokenStream, stopIndex, 3)
+
+	// Get line/column info if available
+	startToken := tokenStream.Get(startIndex)
+	line := startToken.GetLine()
+	column := startToken.GetColumn()
+
+	// Get current rule name
+	ruleName := "unknown"
+	if ctx := recognizer.GetParserRuleContext(); ctx != nil && ctx.GetRuleIndex() >= 0 {
+		ruleName = recognizer.GetRuleNames()[ctx.GetRuleIndex()]
+	}
+
 	log.AntlrTrace.Info().
 		Str("di", l.debugInfo).
-		Int("startIndex", startIndex).
-		Int("stopIndex", stopIndex).
+		Str("pos", fmt.Sprintf("[%d:%d]", line, column)).
+		Str("rule", ruleName).
 		Int("prediction", prediction).
+		Str("context", fmt.Sprintf("...%s [%s] %s...", contextBefore, contextText, contextAfter)).
 		Msg("CONTEXT SENSITIVITY")
 }

@@ -792,7 +792,7 @@ factor
     | bool_
     | functionLambdaDeclaration
     | procedureLambdaDeclaration
-    | DEREFERENCE factor                    // ^ prefix
+    | factor DEREFERENCE                    // ^ prefix
     | AT factor                             // @ prefix  
     | factor postfixOp                      // All postfix operations
     | typeCast

@@ -305,7 +305,7 @@ func pascalParserInit() {
 		128, 1, 128, 1, 128, 3, 128, 1501, 8, 128, 1, 129, 1, 129, 1, 130, 3, 130,
 		1506, 8, 130, 1, 130, 1, 130, 1, 131, 1, 131, 1, 131, 1, 131, 1, 131, 1,
 		131, 1, 131, 1, 131, 1, 131, 1, 131, 1, 131, 1, 131, 1, 131, 1, 131, 1,
-		131, 1, 131, 1, 131, 1, 131, 3, 131, 1528, 8, 131, 1, 131, 1, 131, 5, 131,
+		131, 1, 131, 3, 131, 1526, 8, 131, 1, 131, 1, 131, 1, 131, 1, 131, 5, 131,
 		1532, 8, 131, 10, 131, 12, 131, 1535, 9, 131, 1, 132, 1, 132, 1, 132, 1,
 		132, 1, 132, 1, 132, 1, 132, 1, 132, 3, 132, 1545, 8, 132, 1, 132, 3, 132,
 		1548, 8, 132, 1, 133, 3, 133, 1551, 8, 133, 1, 133, 1, 133, 1, 133, 1,
@@ -398,7 +398,7 @@ func pascalParserInit() {
 		1441, 1, 0, 0, 0, 244, 1451, 1, 0, 0, 0, 246, 1457, 1, 0, 0, 0, 248, 1480,
 		1, 0, 0, 0, 250, 1486, 1, 0, 0, 0, 252, 1488, 1, 0, 0, 0, 254, 1494, 1,
 		0, 0, 0, 256, 1496, 1, 0, 0, 0, 258, 1502, 1, 0, 0, 0, 260, 1505, 1, 0,
-		0, 0, 262, 1527, 1, 0, 0, 0, 264, 1547, 1, 0, 0, 0, 266, 1557, 1, 0, 0,
+		0, 0, 262, 1525, 1, 0, 0, 0, 264, 1547, 1, 0, 0, 0, 266, 1557, 1, 0, 0,
 		0, 268, 1559, 1, 0, 0, 0, 270, 1567, 1, 0, 0, 0, 272, 1583, 1, 0, 0, 0,
 		274, 1594, 1, 0, 0, 0, 276, 1596, 1, 0, 0, 0, 278, 1610, 1, 0, 0, 0, 280,
 		1612, 1, 0, 0, 0, 282, 1615, 1, 0, 0, 0, 284, 1618, 1, 0, 0, 0, 286, 1628,
@@ -874,40 +874,40 @@ func pascalParserInit() {
 		1, 0, 0, 0, 1504, 1506, 7, 1, 0, 0, 1505, 1504, 1, 0, 0, 0, 1505, 1506,
 		1, 0, 0, 0, 1506, 1507, 1, 0, 0, 0, 1507, 1508, 3, 262, 131, 0, 1508, 261,
 		1, 0, 0, 0, 1509, 1510, 6, 131, -1, 0, 1510, 1511, 5, 59, 0, 0, 1511, 1512,
-		3, 248, 124, 0, 1512, 1513, 5, 60, 0, 0, 1513, 1528, 1, 0, 0, 0, 1514,
-		1528, 3, 266, 133, 0, 1515, 1528, 3, 272, 136, 0, 1516, 1517, 5, 27, 0,
-		0, 1517, 1528, 3, 262, 131, 9, 1518, 1528, 3, 62, 31, 0, 1519, 1528, 3,
-		208, 104, 0, 1520, 1528, 3, 206, 103, 0, 1521, 1522, 5, 65, 0, 0, 1522,
-		1528, 3, 262, 131, 5, 1523, 1524, 5, 66, 0, 0, 1524, 1528, 3, 262, 131,
-		4, 1525, 1528, 3, 244, 122, 0, 1526, 1528, 3, 14, 7, 0, 1527, 1509, 1,
-		0, 0, 0, 1527, 1514, 1, 0, 0, 0, 1527, 1515, 1, 0, 0, 0, 1527, 1516, 1,
-		0, 0, 0, 1527, 1518, 1, 0, 0, 0, 1527, 1519, 1, 0, 0, 0, 1527, 1520, 1,
-		0, 0, 0, 1527, 1521, 1, 0, 0, 0, 1527, 1523, 1, 0, 0, 0, 1527, 1525, 1,
-		0, 0, 0, 1527, 1526, 1, 0, 0, 0, 1528, 1533, 1, 0, 0, 0, 1529, 1530, 10,
-		3, 0, 0, 1530, 1532, 3, 264, 132, 0, 1531, 1529, 1, 0, 0, 0, 1532, 1535,
-		1, 0, 0, 0, 1533, 1531, 1, 0, 0, 0, 1533, 1534, 1, 0, 0, 0, 1534, 263,
-		1, 0, 0, 0, 1535, 1533, 1, 0, 0, 0, 1536, 1537, 5, 67, 0, 0, 1537, 1548,
-		3, 14, 7, 0, 1538, 1539, 5, 61, 0, 0, 1539, 1540, 3, 248, 124, 0, 1540,
-		1541, 5, 63, 0, 0, 1541, 1548, 1, 0, 0, 0, 1542, 1544, 5, 59, 0, 0, 1543,
-		1545, 3, 270, 135, 0, 1544, 1543, 1, 0, 0, 0, 1544, 1545, 1, 0, 0, 0, 1545,
-		1546, 1, 0, 0, 0, 1546, 1548, 5, 60, 0, 0, 1547, 1536, 1, 0, 0, 0, 1547,
-		1538, 1, 0, 0, 0, 1547, 1542, 1, 0, 0, 0, 1548, 265, 1, 0, 0, 0, 1549,
-		1551, 3, 60, 30, 0, 1550, 1549, 1, 0, 0, 0, 1550, 1551, 1, 0, 0, 0, 1551,
-		1552, 1, 0, 0, 0, 1552, 1558, 3, 54, 27, 0, 1553, 1558, 3, 42, 21, 0, 1554,
-		1558, 3, 44, 22, 0, 1555, 1558, 3, 64, 32, 0, 1556, 1558, 5, 26, 0, 0,
-		1557, 1550, 1, 0, 0, 0, 1557, 1553, 1, 0, 0, 0, 1557, 1554, 1, 0, 0, 0,
-		1557, 1555, 1, 0, 0, 0, 1557, 1556, 1, 0, 0, 0, 1558, 267, 1, 0, 0, 0,
-		1559, 1565, 3, 14, 7, 0, 1560, 1562, 5, 59, 0, 0, 1561, 1563, 3, 270, 135,
-		0, 1562, 1561, 1, 0, 0, 0, 1562, 1563, 1, 0, 0, 0, 1563, 1564, 1, 0, 0,
-		0, 1564, 1566, 5, 60, 0, 0, 1565, 1560, 1, 0, 0, 0, 1565, 1566, 1, 0, 0,
-		0, 1566, 269, 1, 0, 0, 0, 1567, 1572, 3, 278, 139, 0, 1568, 1569, 5, 50,
-		0, 0, 1569, 1571, 3, 278, 139, 0, 1570, 1568, 1, 0, 0, 0, 1571, 1574, 1,
-		0, 0, 0, 1572, 1570, 1, 0, 0, 0, 1572, 1573, 1, 0, 0, 0, 1573, 271, 1,
-		0, 0, 0, 1574, 1572, 1, 0, 0, 0, 1575, 1576, 5, 61, 0, 0, 1576, 1577, 3,
-		274, 137, 0, 1577, 1578, 5, 63, 0, 0, 1578, 1584, 1, 0, 0, 0, 1579, 1580,
-		5, 62, 0, 0, 1580, 1581, 3, 274, 137, 0, 1581, 1582, 5, 64, 0, 0, 1582,
-		1584, 1, 0, 0, 0, 1583, 1575, 1, 0, 0, 0, 1583, 1579, 1, 0, 0, 0, 1584,
-		273, 1, 0, 0, 0, 1585, 1590, 3, 276, 138, 0, 1586, 1587, 5, 50, 0, 0, 1587,
+		3, 248, 124, 0, 1512, 1513, 5, 60, 0, 0, 1513, 1526, 1, 0, 0, 0, 1514,
+		1526, 3, 266, 133, 0, 1515, 1526, 3, 272, 136, 0, 1516, 1517, 5, 27, 0,
+		0, 1517, 1526, 3, 262, 131, 9, 1518, 1526, 3, 62, 31, 0, 1519, 1526, 3,
+		208, 104, 0, 1520, 1526, 3, 206, 103, 0, 1521, 1522, 5, 66, 0, 0, 1522,
+		1526, 3, 262, 131, 4, 1523, 1526, 3, 244, 122, 0, 1524, 1526, 3, 14, 7,
+		0, 1525, 1509, 1, 0, 0, 0, 1525, 1514, 1, 0, 0, 0, 1525, 1515, 1, 0, 0,
+		0, 1525, 1516, 1, 0, 0, 0, 1525, 1518, 1, 0, 0, 0, 1525, 1519, 1, 0, 0,
+		0, 1525, 1520, 1, 0, 0, 0, 1525, 1521, 1, 0, 0, 0, 1525, 1523, 1, 0, 0,
+		0, 1525, 1524, 1, 0, 0, 0, 1526, 1533, 1, 0, 0, 0, 1527, 1528, 10, 5, 0,
+		0, 1528, 1532, 5, 65, 0, 0, 1529, 1530, 10, 3, 0, 0, 1530, 1532, 3, 264,
+		132, 0, 1531, 1527, 1, 0, 0, 0, 1531, 1529, 1, 0, 0, 0, 1532, 1535, 1,
+		0, 0, 0, 1533, 1531, 1, 0, 0, 0, 1533, 1534, 1, 0, 0, 0, 1534, 263, 1,
+		0, 0, 0, 1535, 1533, 1, 0, 0, 0, 1536, 1537, 5, 67, 0, 0, 1537, 1548, 3,
+		14, 7, 0, 1538, 1539, 5, 61, 0, 0, 1539, 1540, 3, 248, 124, 0, 1540, 1541,
+		5, 63, 0, 0, 1541, 1548, 1, 0, 0, 0, 1542, 1544, 5, 59, 0, 0, 1543, 1545,
+		3, 270, 135, 0, 1544, 1543, 1, 0, 0, 0, 1544, 1545, 1, 0, 0, 0, 1545, 1546,
+		1, 0, 0, 0, 1546, 1548, 5, 60, 0, 0, 1547, 1536, 1, 0, 0, 0, 1547, 1538,
+		1, 0, 0, 0, 1547, 1542, 1, 0, 0, 0, 1548, 265, 1, 0, 0, 0, 1549, 1551,
+		3, 60, 30, 0, 1550, 1549, 1, 0, 0, 0, 1550, 1551, 1, 0, 0, 0, 1551, 1552,
+		1, 0, 0, 0, 1552, 1558, 3, 54, 27, 0, 1553, 1558, 3, 42, 21, 0, 1554, 1558,
+		3, 44, 22, 0, 1555, 1558, 3, 64, 32, 0, 1556, 1558, 5, 26, 0, 0, 1557,
+		1550, 1, 0, 0, 0, 1557, 1553, 1, 0, 0, 0, 1557, 1554, 1, 0, 0, 0, 1557,
+		1555, 1, 0, 0, 0, 1557, 1556, 1, 0, 0, 0, 1558, 267, 1, 0, 0, 0, 1559,
+		1565, 3, 14, 7, 0, 1560, 1562, 5, 59, 0, 0, 1561, 1563, 3, 270, 135, 0,
+		1562, 1561, 1, 0, 0, 0, 1562, 1563, 1, 0, 0, 0, 1563, 1564, 1, 0, 0, 0,
+		1564, 1566, 5, 60, 0, 0, 1565, 1560, 1, 0, 0, 0, 1565, 1566, 1, 0, 0, 0,
+		1566, 269, 1, 0, 0, 0, 1567, 1572, 3, 278, 139, 0, 1568, 1569, 5, 50, 0,
+		0, 1569, 1571, 3, 278, 139, 0, 1570, 1568, 1, 0, 0, 0, 1571, 1574, 1, 0,
+		0, 0, 1572, 1570, 1, 0, 0, 0, 1572, 1573, 1, 0, 0, 0, 1573, 271, 1, 0,
+		0, 0, 1574, 1572, 1, 0, 0, 0, 1575, 1576, 5, 61, 0, 0, 1576, 1577, 3, 274,
+		137, 0, 1577, 1578, 5, 63, 0, 0, 1578, 1584, 1, 0, 0, 0, 1579, 1580, 5,
+		62, 0, 0, 1580, 1581, 3, 274, 137, 0, 1581, 1582, 5, 64, 0, 0, 1582, 1584,
+		1, 0, 0, 0, 1583, 1575, 1, 0, 0, 0, 1583, 1579, 1, 0, 0, 0, 1584, 273,
+		1, 0, 0, 0, 1585, 1590, 3, 276, 138, 0, 1586, 1587, 5, 50, 0, 0, 1587,
 		1589, 3, 276, 138, 0, 1588, 1586, 1, 0, 0, 0, 1589, 1592, 1, 0, 0, 0, 1590,
 		1588, 1, 0, 0, 0, 1590, 1591, 1, 0, 0, 0, 1591, 1595, 1, 0, 0, 0, 1592,
 		1590, 1, 0, 0, 0, 1593, 1595, 1, 0, 0, 0, 1594, 1585, 1, 0, 0, 0, 1594,
@@ -1002,7 +1002,7 @@ func pascalParserInit() {
 		1818, 337, 1, 0, 0, 0, 1819, 1817, 1, 0, 0, 0, 1820, 1825, 3, 14, 7, 0,
 		1821, 1822, 5, 59, 0, 0, 1822, 1823, 3, 270, 135, 0, 1823, 1824, 5, 60,
 		0, 0, 1824, 1826, 1, 0, 0, 0, 1825, 1821, 1, 0, 0, 0, 1825, 1826, 1, 0,
-		0, 0, 1826, 339, 1, 0, 0, 0, 223, 342, 350, 354, 368, 371, 374, 382, 388,
+		0, 0, 1826, 339, 1, 0, 0, 0, 224, 342, 350, 354, 368, 371, 374, 382, 388,
 		405, 410, 416, 421, 428, 435, 445, 452, 461, 464, 471, 475, 487, 498, 504,
 		509, 512, 520, 523, 531, 534, 536, 550, 554, 559, 567, 578, 583, 591, 604,
 		608, 621, 627, 631, 640, 649, 656, 658, 662, 670, 674, 681, 697, 700, 703,
@@ -1016,10 +1016,10 @@ func pascalParserInit() {
 		1258, 1263, 1269, 1274, 1278, 1281, 1286, 1291, 1303, 1309, 1318, 1326,
 		1341, 1347, 1351, 1356, 1361, 1366, 1371, 1375, 1380, 1383, 1390, 1398,
 		1408, 1411, 1418, 1422, 1431, 1439, 1445, 1449, 1462, 1473, 1478, 1484,
-		1492, 1500, 1505, 1527, 1533, 1544, 1547, 1550, 1557, 1562, 1565, 1572,
-		1583, 1590, 1594, 1599, 1605, 1610, 1624, 1626, 1638, 1649, 1654, 1662,
-		1672, 1678, 1688, 1693, 1697, 1707, 1721, 1731, 1739, 1759, 1775, 1778,
-		1782, 1805, 1817, 1825,
+		1492, 1500, 1505, 1525, 1531, 1533, 1544, 1547, 1550, 1557, 1562, 1565,
+		1572, 1583, 1590, 1594, 1599, 1605, 1610, 1624, 1626, 1638, 1649, 1654,
+		1662, 1672, 1678, 1688, 1693, 1697, 1707, 1721, 1731, 1739, 1759, 1775,
+		1778, 1782, 1805, 1817, 1825,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -25134,7 +25134,7 @@ func (p *pascalParser) UnlabelledStatement() (localctx IUnlabelledStatementConte
 	}
 
 	switch p.GetTokenStream().LA(1) {
-	case pascalParserBOOLEAN, pascalParserCHAR, pascalParserCHR, pascalParserELSE, pascalParserEND, pascalParserFUNCTION, pascalParserGOTO, pascalParserINTEGER, pascalParserNIL, pascalParserNOT, pascalParserPROCEDURE, pascalParserREAL, pascalParserUNTIL, pascalParserVAR, pascalParserPLUS, pascalParserMINUS, pascalParserSEMI, pascalParserLPAREN, pascalParserLBRACK, pascalParserLBRACK2, pascalParserDEREFERENCE, pascalParserAT, pascalParserSTRING, pascalParserTRUE, pascalParserFALSE, pascalParserREAD, pascalParserWRITE, pascalParserDEFAULT, pascalParserINDEX, pascalParserFINALLY, pascalParserEXCEPT, pascalParserFINALIZATION, pascalParserINHERITED, pascalParserRAISE, pascalParserCARDINAL, pascalParserLONGBOOL, pascalParserLONGINT, pascalParserLONGWORD, pascalParserWORD, pascalParserBYTE, pascalParserSHORTINT, pascalParserSMALLINT, pascalParserINT64, pascalParserUINT64, pascalParserSINGLE, pascalParserDOUBLE, pascalParserEXTENDED, pascalParserCOMP, pascalParserCURRENCY, pascalParserANSICHAR, pascalParserWIDECHAR, pascalParserANSISTRING, pascalParserWIDESTRING, pascalParserUNICODESTRING, pascalParserRAWBYTESTRING, pascalParserUTF8STRING, pascalParserVARIANT, pascalParserOLEVARIANT, pascalParserPOINTER, pascalParserPCHAR, pascalParserPANSICHAR, pascalParserPWIDECHAR, pascalParserPUNICODECHAR, pascalParserTHANDLE, pascalParserHWND, pascalParserHDC, pascalParserHICON, pascalParserHBITMAP, pascalParserHMENU, pascalParserHINSTANCE, pascalParserHMODULE, pascalParserHKEY, pascalParserDWORD, pascalParserQWORD, pascalParserNATIVEINT, pascalParserNATIVEUINT, pascalParserCODEPAGE, pascalParserTGUID, pascalParserPGUID, pascalParserTEXTFILE, pascalParserTEXT, pascalParserSHORTSTRING, pascalParserOPENSTRING, pascalParserPLATFORM, pascalParserALIGN, pascalParserIDENT, pascalParserHEX_LITERAL, pascalParserSTRING_LITERAL, pascalParserSTRING_CROSSHATCH_LITERAL, pascalParserNUM_INT, pascalParserNUM_REAL:
+	case pascalParserBOOLEAN, pascalParserCHAR, pascalParserCHR, pascalParserELSE, pascalParserEND, pascalParserFUNCTION, pascalParserGOTO, pascalParserINTEGER, pascalParserNIL, pascalParserNOT, pascalParserPROCEDURE, pascalParserREAL, pascalParserUNTIL, pascalParserVAR, pascalParserPLUS, pascalParserMINUS, pascalParserSEMI, pascalParserLPAREN, pascalParserLBRACK, pascalParserLBRACK2, pascalParserAT, pascalParserSTRING, pascalParserTRUE, pascalParserFALSE, pascalParserREAD, pascalParserWRITE, pascalParserDEFAULT, pascalParserINDEX, pascalParserFINALLY, pascalParserEXCEPT, pascalParserFINALIZATION, pascalParserINHERITED, pascalParserRAISE, pascalParserCARDINAL, pascalParserLONGBOOL, pascalParserLONGINT, pascalParserLONGWORD, pascalParserWORD, pascalParserBYTE, pascalParserSHORTINT, pascalParserSMALLINT, pascalParserINT64, pascalParserUINT64, pascalParserSINGLE, pascalParserDOUBLE, pascalParserEXTENDED, pascalParserCOMP, pascalParserCURRENCY, pascalParserANSICHAR, pascalParserWIDECHAR, pascalParserANSISTRING, pascalParserWIDESTRING, pascalParserUNICODESTRING, pascalParserRAWBYTESTRING, pascalParserUTF8STRING, pascalParserVARIANT, pascalParserOLEVARIANT, pascalParserPOINTER, pascalParserPCHAR, pascalParserPANSICHAR, pascalParserPWIDECHAR, pascalParserPUNICODECHAR, pascalParserTHANDLE, pascalParserHWND, pascalParserHDC, pascalParserHICON, pascalParserHBITMAP, pascalParserHMENU, pascalParserHINSTANCE, pascalParserHMODULE, pascalParserHKEY, pascalParserDWORD, pascalParserQWORD, pascalParserNATIVEINT, pascalParserNATIVEUINT, pascalParserCODEPAGE, pascalParserTGUID, pascalParserPGUID, pascalParserTEXTFILE, pascalParserTEXT, pascalParserSHORTSTRING, pascalParserOPENSTRING, pascalParserPLATFORM, pascalParserALIGN, pascalParserIDENT, pascalParserHEX_LITERAL, pascalParserSTRING_LITERAL, pascalParserSTRING_CROSSHATCH_LITERAL, pascalParserNUM_INT, pascalParserNUM_REAL:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(1420)
@@ -25711,7 +25711,7 @@ func (p *pascalParser) RaiseExceptionStatement() (localctx IRaiseExceptionStatem
 	}
 	_la = p.GetTokenStream().LA(1)
 
-	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-65)) & ^0x3f) == 0 && ((int64(1)<<(_la-65))&-109212290932270589) != 0) || ((int64((_la-129)) & ^0x3f) == 0 && ((int64(1)<<(_la-129))&1108857476612095) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-66)) & ^0x3f) == 0 && ((int64(1)<<(_la-66))&-54606145466135295) != 0) || ((int64((_la-130)) & ^0x3f) == 0 && ((int64(1)<<(_la-130))&554428738306047) != 0) {
 		{
 			p.SetState(1438)
 			p.Expression()
@@ -27525,10 +27525,10 @@ type IFactorContext interface {
 	Bool_() IBool_Context
 	FunctionLambdaDeclaration() IFunctionLambdaDeclarationContext
 	ProcedureLambdaDeclaration() IProcedureLambdaDeclarationContext
-	DEREFERENCE() antlr.TerminalNode
 	AT() antlr.TerminalNode
 	TypeCast() ITypeCastContext
 	Identifier() IIdentifierContext
+	DEREFERENCE() antlr.TerminalNode
 	PostfixOp() IPostfixOpContext
 
 	// IsFactorContext differentiates from other interfaces.
@@ -27691,10 +27691,6 @@ func (s *FactorContext) ProcedureLambdaDeclaration() IProcedureLambdaDeclaration
 	return t.(IProcedureLambdaDeclarationContext)
 }
 
-func (s *FactorContext) DEREFERENCE() antlr.TerminalNode {
-	return s.GetToken(pascalParserDEREFERENCE, 0)
-}
-
 func (s *FactorContext) AT() antlr.TerminalNode {
 	return s.GetToken(pascalParserAT, 0)
 }
@@ -27729,6 +27725,10 @@ func (s *FactorContext) Identifier() IIdentifierContext {
 	}
 
 	return t.(IIdentifierContext)
+}
+
+func (s *FactorContext) DEREFERENCE() antlr.TerminalNode {
+	return s.GetToken(pascalParserDEREFERENCE, 0)
 }
 
 func (s *FactorContext) PostfixOp() IPostfixOpContext {
@@ -27793,7 +27793,7 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(1527)
+	p.SetState(1525)
 	p.GetErrorHandler().Sync(p)
 	if p.HasError() {
 		goto errorExit
@@ -27869,20 +27869,6 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 	case 8:
 		{
 			p.SetState(1521)
-			p.Match(pascalParserDEREFERENCE)
-			if p.HasError() {
-				// Recognition error - abort rule
-				goto errorExit
-			}
-		}
-		{
-			p.SetState(1522)
-			p.factor(5)
-		}
-
-	case 9:
-		{
-			p.SetState(1523)
 			p.Match(pascalParserAT)
 			if p.HasError() {
 				// Recognition error - abort rule
@@ -27890,19 +27876,19 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 			}
 		}
 		{
-			p.SetState(1524)
+			p.SetState(1522)
 			p.factor(4)
+		}
+
+	case 9:
+		{
+			p.SetState(1523)
+			p.TypeCast()
 		}
 
 	case 10:
 		{
-			p.SetState(1525)
-			p.TypeCast()
-		}
-
-	case 11:
-		{
-			p.SetState(1526)
+			p.SetState(1524)
 			p.Identifier()
 		}
 
@@ -27915,7 +27901,7 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 187, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 188, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
@@ -27925,17 +27911,47 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 				p.TriggerExitRuleEvent()
 			}
 			_prevctx = localctx
-			localctx = NewFactorContext(p, _parentctx, _parentState)
-			p.PushNewRecursionContext(localctx, _startState, pascalParserRULE_factor)
-			p.SetState(1529)
-
-			if !(p.Precpred(p.GetParserRuleContext(), 3)) {
-				p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+			p.SetState(1531)
+			p.GetErrorHandler().Sync(p)
+			if p.HasError() {
 				goto errorExit
 			}
-			{
-				p.SetState(1530)
-				p.PostfixOp()
+
+			switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 187, p.GetParserRuleContext()) {
+			case 1:
+				localctx = NewFactorContext(p, _parentctx, _parentState)
+				p.PushNewRecursionContext(localctx, _startState, pascalParserRULE_factor)
+				p.SetState(1527)
+
+				if !(p.Precpred(p.GetParserRuleContext(), 5)) {
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
+					goto errorExit
+				}
+				{
+					p.SetState(1528)
+					p.Match(pascalParserDEREFERENCE)
+					if p.HasError() {
+						// Recognition error - abort rule
+						goto errorExit
+					}
+				}
+
+			case 2:
+				localctx = NewFactorContext(p, _parentctx, _parentState)
+				p.PushNewRecursionContext(localctx, _startState, pascalParserRULE_factor)
+				p.SetState(1529)
+
+				if !(p.Precpred(p.GetParserRuleContext(), 3)) {
+					p.SetError(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+					goto errorExit
+				}
+				{
+					p.SetState(1530)
+					p.PostfixOp()
+				}
+
+			case antlr.ATNInvalidAltNumber:
+				goto errorExit
 			}
 
 		}
@@ -27944,7 +27960,7 @@ func (p *pascalParser) factor(_p int) (localctx IFactorContext) {
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 187, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 188, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
@@ -28181,7 +28197,7 @@ func (p *pascalParser) PostfixOp() (localctx IPostfixOpContext) {
 		}
 		_la = p.GetTokenStream().LA(1)
 
-		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-65)) & ^0x3f) == 0 && ((int64(1)<<(_la-65))&-109212290932270589) != 0) || ((int64((_la-129)) & ^0x3f) == 0 && ((int64(1)<<(_la-129))&1108857476612095) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-66)) & ^0x3f) == 0 && ((int64(1)<<(_la-66))&-54606145466135295) != 0) || ((int64((_la-130)) & ^0x3f) == 0 && ((int64(1)<<(_la-130))&554428738306047) != 0) {
 			{
 				p.SetState(1543)
 				p.ParameterList()
@@ -28615,7 +28631,7 @@ func (p *pascalParser) FunctionDesignator() (localctx IFunctionDesignatorContext
 		}
 		_la = p.GetTokenStream().LA(1)
 
-		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-65)) & ^0x3f) == 0 && ((int64(1)<<(_la-65))&-109212290932270589) != 0) || ((int64((_la-129)) & ^0x3f) == 0 && ((int64(1)<<(_la-129))&1108857476612095) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7494095344008167840) != 0) || ((int64((_la-66)) & ^0x3f) == 0 && ((int64(1)<<(_la-66))&-54606145466135295) != 0) || ((int64((_la-130)) & ^0x3f) == 0 && ((int64(1)<<(_la-130))&554428738306047) != 0) {
 			{
 				p.SetState(1561)
 				p.ParameterList()
@@ -29152,7 +29168,7 @@ func (p *pascalParser) ElementList() (localctx IElementListContext) {
 	}
 
 	switch p.GetTokenStream().LA(1) {
-	case pascalParserBOOLEAN, pascalParserCHAR, pascalParserCHR, pascalParserFUNCTION, pascalParserINTEGER, pascalParserNIL, pascalParserNOT, pascalParserPROCEDURE, pascalParserREAL, pascalParserPLUS, pascalParserMINUS, pascalParserLPAREN, pascalParserLBRACK, pascalParserLBRACK2, pascalParserDEREFERENCE, pascalParserAT, pascalParserSTRING, pascalParserTRUE, pascalParserFALSE, pascalParserREAD, pascalParserWRITE, pascalParserDEFAULT, pascalParserINDEX, pascalParserCARDINAL, pascalParserLONGBOOL, pascalParserLONGINT, pascalParserLONGWORD, pascalParserWORD, pascalParserBYTE, pascalParserSHORTINT, pascalParserSMALLINT, pascalParserINT64, pascalParserUINT64, pascalParserSINGLE, pascalParserDOUBLE, pascalParserEXTENDED, pascalParserCOMP, pascalParserCURRENCY, pascalParserANSICHAR, pascalParserWIDECHAR, pascalParserANSISTRING, pascalParserWIDESTRING, pascalParserUNICODESTRING, pascalParserRAWBYTESTRING, pascalParserUTF8STRING, pascalParserVARIANT, pascalParserOLEVARIANT, pascalParserPOINTER, pascalParserPCHAR, pascalParserPANSICHAR, pascalParserPWIDECHAR, pascalParserPUNICODECHAR, pascalParserTHANDLE, pascalParserHWND, pascalParserHDC, pascalParserHICON, pascalParserHBITMAP, pascalParserHMENU, pascalParserHINSTANCE, pascalParserHMODULE, pascalParserHKEY, pascalParserDWORD, pascalParserQWORD, pascalParserNATIVEINT, pascalParserNATIVEUINT, pascalParserCODEPAGE, pascalParserTGUID, pascalParserPGUID, pascalParserTEXTFILE, pascalParserTEXT, pascalParserSHORTSTRING, pascalParserOPENSTRING, pascalParserPLATFORM, pascalParserALIGN, pascalParserIDENT, pascalParserHEX_LITERAL, pascalParserSTRING_LITERAL, pascalParserSTRING_CROSSHATCH_LITERAL, pascalParserNUM_INT, pascalParserNUM_REAL:
+	case pascalParserBOOLEAN, pascalParserCHAR, pascalParserCHR, pascalParserFUNCTION, pascalParserINTEGER, pascalParserNIL, pascalParserNOT, pascalParserPROCEDURE, pascalParserREAL, pascalParserPLUS, pascalParserMINUS, pascalParserLPAREN, pascalParserLBRACK, pascalParserLBRACK2, pascalParserAT, pascalParserSTRING, pascalParserTRUE, pascalParserFALSE, pascalParserREAD, pascalParserWRITE, pascalParserDEFAULT, pascalParserINDEX, pascalParserCARDINAL, pascalParserLONGBOOL, pascalParserLONGINT, pascalParserLONGWORD, pascalParserWORD, pascalParserBYTE, pascalParserSHORTINT, pascalParserSMALLINT, pascalParserINT64, pascalParserUINT64, pascalParserSINGLE, pascalParserDOUBLE, pascalParserEXTENDED, pascalParserCOMP, pascalParserCURRENCY, pascalParserANSICHAR, pascalParserWIDECHAR, pascalParserANSISTRING, pascalParserWIDESTRING, pascalParserUNICODESTRING, pascalParserRAWBYTESTRING, pascalParserUTF8STRING, pascalParserVARIANT, pascalParserOLEVARIANT, pascalParserPOINTER, pascalParserPCHAR, pascalParserPANSICHAR, pascalParserPWIDECHAR, pascalParserPUNICODECHAR, pascalParserTHANDLE, pascalParserHWND, pascalParserHDC, pascalParserHICON, pascalParserHBITMAP, pascalParserHMENU, pascalParserHINSTANCE, pascalParserHMODULE, pascalParserHKEY, pascalParserDWORD, pascalParserQWORD, pascalParserNATIVEINT, pascalParserNATIVEUINT, pascalParserCODEPAGE, pascalParserTGUID, pascalParserPGUID, pascalParserTEXTFILE, pascalParserTEXT, pascalParserSHORTSTRING, pascalParserOPENSTRING, pascalParserPLATFORM, pascalParserALIGN, pascalParserIDENT, pascalParserHEX_LITERAL, pascalParserSTRING_LITERAL, pascalParserSTRING_CROSSHATCH_LITERAL, pascalParserNUM_INT, pascalParserNUM_REAL:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(1585)
@@ -29557,7 +29573,7 @@ func (p *pascalParser) ActualParameter() (localctx IActualParameterContext) {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 200, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 201, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
@@ -30430,7 +30446,7 @@ func (p *pascalParser) StructuredStatement() (localctx IStructuredStatementConte
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 203, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 204, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
@@ -30773,7 +30789,7 @@ func (p *pascalParser) Statements() (localctx IStatementsContext) {
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 204, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 205, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
@@ -30798,7 +30814,7 @@ func (p *pascalParser) Statements() (localctx IStatementsContext) {
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 204, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 205, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
@@ -31149,7 +31165,7 @@ func (p *pascalParser) IfStatement() (localctx IIfStatementContext) {
 	p.SetState(1662)
 	p.GetErrorHandler().Sync(p)
 
-	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 206, p.GetParserRuleContext()) == 1 {
+	if p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 207, p.GetParserRuleContext()) == 1 {
 		{
 			p.SetState(1660)
 			p.Match(pascalParserELSE)
@@ -31399,7 +31415,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 	if p.HasError() {
 		goto errorExit
 	}
-	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 207, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 208, p.GetParserRuleContext())
 	if p.HasError() {
 		goto errorExit
 	}
@@ -31424,7 +31440,7 @@ func (p *pascalParser) CaseStatement() (localctx ICaseStatementContext) {
 		if p.HasError() {
 			goto errorExit
 		}
-		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 207, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 208, p.GetParserRuleContext())
 		if p.HasError() {
 			goto errorExit
 		}
@@ -31821,7 +31837,7 @@ func (p *pascalParser) CaseConstList() (localctx ICaseConstListContext) {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 209, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 210, p.GetParserRuleContext()) {
 	case 1:
 		{
 			p.SetState(1686)
@@ -31859,7 +31875,7 @@ func (p *pascalParser) CaseConstList() (localctx ICaseConstListContext) {
 			goto errorExit
 		}
 
-		switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 210, p.GetParserRuleContext()) {
+		switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 211, p.GetParserRuleContext()) {
 		case 1:
 			{
 				p.SetState(1691)
@@ -32721,7 +32737,7 @@ func (p *pascalParser) ForStatement() (localctx IForStatementContext) {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 215, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 216, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
@@ -33384,7 +33400,7 @@ func (p *pascalParser) WithStatement() (localctx IWithStatementContext) {
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 216, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 217, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
@@ -33670,7 +33686,7 @@ func (p *pascalParser) TryExceptStatement() (localctx ITryExceptStatementContext
 		goto errorExit
 	}
 
-	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 219, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.BaseParser, p.GetTokenStream(), 220, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
@@ -35000,6 +35016,9 @@ func (p *pascalParser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex 
 func (p *pascalParser) Factor_Sempred(localctx antlr.RuleContext, predIndex int) bool {
 	switch predIndex {
 	case 0:
+		return p.Precpred(p.GetParserRuleContext(), 5)
+
+	case 1:
 		return p.Precpred(p.GetParserRuleContext(), 3)
 
 	default:

@@ -714,7 +714,6 @@ simpleStatement
     | expression
     | gotoStatement
     | inheritedStatement
-    // | typeCast
     | emptyStatement_
     | raiseExceptionStatement
     | variableDeclarationStatement
@@ -733,8 +732,7 @@ variableDeclarationStatement
     ;
 
 typeCast
-    : identifier LPAREN expression RPAREN
-    | LPAREN expression AS identifier RPAREN
+    : LPAREN expression AS identifier RPAREN
     ;
 
 propertyDesignator
@@ -887,11 +885,11 @@ conditionalStatement
     ;
 
 ifStatement
-    : IF expression THEN statement (ELSE statement)? SEMI?
+    : IF expression THEN statement (ELSE statement)?
     ;
 
 caseStatement
-    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? SEMI? END
+    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? END
     ;
 
 caseConstRange

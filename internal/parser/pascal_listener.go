@@ -134,6 +134,9 @@ type pascalListener interface {
 	// EnterClassType is called when entering the classType production.
 	EnterClassType(c *ClassTypeContext)
 
+	// EnterClassSection is called when entering the classSection production.
+	EnterClassSection(c *ClassSectionContext)
+
 	// EnterClassTypeBlock is called when entering the classTypeBlock production.
 	EnterClassTypeBlock(c *ClassTypeBlockContext)
 
@@ -148,9 +151,6 @@ type pascalListener interface {
 
 	// EnterAliasDistinctType is called when entering the aliasDistinctType production.
 	EnterAliasDistinctType(c *AliasDistinctTypeContext)
-
-	// EnterAliasType is called when entering the aliasType production.
-	EnterAliasType(c *AliasTypeContext)
 
 	// EnterClassImplementsInterfaces is called when entering the classImplementsInterfaces production.
 	EnterClassImplementsInterfaces(c *ClassImplementsInterfacesContext)
@@ -644,6 +644,9 @@ type pascalListener interface {
 	// ExitClassType is called when exiting the classType production.
 	ExitClassType(c *ClassTypeContext)
 
+	// ExitClassSection is called when exiting the classSection production.
+	ExitClassSection(c *ClassSectionContext)
+
 	// ExitClassTypeBlock is called when exiting the classTypeBlock production.
 	ExitClassTypeBlock(c *ClassTypeBlockContext)
 
@@ -658,9 +661,6 @@ type pascalListener interface {
 
 	// ExitAliasDistinctType is called when exiting the aliasDistinctType production.
 	ExitAliasDistinctType(c *AliasDistinctTypeContext)
-
-	// ExitAliasType is called when exiting the aliasType production.
-	ExitAliasType(c *AliasTypeContext)
 
 	// ExitClassImplementsInterfaces is called when exiting the classImplementsInterfaces production.
 	ExitClassImplementsInterfaces(c *ClassImplementsInterfacesContext)

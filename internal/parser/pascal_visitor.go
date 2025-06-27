@@ -134,6 +134,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#classType.
 	VisitClassType(ctx *ClassTypeContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#classSection.
+	VisitClassSection(ctx *ClassSectionContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#classTypeBlock.
 	VisitClassTypeBlock(ctx *ClassTypeBlockContext) interface{}
 
@@ -148,9 +151,6 @@ type pascalVisitor interface {
 
 	// Visit a parse tree produced by pascalParser#aliasDistinctType.
 	VisitAliasDistinctType(ctx *AliasDistinctTypeContext) interface{}
-
-	// Visit a parse tree produced by pascalParser#aliasType.
-	VisitAliasType(ctx *AliasTypeContext) interface{}
 
 	// Visit a parse tree produced by pascalParser#classImplementsInterfaces.
 	VisitClassImplementsInterfaces(ctx *ClassImplementsInterfacesContext) interface{}

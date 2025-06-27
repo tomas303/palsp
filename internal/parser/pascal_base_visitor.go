@@ -176,6 +176,10 @@ func (v *BasepascalVisitor) VisitClassType(ctx *ClassTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitClassSection(ctx *ClassSectionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitClassTypeBlock(ctx *ClassTypeBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -193,10 +197,6 @@ func (v *BasepascalVisitor) VisitProcedureType(ctx *ProcedureTypeContext) interf
 }
 
 func (v *BasepascalVisitor) VisitAliasDistinctType(ctx *AliasDistinctTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BasepascalVisitor) VisitAliasType(ctx *AliasTypeContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -293,17 +293,19 @@ typeDefinitionPart
     ;
 
 typeDefinition
-    : attributeSection? qualifiedIdentifier EQUAL (aliasDistinctType | aliasType | type_)
+    : attributeSection? qualifiedIdentifier EQUAL (aliasDistinctType | type_)
     ;
 
 classType
     : CLASS OF identifier
     | CLASS (LPAREN identifier RPAREN)
-    | CLASS (
-        (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? (
-            accessSpecifier? classTypeBlock SEMI?
-        )* END
-    )?
+    | CLASS (LPAREN identifier classImplementsInterfaces RPAREN)? ABSTRACT? (classSection)* END
+    | CLASS  // Forward declaration - just the keyword CLASS
+    ;
+
+classSection
+    : accessSpecifier (classTypeBlock (SEMI classTypeBlock)* SEMI?)?
+    | classTypeBlock (SEMI classTypeBlock)* SEMI?
     ;
 
 classTypeBlock
@@ -330,10 +332,6 @@ procedureType
 
 aliasDistinctType
     : TYPE type_
-    ;
-
-aliasType
-    : type_
     ;
 
 classImplementsInterfaces

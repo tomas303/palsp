@@ -273,6 +273,12 @@ func (s *BasepascalListener) EnterClassType(ctx *ClassTypeContext) {}
 // ExitClassType is called when production classType is exited.
 func (s *BasepascalListener) ExitClassType(ctx *ClassTypeContext) {}
 
+// EnterClassSection is called when production classSection is entered.
+func (s *BasepascalListener) EnterClassSection(ctx *ClassSectionContext) {}
+
+// ExitClassSection is called when production classSection is exited.
+func (s *BasepascalListener) ExitClassSection(ctx *ClassSectionContext) {}
+
 // EnterClassTypeBlock is called when production classTypeBlock is entered.
 func (s *BasepascalListener) EnterClassTypeBlock(ctx *ClassTypeBlockContext) {}
 
@@ -302,12 +308,6 @@ func (s *BasepascalListener) EnterAliasDistinctType(ctx *AliasDistinctTypeContex
 
 // ExitAliasDistinctType is called when production aliasDistinctType is exited.
 func (s *BasepascalListener) ExitAliasDistinctType(ctx *AliasDistinctTypeContext) {}
-
-// EnterAliasType is called when production aliasType is entered.
-func (s *BasepascalListener) EnterAliasType(ctx *AliasTypeContext) {}
-
-// ExitAliasType is called when production aliasType is exited.
-func (s *BasepascalListener) ExitAliasType(ctx *AliasTypeContext) {}
 
 // EnterClassImplementsInterfaces is called when production classImplementsInterfaces is entered.
 func (s *BasepascalListener) EnterClassImplementsInterfaces(ctx *ClassImplementsInterfacesContext) {}

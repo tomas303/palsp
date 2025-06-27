@@ -711,6 +711,12 @@ func (s *BasepascalListener) EnterIdentifierList(ctx *IdentifierListContext) {}
 // ExitIdentifierList is called when production identifierList is exited.
 func (s *BasepascalListener) ExitIdentifierList(ctx *IdentifierListContext) {}
 
+// EnterQualifiedIdentifierList is called when production qualifiedIdentifierList is entered.
+func (s *BasepascalListener) EnterQualifiedIdentifierList(ctx *QualifiedIdentifierListContext) {}
+
+// ExitQualifiedIdentifierList is called when production qualifiedIdentifierList is exited.
+func (s *BasepascalListener) ExitQualifiedIdentifierList(ctx *QualifiedIdentifierListContext) {}
+
 // EnterConstList is called when production constList is entered.
 func (s *BasepascalListener) EnterConstList(ctx *ConstListContext) {}
 

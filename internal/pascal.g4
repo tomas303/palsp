@@ -187,7 +187,7 @@ funcBlock
     ;
 
 usesUnits
-    : USES identifierList SEMI
+    : USES qualifiedIdentifierList SEMI
     ;
 
 labelDeclarationPart
@@ -683,6 +683,10 @@ parameterGroup
 
 identifierList
     : identifier (COMMA identifier)*
+    ;
+
+qualifiedIdentifierList
+    : qualifiedIdentifier (COMMA qualifiedIdentifier)*
     ;
 
 constList

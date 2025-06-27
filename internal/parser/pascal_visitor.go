@@ -347,6 +347,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#identifierList.
 	VisitIdentifierList(ctx *IdentifierListContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#qualifiedIdentifierList.
+	VisitQualifiedIdentifierList(ctx *QualifiedIdentifierListContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#constList.
 	VisitConstList(ctx *ConstListContext) interface{}
 

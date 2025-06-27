@@ -460,6 +460,10 @@ func (v *BasepascalVisitor) VisitIdentifierList(ctx *IdentifierListContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitQualifiedIdentifierList(ctx *QualifiedIdentifierListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitConstList(ctx *ConstListContext) interface{} {
 	return v.VisitChildren(ctx)
 }

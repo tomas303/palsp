@@ -302,9 +302,9 @@ func (s *scopesListener) EnterImplementationSection(ctx *parser.ImplementationSe
 func (s *scopesListener) ExitUsesUnits(ctx *parser.UsesUnitsContext) {
 	s.collector.AddUseUnit("System")
 	s.collector.AddSymbol("System", UnitReference, "System", NewPosition(0, 0))
-	for _, identifier := range ctx.IdentifierList().AllIdentifier() {
-		s.collector.AddUseUnit(buildIdentifier(identifier))
-		s.collector.AddSymbol(buildIdentifier(identifier), UnitReference, identifier.GetText(), ctxStartPos(identifier))
+	for _, identifier := range ctx.QualifiedIdentifierList().AllQualifiedIdentifier() {
+		s.collector.AddUseUnit(buildQualifiedIdentifier(identifier))
+		s.collector.AddSymbol(buildQualifiedIdentifier(identifier), UnitReference, identifier.GetText(), ctxStartPos(identifier))
 	}
 }
 

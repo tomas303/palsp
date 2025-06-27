@@ -347,6 +347,9 @@ type pascalListener interface {
 	// EnterIdentifierList is called when entering the identifierList production.
 	EnterIdentifierList(c *IdentifierListContext)
 
+	// EnterQualifiedIdentifierList is called when entering the qualifiedIdentifierList production.
+	EnterQualifiedIdentifierList(c *QualifiedIdentifierListContext)
+
 	// EnterConstList is called when entering the constList production.
 	EnterConstList(c *ConstListContext)
 
@@ -856,6 +859,9 @@ type pascalListener interface {
 
 	// ExitIdentifierList is called when exiting the identifierList production.
 	ExitIdentifierList(c *IdentifierListContext)
+
+	// ExitQualifiedIdentifierList is called when exiting the qualifiedIdentifierList production.
+	ExitQualifiedIdentifierList(c *QualifiedIdentifierListContext)
 
 	// ExitConstList is called when exiting the constList production.
 	ExitConstList(c *ConstListContext)

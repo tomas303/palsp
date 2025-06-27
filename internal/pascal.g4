@@ -384,9 +384,9 @@ errorClassDeclarationPart
     ;
 
 propertyDeclaration
-    : PROPERTY identifier propertyIndexParameters? COLON type_ propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration?
+    : attributeSection? PROPERTY identifier propertyIndexParameters? COLON type_ propertyReadDeclaration? propertyWriteDeclaration? propertyDefaultValueDeclaration?
         propertyIndexDeclaration? (SEMI DEFAULT)?
-    | PROPERTY identifier propertyDefaultValueDeclaration?
+    | attributeSection? PROPERTY identifier propertyDefaultValueDeclaration?
     ;
 
 propertyReadDeclaration
@@ -1651,18 +1651,6 @@ WS
     : [ \t\r\n]+ -> skip
     ;
 
-COMMENT_1
-    : '(*' .*? '*)' -> skip
-    ;
-
-COMMENT_2
-    : '{' .*? '}' -> skip
-    ;
-
-COMMENT_3
-    : '//' ~[\r\n]* -> skip
-    ;
-
 IDENT
     : ('A' .. 'Z' | '_') ('A' .. 'Z' | '0' .. '9' | '_')*
     ;
@@ -1677,6 +1665,18 @@ STRING_LITERAL
 
 STRING_CROSSHATCH_LITERAL
     : '#' ([0-9]+ | HEX_LITERAL)
+    ;
+
+COMMENT_1
+    : '(*' .*? '*)' -> skip
+    ;
+
+COMMENT_2
+    : '{' .*? '}' -> skip
+    ;
+
+COMMENT_3
+    : '//' ~[\r\n]* -> skip
     ;
 
 NUM_INT

@@ -807,9 +807,9 @@ factor
     ;
 
 postfixOp
-    : DOT identifier                        // . postfix (member access)
-    | LBRACK expression RBRACK              // [] postfix (array access)
-    | LPAREN parameterList? RPAREN          // () postfix (function call)
+    : DOT identifier                                // . postfix (member access)
+    | LBRACK expression (COMMA expression)? RBRACK  // [] postfix (array access)
+    | LPAREN parameterList? RPAREN                  // () postfix (function call)
     ;
 
 unsignedConstant

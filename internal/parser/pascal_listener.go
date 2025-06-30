@@ -293,6 +293,9 @@ type pascalListener interface {
 	// EnterVariableDeclarationPart is called when entering the variableDeclarationPart production.
 	EnterVariableDeclarationPart(c *VariableDeclarationPartContext)
 
+	// EnterThreadvarDeclarationPart is called when entering the threadvarDeclarationPart production.
+	EnterThreadvarDeclarationPart(c *ThreadvarDeclarationPartContext)
+
 	// EnterVariableDeclaration is called when entering the variableDeclaration production.
 	EnterVariableDeclaration(c *VariableDeclarationContext)
 
@@ -805,6 +808,9 @@ type pascalListener interface {
 
 	// ExitVariableDeclarationPart is called when exiting the variableDeclarationPart production.
 	ExitVariableDeclarationPart(c *VariableDeclarationPartContext)
+
+	// ExitThreadvarDeclarationPart is called when exiting the threadvarDeclarationPart production.
+	ExitThreadvarDeclarationPart(c *ThreadvarDeclarationPartContext)
 
 	// ExitVariableDeclaration is called when exiting the variableDeclaration production.
 	ExitVariableDeclaration(c *VariableDeclarationContext)

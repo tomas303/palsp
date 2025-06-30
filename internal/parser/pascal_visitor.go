@@ -293,6 +293,9 @@ type pascalVisitor interface {
 	// Visit a parse tree produced by pascalParser#variableDeclarationPart.
 	VisitVariableDeclarationPart(ctx *VariableDeclarationPartContext) interface{}
 
+	// Visit a parse tree produced by pascalParser#threadvarDeclarationPart.
+	VisitThreadvarDeclarationPart(ctx *ThreadvarDeclarationPartContext) interface{}
+
 	// Visit a parse tree produced by pascalParser#variableDeclaration.
 	VisitVariableDeclaration(ctx *VariableDeclarationContext) interface{}
 

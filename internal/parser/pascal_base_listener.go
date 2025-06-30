@@ -598,6 +598,12 @@ func (s *BasepascalListener) EnterVariableDeclarationPart(ctx *VariableDeclarati
 // ExitVariableDeclarationPart is called when production variableDeclarationPart is exited.
 func (s *BasepascalListener) ExitVariableDeclarationPart(ctx *VariableDeclarationPartContext) {}
 
+// EnterThreadvarDeclarationPart is called when production threadvarDeclarationPart is entered.
+func (s *BasepascalListener) EnterThreadvarDeclarationPart(ctx *ThreadvarDeclarationPartContext) {}
+
+// ExitThreadvarDeclarationPart is called when production threadvarDeclarationPart is exited.
+func (s *BasepascalListener) ExitThreadvarDeclarationPart(ctx *ThreadvarDeclarationPartContext) {}
+
 // EnterVariableDeclaration is called when production variableDeclaration is entered.
 func (s *BasepascalListener) EnterVariableDeclaration(ctx *VariableDeclarationContext) {}
 

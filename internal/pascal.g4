@@ -135,6 +135,7 @@ identifierPart
         | PLATFORM
         | ALIGN
         | DEFAULT
+        | CHR
     ) genericTemplate?
     ;
 
@@ -160,6 +161,7 @@ implementationBlockMember
         | constantDefinitionPart
         | resourceDefinitionPart
         | TYPE? typeDefinition
+        | threadvarDeclarationPart
         | variableDeclarationPart
         | procedureOrFunctionDeclaration
         | procedureOrFunctionHeader SEMI FORWARD
@@ -588,6 +590,9 @@ variableDeclarationPart
     : VAR variableDeclaration (SEMI variableDeclaration)*
     ;
 
+threadvarDeclarationPart
+    : THREADVAR variableDeclaration (SEMI variableDeclaration)*
+    ;
 variableDeclaration
     : attributeSection? typedIdentifierList (EQUAL constant)?
     ;
@@ -891,7 +896,7 @@ ifStatement
     ;
 
 caseStatement
-    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? END
+    : CASE expression OF caseListElement (SEMI caseListElement)* (SEMI ELSE statements)? SEMI? END
     ;
 
 caseConstRange
@@ -1643,6 +1648,10 @@ ALIGN
 
 VARARGS
     : 'VARARGS'
+    ;
+
+THREADVAR
+    : 'THREADVAR'
     ;
 
 fragment WHITESPACE

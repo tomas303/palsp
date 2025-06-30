@@ -388,6 +388,10 @@ func (v *BasepascalVisitor) VisitVariableDeclarationPart(ctx *VariableDeclaratio
 	return v.VisitChildren(ctx)
 }
 
+func (v *BasepascalVisitor) VisitThreadvarDeclarationPart(ctx *ThreadvarDeclarationPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BasepascalVisitor) VisitVariableDeclaration(ctx *VariableDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }

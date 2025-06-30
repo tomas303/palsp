@@ -555,7 +555,7 @@ recordVariant
     ;
 
 helperType
-    : CLASS HELPER FOR type_ accessSpecifier? helperDeclarationPart? (SEMI helperDeclarationPart)* (
+    : (CLASS | RECORD) HELPER FOR type_ accessSpecifier? helperDeclarationPart? (SEMI helperDeclarationPart)* (
         accessSpecifier helperDeclarationPart? (SEMI helperDeclarationPart)*
     ) END
     ;
